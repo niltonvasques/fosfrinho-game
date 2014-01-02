@@ -28,7 +28,7 @@ public abstract class Zombie {
 		this.bounds.height = SIZE;
 		this.bounds.width = SIZE;
 		this.velocity.x = SPEED;
-		this.hp = 20;
+		this.hp = 10;
 	}
 	
 	public int getHp() {

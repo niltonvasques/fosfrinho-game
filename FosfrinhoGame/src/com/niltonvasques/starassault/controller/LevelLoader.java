@@ -37,7 +37,7 @@ public class LevelLoader {
         // Loading the png into a Pixmap
         Pixmap pixmap = new Pixmap(Gdx.files.internal(LEVEL_PREFIX + number + ".png"));
         
-        Gdx.app.log(TAG, "loadLevel: "+LEVEL_PREFIX + number + ".png" );
+        if(LOG) Gdx.app.log(TAG, "loadLevel: "+LEVEL_PREFIX + number + ".png" );
 
         // setting the size of the level based on the size of the pixmap
         level.setWidth(pixmap.getWidth());
@@ -69,7 +69,7 @@ public class LevelLoader {
                 		break;
                 		
                 	case ZOMBIE:
-                		Gdx.app.log(TAG, "FIND_ZUMBI");
+                		if(LOG) Gdx.app.log(TAG, "FIND_ZUMBI");
                 		Zombie zombie = new NormalZombie(new Vector2(col, iRow));
                 		zombies.add(zombie);
                 		break;

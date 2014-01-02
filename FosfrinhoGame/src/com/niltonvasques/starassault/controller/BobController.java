@@ -6,6 +6,7 @@ import java.util.Map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -41,6 +42,8 @@ public class BobController {
 	private boolean jumpingPressed = false;
 	private Array<Shoot> bobShoots = new Array<Shoot>();
 	private Array<Shoot> drawableShoots = new Array<Shoot>();
+	private Sound shootSound;
+	private Sound stepSound;
 
 	public Array<Shoot> getBobShoots() {
 		return bobShoots;
@@ -67,10 +70,14 @@ public class BobController {
 	private boolean grounded = true;
 
 	public BobController(World world) {
+		shootSound = Gdx.audio.newSound(Gdx.files.internal("data/shoot.wav"));
+		stepSound = Gdx.audio.newSound(Gdx.files.internal("data/step.mp3"));
+		
 		this.world = world;
 		this.bob = world.getBob();
 		this.multiplexer = new InputMultiplexer();
 		Gdx.input.setInputProcessor(multiplexer);
+		
 	}
 
 	// ** Key presses and touches **************** //
@@ -148,6 +155,14 @@ public class BobController {
             
             for(Zombie zombie: world.getLevel().getZombies()){
             	zombie.updateZombie(delta);
+            }
+            
+            if(bob.getState().equals(State.WALKING)){
+            	stepStateTime += delta;
+            	if(stepStateTime > 1/3f){
+            		stepStateTime = 0;
+            		stepSound.play();
+            	}
             }
             
             // simply updates the state time
@@ -531,6 +546,7 @@ public class BobController {
     	return drawableShoots;    	
     }
 
+    private float stepStateTime = 0f;
     /** Change Bob's state and parameters based on input controls **/
     private boolean processInput() {
             if (keys.get(Keys.JUMP)) {
@@ -572,26 +588,30 @@ public class BobController {
                     }
                     bob.getAcceleration().x = 0;
                     
-            }
+            }           
+            
             checkIfBobFire();
             return false;
     }
 
 	private void checkIfBobFire() {
 		long time = TimeUtils.millis();
-		if(keys.get(Keys.FIRE) && (time - Shoot.lastShoot) >= (1000/Shoot.SHOOTS_PER_SECOND)){
-			Shoot.lastShoot = time;
-			Vector2 sPos = bob.getPosition().cpy();
-			sPos.y += Bob.SIZE/2;
-			Shoot s = new Shoot(sPos);
-			if(bob.isFacingLeft())
-				s.getVelocity().x = -Shoot.SPEED;
-			else{
-				s.getPosition().x += bob.getBounds().width;
-				s.getVelocity().x = Shoot.SPEED;
+		if(keys.get(Keys.FIRE) && (time - Shoot.lastShoot) >= (1000/bob.getGun().getShootsPerSecond())){
+			if(bob.getGun().shoot()){
+				shootSound.play();
+				Shoot.lastShoot = time;
+				Vector2 sPos = bob.getPosition().cpy();
+				sPos.y += Bob.SIZE/2;
+				Shoot s = new Shoot(sPos);
+				if(bob.isFacingLeft())
+					s.getVelocity().x = -Shoot.SPEED;
+				else{
+					s.getPosition().x += bob.getBounds().width;
+					s.getVelocity().x = Shoot.SPEED;
+				}
+				bobShoots.add(s);
+				if(LOG) Gdx.app.log(TAG, "BOB FIRED");
 			}
-			bobShoots.add(s);
-			if(LOG) Gdx.app.log(TAG, "BOB FIRED");
 		}
 	}
 	

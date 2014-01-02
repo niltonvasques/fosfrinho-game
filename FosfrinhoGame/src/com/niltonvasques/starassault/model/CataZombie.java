@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class CataZombie extends Zombie{
 	private static final String TAG = "[CataZombie]";
+	private static boolean LOG = false;
 
 	private static final float SIZE = 1f;
 	
@@ -18,7 +19,7 @@ public class CataZombie extends Zombie{
 	
 	@Override
 	public void updateZombie(float delta) {
-		Gdx.app.log(TAG, "updateZombie");
+		if(LOG) Gdx.app.log(TAG, "updateZombie");
 	}
 
 }

@@ -15,6 +15,8 @@ public class Bob {
 	public final static float IMMUNITY_TIME = 2f;
 	private final static int DEFAULT_START_LIFE = 3;
 
+	private Gun gun;
+	
 	Vector2 position = new Vector2();
 	Vector2 acceleration = new Vector2();
 	Vector2 velocity = new Vector2();
@@ -146,6 +148,14 @@ public class Bob {
 		hp = DEFAULT_START_LIFE;
 		state = State.IDLE;
 		
+	}
+
+	public Gun getGun() {
+		return gun;
+	}
+
+	public void setGun(Gun gun) {
+		this.gun = gun;
 	}
 
 }

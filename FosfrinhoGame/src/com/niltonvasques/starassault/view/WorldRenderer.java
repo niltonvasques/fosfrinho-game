@@ -223,7 +223,9 @@ public class WorldRenderer implements Disposable{
 			restartSprite.addListener(new ClickListener(){
 				@Override
 				public void clicked(InputEvent event, float x, float y) {
-					bobController.restartGame();
+					if(world.isGameOver()){
+						bobController.restartGame();
+					}
 				}
 			});
 		}

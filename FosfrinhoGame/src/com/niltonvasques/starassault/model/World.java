@@ -1,9 +1,7 @@
 
 package com.niltonvasques.starassault.model;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.niltonvasques.starassault.controller.LevelLoader;
 
@@ -38,6 +36,7 @@ public class World {
 	private void createWorld() {
 		level = LevelLoader.loadLevel(3);
         bob = new Bob(level.getSpanPosition());
+        bob.setGun(new Gun38());
 	}
 
 //	private void createDemoWorld() {

@@ -10,7 +10,7 @@ public class Shoot {
 
 	public final static float SPEED = 8f; // unit per second
 	public final static float SIZE = 0.1f; // half a unit
-	public final static float SHOOTS_PER_SECOND = 10; // half a unit
+	public final static float SHOOTS_PER_SECOND = 3; // half a unit
 	
 	public Shoot(Vector2 position) {
 		this.position = position;
