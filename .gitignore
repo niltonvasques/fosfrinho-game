@@ -1,0 +1,8 @@
+# Deploy files #
+bin/
+gen/
+*.class
+
+# Package Files #
+*.war
+*.ear
