@@ -82,4 +82,11 @@ public class World {
 	public Level getLevel(){
 		return level;
 	}
+
+	public void clear() {
+		gameOver = false;
+		level = LevelLoader.loadLevel(3);
+		bob.setPosition(level.getSpanPosition());
+		bob.clear();
+	}
 }

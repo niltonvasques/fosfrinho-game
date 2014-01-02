@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -33,6 +35,8 @@ public class BobController {
 	
 	private World 	world;
 	private Bob 	bob;
+	private InputMultiplexer multiplexer;
+	
 	private long jumpPressedTime = 0;
 	private boolean jumpingPressed = false;
 	private Array<Shoot> bobShoots = new Array<Shoot>();
@@ -65,6 +69,8 @@ public class BobController {
 	public BobController(World world) {
 		this.world = world;
 		this.bob = world.getBob();
+		this.multiplexer = new InputMultiplexer();
+		Gdx.input.setInputProcessor(multiplexer);
 	}
 
 	// ** Key presses and touches **************** //
@@ -196,13 +202,15 @@ public class BobController {
                     }
             }
             
-            // if bob collides, make his horizontal velocity 0
-            for (Zombie zombie : collidableZombies) {
-            	if (bobRect.overlaps(zombie.getBounds())) {
-            		bob.getVelocity().x = 0;
-            		applyBobDamage();
-            		break;
-            	}
+            if(!bob.isDamaged()){
+	            // if bob collides, make his horizontal velocity 0
+	            for (Zombie zombie : collidableZombies) {
+	            	if (bobRect.overlaps(zombie.getBounds())) {
+	            		bob.getVelocity().x = 0;
+	            		applyBobDamage();
+	            		break;
+	            	}
+	            }
             }
 
             // reset the x position of the collision box
@@ -234,13 +242,14 @@ public class BobController {
                             break;
                     }
             }
-            
-            for (Zombie zombie : collidableZombies) {
-                if (bobRect.overlaps(zombie.getBounds())) {
-                	bob.getVelocity().y = 0;
-                	applyBobDamage();
-                    break;
-                }
+            if(!bob.isDamaged()){
+	            for (Zombie zombie : collidableZombies) {
+	                if (bobRect.overlaps(zombie.getBounds())) {
+	                	bob.getVelocity().y = 0;
+	                	applyBobDamage();
+	                    break;
+	                }
+	            }
             }
             // reset the collision box's position on Y
             bobRect.y = bob.getPosition().y;
@@ -256,10 +265,13 @@ public class BobController {
     }
 
 	private void applyBobDamage() {
-		bob.getPosition().x += 0.5f;
+		if(bob.isDamaged()) return;
+//		bob.getPosition().x += 0.2f;
 		bob.decreaseHp();
 		if(bob.getHp()  <= 0){
 			world.setGameOver(true);
+		}else{
+			bob.setDamaged(true);
 		}
 	}
     
@@ -581,5 +593,14 @@ public class BobController {
 			bobShoots.add(s);
 			if(LOG) Gdx.app.log(TAG, "BOB FIRED");
 		}
+	}
+	
+	public void registerInputProcessor(InputProcessor processor){
+		multiplexer.addProcessor(processor);
+	}
+
+	public void restartGame() {
+		bobShoots.clear();
+		world.clear();
 	}
 }

@@ -12,6 +12,8 @@ public class Bob {
 	public final static float SPEED = 4f; // unit per second
 	public final static float JUMP_VELOCITY = 7f;
 	public final static float SIZE = 0.5f; // half a unit
+	public final static float IMMUNITY_TIME = 2f;
+	private final static int DEFAULT_START_LIFE = 3;
 
 	Vector2 position = new Vector2();
 	Vector2 acceleration = new Vector2();
@@ -21,7 +23,9 @@ public class Bob {
 	boolean facingLeft = true;
 	float stateTime = 0;
 	boolean longJump = false;
-	private int hp = 3;
+	private int hp = DEFAULT_START_LIFE;
+	private boolean damaged = false;
+	private float damageStateTime = 0f;
 
 	public int getHp() {
 		return hp;
@@ -118,6 +122,30 @@ public class Bob {
 		// bounds.x = position.x;
 		// bounds.y = position.y;
 		stateTime += delta;
+		if(this.damaged){
+			damageStateTime += delta;
+			if(damageStateTime > IMMUNITY_TIME){
+				damageStateTime = 0f;
+				damaged = false;
+			}
+		}
+	}
+
+	public void setDamaged(boolean damaged) {
+		this.damaged = damaged;
+	}
+
+	public boolean isDamaged() {
+		return damaged;
+	}
+
+	public void clear() {
+		stateTime = 0;
+		damaged = false;
+		damageStateTime = 0f;
+		hp = DEFAULT_START_LIFE;
+		state = State.IDLE;
+		
 	}
 
 }

@@ -48,7 +48,7 @@ public class GameScreen implements Screen, InputProcessor {
 		world = new World();
 		controller = new BobController(world);
 		worldRenderer = new WorldRenderer(controller,world,false);
-		Gdx.input.setInputProcessor(this);
+		controller.registerInputProcessor(this);
 	}
 
 	@Override
