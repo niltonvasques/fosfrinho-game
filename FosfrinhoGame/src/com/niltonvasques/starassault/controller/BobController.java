@@ -14,10 +14,11 @@ import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.niltonvasques.starassault.model.Block;
 import com.niltonvasques.starassault.model.Bob;
-import com.niltonvasques.starassault.model.Zombie;
 import com.niltonvasques.starassault.model.Bob.State;
+import com.niltonvasques.starassault.model.Load;
 import com.niltonvasques.starassault.model.Shoot;
 import com.niltonvasques.starassault.model.World;
+import com.niltonvasques.starassault.model.Zombie;
 
 public class BobController {
 	private static final String TAG = "[BobController]";
@@ -66,6 +67,7 @@ public class BobController {
 	
 	private Array<Block> collidable = new Array<Block>();
 	private Array<Zombie> collidableZombies = new Array<Zombie>();
+	private Array<Load> collidableLoads = new Array<Load>();
 	
 	private boolean grounded = true;
 
@@ -138,7 +140,7 @@ public class BobController {
 
             // checking collisions with the surrounding blocks depending on Bob's velocity
             checkZombiesCollisionWithBlocks(delta);
-            checkBobCollisionWithBlocksAndZombies(delta);
+            checkBobCollisionWithObjects(delta);
             checkShootsCollisionWithBlocks(delta);
             
 
@@ -167,11 +169,20 @@ public class BobController {
             
             // simply updates the state time
             bob.update(delta);
+            
+            for(int i = (int)(bob.getBounds().x - 6f); i <= (int)(bob.getBounds().x + 6f); i++){
+            	for(int j = (int)(bob.getBounds().y - 6f); j <= (int)(bob.getBounds().y + 6f); j++){
+                	Load load = world.getLevel().getLoad(i, j);
+                	if(load != null){
+                		load.update(delta);
+                	}
+                }
+            }
 
     }
 	
     /** Collision checking **/
-    private void checkBobCollisionWithBlocksAndZombies(float delta) {
+    private void checkBobCollisionWithObjects(float delta) {
             // scale velocity to frame units
             bob.getVelocity().scl(delta);
             
@@ -197,6 +208,9 @@ public class BobController {
             
             // get the block(s) bob can collide with
             populateCollidableZombies(startX, startY, endX, endY);
+            
+            //get the loads that bob can collide with
+            populateCollidableLoad(startX, startY, endX, endY);
 
             // simulate bob's movement on the X
             bobRect.x += bob.getVelocity().x;
@@ -204,15 +218,26 @@ public class BobController {
             // clear collision boxes in world
             world.getCollisionRects().clear();
             
-            
-
-            
             // if bob collides, make his horizontal velocity 0
             for (Block block : collidable) {
                     if (block == null) continue;
                     if (bobRect.overlaps(block.getBounds())) {
                             bob.getVelocity().x = 0;
                             world.getCollisionRects().add(block.getBounds());
+                            break;
+                    }
+            }
+            
+            // if bob collides, make his horizontal velocity 0
+            for (Load load : collidableLoads) {
+                    if (load == null) continue;
+                    float portionWidth = load.getBounds().width/3;
+                    if ((load.getBounds().x+portionWidth) < bob.getBounds().x + bob.getBounds().width && 
+                    		(load.getBounds().x + load.getBounds().width-portionWidth) > bob.getBounds().x && 
+                    		load.getBounds().y < bob.getBounds().y + bob.getBounds().height &&
+                    		load.getBounds().y + load.getBounds().height > bob.getBounds().y) {
+                    	bob.getGun().reload(load);
+                    	world.getLevel().getLoads()[(int)load.getBounds().x][(int)load.getBounds().y] = null;
                             break;
                     }
             }
@@ -507,6 +532,18 @@ public class BobController {
                     for (int y = startY; y <= endY; y++) {
                             if (x >= 0 && x < world.getLevel().getWidth() && y >=0 && y < world.getLevel().getHeight()) {
                                     collidable.add(world.getLevel().get(x, y));
+                            }
+                    }
+            }
+    }
+    
+    /** populate the collidable array with the blocks found in the enclosing coordinates **/
+    private void populateCollidableLoad(int startX, int startY, int endX, int endY) {
+    		collidableLoads.clear();
+            for (int x = startX; x <= endX; x++) {
+                    for (int y = startY; y <= endY; y++) {
+                            if (x >= 0 && x < world.getLevel().getWidth() && y >=0 && y < world.getLevel().getHeight()) {
+                                    collidableLoads.add(world.getLevel().getLoad(x, y));
                             }
                     }
             }

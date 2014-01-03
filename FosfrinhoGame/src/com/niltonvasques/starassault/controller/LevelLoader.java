@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Array;
 import com.niltonvasques.starassault.model.Block;
 import com.niltonvasques.starassault.model.CataZombie;
 import com.niltonvasques.starassault.model.Level;
+import com.niltonvasques.starassault.model.Load;
 import com.niltonvasques.starassault.model.NormalZombie;
 import com.niltonvasques.starassault.model.Zombie;
 
@@ -27,6 +28,7 @@ public class LevelLoader {
     private static final int START_POS = 0x0000ff; // blue
     private static final int ZOMBIE = 0x800080; // purple
     private static final int CATAZOMBIE = 0x00ff00; // green
+    private static final int LOAD = 0xffff00; // yellow
 
     public static Level loadLevel(int number) {
     	
@@ -45,9 +47,12 @@ public class LevelLoader {
 
         // creating the backing blocks array
         Block[][] blocks = new Block[level.getWidth()][level.getHeight()];
+        Load[][] loads = new Load[level.getWidth()][level.getHeight()];
+        
         for (int col = 0; col < level.getWidth(); col++) {
             for (int row = 0; row < level.getHeight(); row++) {
                 blocks[col][row] = null;
+                loads[col][row] = null;
             }
         }
         
@@ -79,6 +84,12 @@ public class LevelLoader {
                 		zombies.add(cataZombie);
                 		break;
                 		
+                	case LOAD:
+                		Load load = new Load(30, col, iRow);
+                		load.getBounds().x += load.getBounds().width/2;
+                		loads[col][iRow] = load;
+                		break;
+                		
                 	case EMPTY:
                 		break;
                 		
@@ -93,6 +104,7 @@ public class LevelLoader {
         // setting the blocks
         level.setBlocks(blocks);
         level.setZombies(zombies);
+        level.setLoads(loads);
         return level;
     }
 

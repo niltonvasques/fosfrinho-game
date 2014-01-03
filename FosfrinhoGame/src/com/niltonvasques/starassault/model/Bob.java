@@ -147,7 +147,7 @@ public class Bob {
 		damageStateTime = 0f;
 		hp = DEFAULT_START_LIFE;
 		state = State.IDLE;
-		
+		gun.getLoad().setMunition(30);
 	}
 
 	public Gun getGun() {

@@ -9,15 +9,11 @@ public abstract class Gun {
 	public static final int UNLIMITED_MUNITION = -1;
 	
 	private int shootsPerSecond;
-	private int munition;
-	private int maxMunition;
-	private int loads;
+	private Load load;
 	private int damagePerShoot;
 	
-	public Gun(int shootPerSecond, int munition, int maxMunition, int damagePerShoot) {
+	public Gun(int shootPerSecond, int damagePerShoot) {
 		this.shootsPerSecond = shootPerSecond;
-		this.maxMunition = maxMunition;
-		this.munition = munition;
 		this.damagePerShoot = damagePerShoot;
 	}
 	
@@ -27,28 +23,17 @@ public abstract class Gun {
 	public void setShootsPerSecond(int shootsPerSecond) {
 		this.shootsPerSecond = shootsPerSecond;
 	}
-	public int getMunition() {
-		return munition;
+	
+	public Load getLoad(){
+		return load;
 	}
-	public void setMunition(int munition) {
-		this.munition = munition;
-	}
-	public int getMaxMunition() {
-		return maxMunition;
-	}
-	public void setMaxMunition(int maxMunition) {
-		this.maxMunition = maxMunition;
-	}
-	public int getLoads() {
-		return loads;
-	}
-	public void setLoads(int loads) {
-		this.loads = loads;
+	
+	public void reload(Load load) {
+		this.load = load;
 	}
 	
 	public boolean shoot(){
-		if(munition > 0 || munition == UNLIMITED_MUNITION){
-			munition--;
+		if(load != null && load.takeABullet()){
 			return true;
 		}else{
 			if(LOG) Gdx.app.log(TAG,"Out of ammo! Please reload!");

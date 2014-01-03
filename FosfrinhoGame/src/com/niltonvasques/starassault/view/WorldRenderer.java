@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
@@ -25,6 +25,7 @@ import com.niltonvasques.starassault.model.Block;
 import com.niltonvasques.starassault.model.Bob;
 import com.niltonvasques.starassault.model.Bob.State;
 import com.niltonvasques.starassault.model.CataZombie;
+import com.niltonvasques.starassault.model.Load;
 import com.niltonvasques.starassault.model.Shoot;
 import com.niltonvasques.starassault.model.World;
 import com.niltonvasques.starassault.model.Zombie;
@@ -40,6 +41,7 @@ public class WorldRenderer implements Disposable{
 	//66 ms 180 steps per minute 3 steps per second == 15 frames per second
 	// 1000 ms / 15 frames == 66 ms per frame
 	private static final float RUNNING_FRAME_DURATION = 0.06f;  
+	private static final float LOAD_FRAME_DURATION = 0.2f;
 
 	private World world;
 	private OrthographicCamera cam;
@@ -47,11 +49,13 @@ public class WorldRenderer implements Disposable{
 	private BobController bobController;
 
 	/** for debug rendering **/
-	ShapeRenderer debugRenderer = new ShapeRenderer();
+	private ShapeRenderer debugRenderer = new ShapeRenderer();
 	
+	/** Disposable Resources */
+	private TextureAtlas textureAtlas;
+	private BitmapFont font;
 
 	/** Textures **/
-	private TextureAtlas textureAtlas;
 	private AtlasRegion bobEmptyRegion;
 	private AtlasRegion bobIdleLeftRegion;
 	private AtlasRegion bobIdleRightRegion;
@@ -78,14 +82,15 @@ public class WorldRenderer implements Disposable{
 	private Animation bobJumpingDamagedRightAnimation;
 	private Animation bobFallDamagedLeftAnimation;
 	private Animation bobFallDamagedRightAnimation;
+	private Animation loadAnimation;
 	
 	private Stage gameOverStage;
-	
 	
 	private Texture shootTexture;
 
 	private SpriteBatch spriteBatch;
 	private SpriteBatch uiSpriteBatch;
+	private SpriteBatch fontBatch;
 	
 	
 	private boolean debug = false;
@@ -93,7 +98,9 @@ public class WorldRenderer implements Disposable{
 	private int height;
 	private float ppuX;	// pixels per unit on the X axis
 	private float ppuY;	// pixels per unit on the Y axis
+	
 	public void setSize (int w, int h) {
+		if(LOG) Gdx.app.log(TAG, "setSize");
 		this.width = w;
 		this.height = h;
 		ppuX = (float)width / CAMERA_WIDTH;
@@ -115,6 +122,7 @@ public class WorldRenderer implements Disposable{
 		spriteBatch = new SpriteBatch();
 		uiSpriteBatch = new SpriteBatch();
 		uiSpriteBatch.setProjectionMatrix(uiCamera.combined);
+		fontBatch = new SpriteBatch();
 		
 		Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGB888);
 		pixmap.setColor(Color.WHITE);
@@ -126,6 +134,12 @@ public class WorldRenderer implements Disposable{
 	}
 
 	private void loadTextures() {
+		
+		//Load font
+		font = new BitmapFont();
+		font.setScale(2f);
+		font.setColor(Color.WHITE);
+		
 		String bobPrefix = "bob-gun";
 		textureAtlas = new TextureAtlas("data/textures.pack");
 		bobEmptyRegion = textureAtlas.findRegion("bob-empty");
@@ -202,6 +216,13 @@ public class WorldRenderer implements Disposable{
 		
 		heartRegion = textureAtlas.findRegion("heart");
 		
+		AtlasRegion[] loadFrames = new AtlasRegion[3];
+		for(int i = 0; i < 3; i++){
+			loadFrames[i] = textureAtlas.findRegion("load-0"+(i+1));
+		}
+		
+		loadAnimation = new Animation(LOAD_FRAME_DURATION, loadFrames);
+		
 		{//SET GAME OVER STAGE
 			gameOverRegion = textureAtlas.findRegion("game-over");
 			restartRegion = textureAtlas.findRegion("restart");
@@ -236,9 +257,11 @@ public class WorldRenderer implements Disposable{
 	public void render() {
 		cam.position.set(world.getBob().getPosition().x, world.getBob().getPosition().y, 0);
 		cam.update();
+		
 		spriteBatch.setProjectionMatrix(cam.combined);
 		spriteBatch.begin();
 			drawBlocks();
+			drawLoads();
 			drawZombies();
 			drawBob();
 			drawShoots();
@@ -247,6 +270,10 @@ public class WorldRenderer implements Disposable{
 		uiSpriteBatch.begin();
 			drawHearts();
 		uiSpriteBatch.end();
+		
+		fontBatch.begin();
+			font.draw(fontBatch, "bullets: "+world.getBob().getGun().getLoad().getMunition(), (CAMERA_WIDTH-2)*ppuX, 0.5f*ppuY);
+		fontBatch.end();
 			
 		if(world.isGameOver()){
 			drawGameOver();
@@ -274,6 +301,14 @@ public class WorldRenderer implements Disposable{
 	private void drawBlocks() {
 		for (Block block : world.getDrawableBlocks((int)CAMERA_WIDTH, (int)CAMERA_HEIGHT)) {
 			spriteBatch.draw(blockRegion, block.getPosition().x , block.getPosition().y , Block.SIZE , Block.SIZE );
+		}
+	}
+	
+	private void drawLoads(){
+		for(Load load: world.getDrawableLoads((int)CAMERA_WIDTH, (int)CAMERA_HEIGHT)){
+			TextureRegion frame = loadAnimation.getKeyFrame(load.getStateTime(), true);
+			if(LOG) Gdx.app.log(TAG, "loadFrame"+frame);
+			spriteBatch.draw(frame, load.getBounds().x , load.getBounds().y , load.getBounds().width , load.getBounds().height);
 		}
 	}
 	
@@ -368,7 +403,10 @@ public class WorldRenderer implements Disposable{
 
 	@Override
 	public void dispose() {
+		spriteBatch.dispose();
+		uiSpriteBatch.dispose();
 		textureAtlas.dispose();
 		shootTexture.dispose();
+		font.dispose();
 	}
 }

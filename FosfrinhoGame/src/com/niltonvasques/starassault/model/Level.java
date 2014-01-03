@@ -12,9 +12,18 @@ public class Level {
 	private int width;
 	private int height;
 	private Block[][] blocks;
+	private Load[][] loads;
 	private Vector2 spanPosition;
 	private Array<Zombie> zombies;
 	private Array<Zombie> drawableZombies = new Array<Zombie>();
+
+	public Level() {
+		loadDemoLevel();
+	}
+
+	public Load[][] getLoads() {
+		return loads;
+	}
 
 	public int getWidth() {
 		return width;
@@ -39,9 +48,13 @@ public class Level {
 	public void setBlocks(Block[][] blocks) {
 		this.blocks = blocks;
 	}
-
-	public Level() {
-		loadDemoLevel();
+	
+	public Load getLoad(int x, int y){
+		try{
+			return loads[x][y];
+		}catch (Exception e) {
+			return null;
+		}
 	}
 
 	public Block get(int x, int y) {
@@ -119,6 +132,10 @@ public class Level {
 		blocks[6][3] = new Block(new Vector2(6, 3));
 		blocks[6][4] = new Block(new Vector2(6, 4));
 		blocks[6][5] = new Block(new Vector2(6, 5));
+	}
+
+	public void setLoads(Load[][] loads) {
+		this.loads = loads;		
 	}
 
 }

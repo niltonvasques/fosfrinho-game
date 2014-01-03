@@ -37,6 +37,8 @@ public class World {
 		level = LevelLoader.loadLevel(3);
         bob = new Bob(level.getSpanPosition());
         bob.setGun(new Gun38());
+        bob.getGun().reload(new Load(30, 0, 0));
+        
 	}
 
 //	private void createDemoWorld() {
@@ -87,5 +89,34 @@ public class World {
 		level = LevelLoader.loadLevel(3);
 		bob.setPosition(level.getSpanPosition());
 		bob.clear();
+	}
+
+	public Array<Load> getDrawableLoads(int cameraWidth, int cameraHeight) {
+		int x = (int)bob.getPosition().x - cameraWidth;
+		int y = (int)bob.getPosition().y - cameraHeight;
+		if(x < 0) x = 0;
+		if(y < 0) y = 0;
+		
+		int x2 = x + 2 * cameraWidth;
+		int y2 = y + 2 * cameraHeight;
+		if( x2 > level.getWidth()){
+			x2 = level.getWidth() - 1;
+		}
+		if(y2 > level.getHeight())
+			y2 = level.getHeight() - 1;
+		Array<Load> loads = new Array<Load>();
+		
+		Load load;
+		for(int col = x; col <= x2; col++ ){
+			for(int row = y; row <= y2; row++){
+				load = level.getLoad(col,row);
+				if(load != null){
+					loads.add(load);
+				}
+			}
+				
+		}
+		
+		return loads;
 	}
 }
