@@ -13,6 +13,8 @@ public class Level {
 	private int height;
 	private Block[][] blocks;
 	private Load[][] loads;
+	private Door[][] doors;
+	private Key[][] keys;
 	private Vector2 spanPosition;
 	private Array<Zombie> zombies;
 	private Array<Zombie> drawableZombies = new Array<Zombie>();
@@ -136,6 +138,38 @@ public class Level {
 
 	public void setLoads(Load[][] loads) {
 		this.loads = loads;		
+	}
+
+	public void setKeys(Key[][] keys) {
+		this.keys = keys;
+	}
+
+	public void setDoors(Door[][] doors) {
+		this.doors = doors;
+	}
+
+	public Door[][] getDoors() {
+		return doors;
+	}
+	
+	public Door getDoor(int x, int y) {
+		try{
+			return doors[x][y];
+		}catch (Exception e) {
+			return null;
+		}
+	}
+
+	public Key[][] getKeys() {
+		return keys;
+	}
+
+	public Key getKey(int x, int y) {
+		try{
+			return keys[x][y];
+		}catch (Exception e) {
+			return null;
+		}
 	}
 
 }

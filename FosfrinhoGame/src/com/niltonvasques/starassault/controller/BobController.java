@@ -45,6 +45,7 @@ public class BobController {
 	private Array<Shoot> drawableShoots = new Array<Shoot>();
 	private Sound shootSound;
 	private Sound stepSound;
+	private Sound gunLoadSound;
 
 	public Array<Shoot> getBobShoots() {
 		return bobShoots;
@@ -74,6 +75,7 @@ public class BobController {
 	public BobController(World world) {
 		shootSound = Gdx.audio.newSound(Gdx.files.internal("data/shoot.wav"));
 		stepSound = Gdx.audio.newSound(Gdx.files.internal("data/step.mp3"));
+		gunLoadSound = Gdx.audio.newSound(Gdx.files.internal("data/gun-load.wav"));
 		
 		this.world = world;
 		this.bob = world.getBob();
@@ -236,6 +238,7 @@ public class BobController {
                     		(load.getBounds().x + load.getBounds().width-portionWidth) > bob.getBounds().x && 
                     		load.getBounds().y < bob.getBounds().y + bob.getBounds().height &&
                     		load.getBounds().y + load.getBounds().height > bob.getBounds().y) {
+                    	gunLoadSound.play();
                     	bob.getGun().reload(load);
                     	world.getLevel().getLoads()[(int)load.getBounds().x][(int)load.getBounds().y] = null;
                             break;

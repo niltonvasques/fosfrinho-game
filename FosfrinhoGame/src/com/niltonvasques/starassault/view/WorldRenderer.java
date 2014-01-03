@@ -25,6 +25,8 @@ import com.niltonvasques.starassault.model.Block;
 import com.niltonvasques.starassault.model.Bob;
 import com.niltonvasques.starassault.model.Bob.State;
 import com.niltonvasques.starassault.model.CataZombie;
+import com.niltonvasques.starassault.model.Door;
+import com.niltonvasques.starassault.model.Key;
 import com.niltonvasques.starassault.model.Load;
 import com.niltonvasques.starassault.model.Shoot;
 import com.niltonvasques.starassault.model.World;
@@ -67,6 +69,8 @@ public class WorldRenderer implements Disposable{
 	private AtlasRegion gameOverRegion;
 	private AtlasRegion restartRegion;
 	private AtlasRegion heartRegion;
+	private AtlasRegion keyRegion;
+	private AtlasRegion doorRegion;
 	
 	private AtlasRegion zombieRegion;
 	private AtlasRegion catazombieRegion;
@@ -216,12 +220,17 @@ public class WorldRenderer implements Disposable{
 		
 		heartRegion = textureAtlas.findRegion("heart");
 		
-		AtlasRegion[] loadFrames = new AtlasRegion[3];
-		for(int i = 0; i < 3; i++){
-			loadFrames[i] = textureAtlas.findRegion("load-0"+(i+1));
+		{//Loading items
+			AtlasRegion[] loadFrames = new AtlasRegion[3];
+			for(int i = 0; i < 3; i++){
+				loadFrames[i] = textureAtlas.findRegion("load-0"+(i+1));
+			}
+			loadAnimation = new Animation(LOAD_FRAME_DURATION, loadFrames);
+			
+			keyRegion = textureAtlas.findRegion("key");
+			doorRegion = textureAtlas.findRegion("door");
 		}
 		
-		loadAnimation = new Animation(LOAD_FRAME_DURATION, loadFrames);
 		
 		{//SET GAME OVER STAGE
 			gameOverRegion = textureAtlas.findRegion("game-over");
@@ -261,7 +270,9 @@ public class WorldRenderer implements Disposable{
 		spriteBatch.setProjectionMatrix(cam.combined);
 		spriteBatch.begin();
 			drawBlocks();
+			drawDoor();
 			drawLoads();
+			drawKeys();
 			drawZombies();
 			drawBob();
 			drawShoots();
@@ -309,6 +320,58 @@ public class WorldRenderer implements Disposable{
 			TextureRegion frame = loadAnimation.getKeyFrame(load.getStateTime(), true);
 			if(LOG) Gdx.app.log(TAG, "loadFrame"+frame);
 			spriteBatch.draw(frame, load.getBounds().x , load.getBounds().y , load.getBounds().width , load.getBounds().height);
+		}
+	}
+	
+	private void drawKeys(){
+		int x = (int)world.getBob().getPosition().x -(int) CAMERA_WIDTH;
+		int y = (int)world.getBob().getPosition().y - (int)CAMERA_HEIGHT;
+		if(x < 0) x = 0;
+		if(y < 0) y = 0;
+		
+		int x2 = x + 2 * ((int)CAMERA_WIDTH);
+		int y2 = y + 2 * ((int)CAMERA_HEIGHT);
+		if( x2 > world.getLevel().getWidth()){
+			x2 = world.getLevel().getWidth() - 1;
+		}
+		if(y2 > world.getLevel().getHeight())
+			y2 = world.getLevel().getHeight() - 1;
+		
+		Key load;
+		for(int col = x; col <= x2; col++ ){
+			for(int row = y; row <= y2; row++){
+				load = world.getLevel().getKey(col,row);
+				if(load != null){
+					spriteBatch.draw(keyRegion, load.getBounds().x , load.getBounds().y , load.getBounds().width , load.getBounds().height);
+				}
+			}
+				
+		}
+	}
+	
+	private void drawDoor(){
+		int x = (int)world.getBob().getPosition().x -(int) CAMERA_WIDTH;
+		int y = (int)world.getBob().getPosition().y - (int)CAMERA_HEIGHT;
+		if(x < 0) x = 0;
+		if(y < 0) y = 0;
+		
+		int x2 = x + 2 * ((int)CAMERA_WIDTH);
+		int y2 = y + 2 * ((int)CAMERA_HEIGHT);
+		if( x2 > world.getLevel().getWidth()){
+			x2 = world.getLevel().getWidth() - 1;
+		}
+		if(y2 > world.getLevel().getHeight())
+			y2 = world.getLevel().getHeight() - 1;
+		
+		Door door;
+		for(int col = x; col <= x2; col++ ){
+			for(int row = y; row <= y2; row++){
+				door = world.getLevel().getDoor(col,row);
+				if(door != null){
+					spriteBatch.draw(doorRegion, door.getBounds().x , door.getBounds().y , door.getBounds().width , door.getBounds().height);
+				}
+			}
+				
 		}
 	}
 	
