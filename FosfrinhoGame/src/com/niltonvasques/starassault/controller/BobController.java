@@ -15,6 +15,9 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.niltonvasques.starassault.model.Block;
 import com.niltonvasques.starassault.model.Bob;
 import com.niltonvasques.starassault.model.Bob.State;
+import com.niltonvasques.starassault.model.Door;
+import com.niltonvasques.starassault.model.Item;
+import com.niltonvasques.starassault.model.Key;
 import com.niltonvasques.starassault.model.Load;
 import com.niltonvasques.starassault.model.Shoot;
 import com.niltonvasques.starassault.model.World;
@@ -69,6 +72,8 @@ public class BobController {
 	private Array<Block> collidable = new Array<Block>();
 	private Array<Zombie> collidableZombies = new Array<Zombie>();
 	private Array<Load> collidableLoads = new Array<Load>();
+	private Array<Key> collidableKeys = new Array<Key>();
+	private Array<Door> collidableDoors = new Array<Door>();
 	
 	private boolean grounded = true;
 
@@ -206,13 +211,13 @@ public class BobController {
             }
 
             // get the block(s) bob can collide with
-            populateCollidableBlocks(startX, startY, endX, endY);
+            populateCollidableObjects(startX, startY, endX, endY);
             
             // get the block(s) bob can collide with
             populateCollidableZombies(startX, startY, endX, endY);
             
             //get the loads that bob can collide with
-            populateCollidableLoad(startX, startY, endX, endY);
+            populateColectableItems(startX, startY, endX, endY);
 
             // simulate bob's movement on the X
             bobRect.x += bob.getVelocity().x;
@@ -231,6 +236,22 @@ public class BobController {
             }
             
             // if bob collides, make his horizontal velocity 0
+            for (Door door : collidableDoors) {
+                    if (door == null) continue;
+                    if (bobRect.overlaps(door.getBounds())) {
+                            bob.getVelocity().x = 0;
+                            world.getCollisionRects().add(door.getBounds());
+                            for(Item key : bob.getBag().getItems()){
+                            	if(key instanceof Key && door.open((Key)key) ){
+                            		world.getLevel().getDoors()[(int)door.getBounds().x][(int)door.getBounds().y] = null;
+                            	}
+                            }
+                            if(!door.isOpen()) Gdx.app.log(TAG, "You need of the correct key to open this door!");
+                            break;
+                    }
+            }
+            
+            // if bob collides, make his horizontal velocity 0
             for (Load load : collidableLoads) {
                     if (load == null) continue;
                     float portionWidth = load.getBounds().width/3;
@@ -241,6 +262,20 @@ public class BobController {
                     	gunLoadSound.play();
                     	bob.getGun().reload(load);
                     	world.getLevel().getLoads()[(int)load.getBounds().x][(int)load.getBounds().y] = null;
+                            break;
+                    }
+            }
+            
+         // Check if bob collide with a key
+            for (Key key : collidableKeys) {
+                    if (key == null) continue;
+                    float portionWidth = key.getBounds().width/3;
+                    if ((key.getBounds().x+portionWidth) < bob.getBounds().x + bob.getBounds().width && 
+                    		(key.getBounds().x + key.getBounds().width-portionWidth) > bob.getBounds().x && 
+                    		key.getBounds().y < bob.getBounds().y + bob.getBounds().height &&
+                    		key.getBounds().y + key.getBounds().height > bob.getBounds().y) {
+                    	bob.getBag().addItem(key);
+                    	world.getLevel().getKeys()[(int)key.getBounds().x][(int)key.getBounds().y] = null;
                             break;
                     }
             }
@@ -268,7 +303,7 @@ public class BobController {
                     startY = endY = (int) Math.floor(bob.getBounds().y + bob.getBounds().height + bob.getVelocity().y);
             }
             
-            populateCollidableBlocks(startX, startY, endX, endY);
+            populateCollidableObjects(startX, startY, endX, endY);
             
             populateCollidableZombies(startX, startY, endX, endY);
             
@@ -348,7 +383,7 @@ public class BobController {
 	            }
 	
 	            // get the block(s) shoot can collide with
-	            populateCollidableBlocks(startX, startY, endX, endY);
+	            populateCollidableObjects(startX, startY, endX, endY);
 	            
 	            populateCollidableZombies(startX, startY, endX, endY);
 	
@@ -365,6 +400,17 @@ public class BobController {
 	                    		collide = true;
 	                    		bobShoots.removeValue(shoot, true);
 	                            world.getCollisionRects().add(block.getBounds());
+	                            break;
+	                    }
+	            }
+	            
+	            // if bob collides, make his horizontal velocity 0
+	            for (Door door : collidableDoors) {
+	                    if (door == null) continue;
+	                    if (shootRect.overlaps(door.getBounds())) {
+	                            collide = true;
+	                            bobShoots.removeValue(shoot, true);
+	                            world.getCollisionRects().add(door.getBounds());
 	                            break;
 	                    }
 	            }
@@ -396,7 +442,7 @@ public class BobController {
 	                    startY = endY = (int) Math.floor(shoot.getBounds().y + shoot.getBounds().height + shoot.getVelocity().y);
 	            }
 	            
-	            populateCollidableBlocks(startX, startY, endX, endY);
+	            populateCollidableObjects(startX, startY, endX, endY);
 	            
 	            populateCollidableZombies(startX, startY, endX, endY);
 	            
@@ -409,6 +455,17 @@ public class BobController {
                     		bobShoots.removeValue(shoot, true);
                             world.getCollisionRects().add(block.getBounds());
                             break;
+	                    }
+	            }
+	            
+	         // if bob collides, make his horizontal velocity 0
+	            for (Door door : collidableDoors) {
+	                    if (door == null) continue;
+	                    if (shootRect.overlaps(door.getBounds())) {
+	                            collide = true;
+	                            bobShoots.removeValue(shoot, true);
+	                            world.getCollisionRects().add(door.getBounds());
+	                            break;
 	                    }
 	            }
 	            
@@ -467,7 +524,7 @@ public class BobController {
 	            }
 	
 	            // get the block(s) zombie can collide with
-	            populateCollidableBlocks(startX, startY, endX, endY);
+	            populateCollidableObjects(startX, startY, endX, endY);
 	            
 	            // simulate zombie's movement on the X
 	            zombieRect.x += zombie.getVelocity().x;
@@ -500,7 +557,7 @@ public class BobController {
 	                    startY = endY = (int) Math.floor(zombie.getBounds().y + zombie.getBounds().height + zombie.getVelocity().y);
 	            }
 	            
-	            populateCollidableBlocks(startX, startY, endX, endY);
+	            populateCollidableObjects(startX, startY, endX, endY);
 	            
 	            zombieRect.y += zombie.getVelocity().y;
 	            
@@ -529,30 +586,37 @@ public class BobController {
 	
 
     /** populate the collidable array with the blocks found in the enclosing coordinates **/
-    private void populateCollidableBlocks(int startX, int startY, int endX, int endY) {
+    private void populateCollidableObjects(int startX, int startY, int endX, int endY) {
             collidable.clear();
+            collidableDoors.clear();
             for (int x = startX; x <= endX; x++) {
                     for (int y = startY; y <= endY; y++) {
                             if (x >= 0 && x < world.getLevel().getWidth() && y >=0 && y < world.getLevel().getHeight()) {
-                                    collidable.add(world.getLevel().get(x, y));
+                            		Block block = world.getLevel().get(x, y);
+                                    Door door = world.getLevel().getDoor(x, y);
+                                    if(door != null) collidableDoors.add(door);
+                                    if(block != null) collidable.add(block);
                             }
                     }
             }
     }
     
     /** populate the collidable array with the blocks found in the enclosing coordinates **/
-    private void populateCollidableLoad(int startX, int startY, int endX, int endY) {
+    private void populateColectableItems(int startX, int startY, int endX, int endY) {
     		collidableLoads.clear();
+    		collidableKeys.clear();
             for (int x = startX; x <= endX; x++) {
                     for (int y = startY; y <= endY; y++) {
                             if (x >= 0 && x < world.getLevel().getWidth() && y >=0 && y < world.getLevel().getHeight()) {
-                                    collidableLoads.add(world.getLevel().getLoad(x, y));
+                        		Load load = world.getLevel().getLoad(x, y);
+                                Key key = world.getLevel().getKey(x, y);
+                                if(load != null) collidableLoads.add(load);
+                                if(key != null) collidableKeys.add(key);
                             }
                     }
             }
     }
     
-    /** populate the collidable array with the blocks found in the enclosing coordinates **/
     private void populateCollidableZombies(int startX, int startY, int endX, int endY) {
     	
     	Rectangle screenDrawableArea = new Rectangle(startX, startY, endX, endY);

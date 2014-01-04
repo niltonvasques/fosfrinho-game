@@ -124,6 +124,13 @@ bob-up
   index: -1
 door
   rotate: false
+  xy: 79, 1
+  size: 11, 28
+  orig: 11, 28
+  offset: 0, 0
+  index: -1
+key
+  rotate: false
   xy: 463, 35
   size: 24, 28
   orig: 24, 28
@@ -157,44 +164,37 @@ bob-gun-04
   orig: 24, 26
   offset: 0, 0
   index: -1
-key
+load-01
   rotate: false
   xy: 307, 5
   size: 24, 28
   orig: 24, 28
   offset: 0, 0
   index: -1
-load-01
+load-02
   rotate: false
   xy: 333, 5
   size: 24, 28
   orig: 24, 28
   offset: 0, 0
   index: -1
-load-02
+load-03
   rotate: false
   xy: 359, 5
   size: 24, 28
   orig: 24, 28
   offset: 0, 0
   index: -1
-load-03
+zumbi-01
   rotate: false
   xy: 385, 5
   size: 24, 28
   orig: 24, 28
   offset: 0, 0
   index: -1
-zumbi-01
-  rotate: false
-  xy: 411, 5
-  size: 24, 28
-  orig: 24, 28
-  offset: 0, 0
-  index: -1
 catazumbi-01
   rotate: false
-  xy: 79, 6
+  xy: 489, 40
   size: 16, 23
   orig: 16, 23
   offset: 0, 0

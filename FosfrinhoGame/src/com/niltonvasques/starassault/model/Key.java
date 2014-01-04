@@ -2,13 +2,14 @@ package com.niltonvasques.starassault.model;
 
 import com.badlogic.gdx.math.Rectangle;
 
-public class Key {
+public class Key implements Item{
 
-	private static final float SIZE = 1f;
+	private static final float SIZE = 0.5f;
 	private Rectangle bounds;
 	private String lock;
 	
 	public Key(String lock, float x, float y) {
+		this.lock = lock;
 		this.bounds = new Rectangle(x, y, SIZE, SIZE);
 	}
 	

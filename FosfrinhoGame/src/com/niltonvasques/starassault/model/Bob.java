@@ -14,8 +14,10 @@ public class Bob {
 	public final static float SIZE = 0.5f; // half a unit
 	public final static float IMMUNITY_TIME = 2f;
 	private final static int DEFAULT_START_LIFE = 3;
+	private final static int DEFAULT_BAG_CAPACITY = 1;
 
 	private Gun gun;
+	private Bag bag;
 	
 	Vector2 position = new Vector2();
 	Vector2 acceleration = new Vector2();
@@ -28,22 +30,6 @@ public class Bob {
 	private int hp = DEFAULT_START_LIFE;
 	private boolean damaged = false;
 	private float damageStateTime = 0f;
-
-	public int getHp() {
-		return hp;
-	}
-
-	public void setHp(int hp) {
-		this.hp = hp;
-	}
-	
-	public void decreaseHp(){
-		this.hp--;
-	}
-	
-	public void increaseHp(){
-		this.hp++;
-	}
 
 	public Bob(Vector2 position) {
 		this.position = position;
@@ -119,6 +105,22 @@ public class Bob {
 		this.stateTime = stateTime;
 	}
 
+	public int getHp() {
+		return hp;
+	}
+
+	public void setHp(int hp) {
+		this.hp = hp;
+	}
+
+	public void decreaseHp(){
+		this.hp--;
+	}
+
+	public void increaseHp(){
+		this.hp++;
+	}
+
 	public void update(float delta) {
 		// position.add(velocity.tmp().mul(delta));
 		// bounds.x = position.x;
@@ -148,6 +150,8 @@ public class Bob {
 		hp = DEFAULT_START_LIFE;
 		state = State.IDLE;
 		gun.getLoad().setMunition(30);
+		if(bag == null) bag = new Bag(DEFAULT_BAG_CAPACITY);
+		bag.clear();
 	}
 
 	public Gun getGun() {
@@ -156,6 +160,14 @@ public class Bob {
 
 	public void setGun(Gun gun) {
 		this.gun = gun;
+	}
+
+	public void setBag(Bag bag) {
+		this.bag = bag;
+	}
+
+	public Bag getBag() {
+		return bag;
 	}
 
 }

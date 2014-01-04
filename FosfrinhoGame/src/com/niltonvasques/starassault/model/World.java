@@ -38,7 +38,7 @@ public class World {
         bob = new Bob(level.getSpanPosition());
         bob.setGun(new Gun38());
         bob.getGun().reload(new Load(30, 0, 0));
-        
+        bob.clear();
 	}
 
 //	private void createDemoWorld() {
