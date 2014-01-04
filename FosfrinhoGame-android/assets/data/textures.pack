@@ -199,3 +199,10 @@ catazumbi-01
   orig: 16, 23
   offset: 0, 0
   index: -1
+gate
+  rotate: false
+  xy: 411, 5
+  size: 11, 28
+  orig: 11, 28
+  offset: 0, 0
+  index: -1

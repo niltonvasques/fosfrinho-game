@@ -26,6 +26,7 @@ import com.niltonvasques.starassault.model.Bob;
 import com.niltonvasques.starassault.model.Bob.State;
 import com.niltonvasques.starassault.model.CataZombie;
 import com.niltonvasques.starassault.model.Door;
+import com.niltonvasques.starassault.model.Gate;
 import com.niltonvasques.starassault.model.Key;
 import com.niltonvasques.starassault.model.Load;
 import com.niltonvasques.starassault.model.Shoot;
@@ -71,6 +72,7 @@ public class WorldRenderer implements Disposable{
 	private AtlasRegion heartRegion;
 	private AtlasRegion keyRegion;
 	private AtlasRegion doorRegion;
+	private AtlasRegion gateRegion;
 	
 	private AtlasRegion zombieRegion;
 	private AtlasRegion catazombieRegion;
@@ -229,6 +231,7 @@ public class WorldRenderer implements Disposable{
 			
 			keyRegion = textureAtlas.findRegion("key");
 			doorRegion = textureAtlas.findRegion("door");
+			gateRegion = textureAtlas.findRegion("gate");
 		}
 		
 		
@@ -368,7 +371,11 @@ public class WorldRenderer implements Disposable{
 			for(int row = y; row <= y2; row++){
 				door = world.getLevel().getDoor(col,row);
 				if(door != null){
-					spriteBatch.draw(doorRegion, door.getBounds().x , door.getBounds().y , door.getBounds().width , door.getBounds().height);
+					if(door instanceof Gate){
+						spriteBatch.draw(gateRegion, door.getBounds().x , door.getBounds().y , door.getBounds().width , door.getBounds().height);
+					}else{
+						spriteBatch.draw(doorRegion, door.getBounds().x , door.getBounds().y , door.getBounds().width , door.getBounds().height);
+					}
 				}
 			}
 				

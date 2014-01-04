@@ -16,6 +16,7 @@ import com.niltonvasques.starassault.model.Block;
 import com.niltonvasques.starassault.model.Bob;
 import com.niltonvasques.starassault.model.Bob.State;
 import com.niltonvasques.starassault.model.Door;
+import com.niltonvasques.starassault.model.Gate;
 import com.niltonvasques.starassault.model.Item;
 import com.niltonvasques.starassault.model.Key;
 import com.niltonvasques.starassault.model.Load;
@@ -239,6 +240,9 @@ public class BobController {
             for (Door door : collidableDoors) {
                     if (door == null) continue;
                     if (bobRect.overlaps(door.getBounds())) {
+                    	if(door instanceof Gate){
+                    		Gdx.app.log(TAG, "Level cleared!");
+                    	}else{
                             bob.getVelocity().x = 0;
                             world.getCollisionRects().add(door.getBounds());
                             for(Item key : bob.getBag().getItems()){
@@ -248,6 +252,7 @@ public class BobController {
                             }
                             if(!door.isOpen()) Gdx.app.log(TAG, "You need of the correct key to open this door!");
                             break;
+                    	}
                     }
             }
             

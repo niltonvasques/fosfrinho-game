@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Array;
 import com.niltonvasques.starassault.model.Block;
 import com.niltonvasques.starassault.model.CataZombie;
 import com.niltonvasques.starassault.model.Door;
+import com.niltonvasques.starassault.model.Gate;
 import com.niltonvasques.starassault.model.Key;
 import com.niltonvasques.starassault.model.Level;
 import com.niltonvasques.starassault.model.Load;
@@ -32,7 +33,9 @@ public class LevelLoader {
     private static final int CATAZOMBIE = 0x00ff00; // green
     private static final int LOAD = 0xffff00; 		// yellow
     private static final int DOOR = 0xff0000; 		// red
+    private static final int GATE = 0x00ffff; 		// fuschia
     private static final int KEY = 0xff00ff; 		// pink
+    
 
     public static Level loadLevel(int number) {
     	
@@ -101,6 +104,11 @@ public class LevelLoader {
                 	case DOOR:
                 		Door door = new Door("X",col,iRow);
                 		doors[col][iRow] = door;
+                		break;
+                		
+                	case GATE:
+                		Gate gate = new Gate(col, iRow);
+                		doors[col][iRow] = gate;
                 		break;
                 		
                 	case KEY:
