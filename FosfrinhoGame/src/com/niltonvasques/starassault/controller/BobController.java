@@ -23,6 +23,7 @@ import com.niltonvasques.starassault.model.Load;
 import com.niltonvasques.starassault.model.Shoot;
 import com.niltonvasques.starassault.model.World;
 import com.niltonvasques.starassault.model.Zombie;
+import com.niltonvasques.starassault.service.Assets;
 import com.niltonvasques.starassault.util.CameraHelper;
 
 public class BobController {
@@ -41,7 +42,6 @@ public class BobController {
 	private static final float WIDTH = 10f;
 	
 	private World 	world;
-	private Bob 	bob;
 	private InputMultiplexer multiplexer;
 	
 	private long jumpPressedTime = 0;
@@ -87,7 +87,6 @@ public class BobController {
 		gunLoadSound = Gdx.audio.newSound(Gdx.files.internal("data/gun-load.wav"));
 		
 		this.world = new World();
-		this.bob = world.getBob();
 		this.multiplexer = new InputMultiplexer();
 		Gdx.input.setInputProcessor(multiplexer);
 		this.cameraHelper = new CameraHelper();
@@ -131,46 +130,49 @@ public class BobController {
 	/** The main update method **/
     public void update(float delta) {
     	
-    		if(world.isGameOver()) return;
+    		if(world.isGameOver()){
+    			Gdx.app.log(TAG, "Game Over");
+    			return;
+    		}
             // Processing the input - setting the states of Bob
             processInput();
             
             // If Bob is grounded then reset the state to IDLE
-            if (grounded && bob.getState().equals(State.JUMPING)) {
-                    bob.setState(State.IDLE);
+            if (grounded && world.getBob().getState().equals(State.JUMPING)) {
+                    world.getBob().setState(State.IDLE);
             }
             
             // Setting initial vertical acceleration
-            bob.getAcceleration().y = GRAVITY;
+            world.getBob().getAcceleration().y = GRAVITY;
             
             // Convert acceleration to frame time
-            bob.getAcceleration().scl(delta);
+            world.getBob().getAcceleration().scl(delta);
             
             // apply acceleration to change velocity
-            bob.getVelocity().add(bob.getAcceleration().x, bob.getAcceleration().y);
+            world.getBob().getVelocity().add(world.getBob().getAcceleration().x, world.getBob().getAcceleration().y);
 
-            // checking collisions with the surrounding blocks depending on Bob's velocity
+            // checking collisions with the surrounding blocks depending on world.getBob()'s velocity
             checkZombiesCollisionWithBlocks(delta);
             checkBobCollisionWithObjects(delta);
             checkShootsCollisionWithBlocks(delta);
             
 
             // apply damping to halt Bob nicely
-            bob.getVelocity().x *= DAMP;
+            world.getBob().getVelocity().x *= DAMP;
             
             // ensure terminal velocity is not exceeded
-            if (bob.getVelocity().x > Bob.SPEED) {
-                    bob.getVelocity().x = Bob.SPEED;
+            if (world.getBob().getVelocity().x > Bob.SPEED) {
+                    world.getBob().getVelocity().x = Bob.SPEED;
             }
-            if (bob.getVelocity().x < -Bob.SPEED) {
-                    bob.getVelocity().x = -Bob.SPEED;
+            if (world.getBob().getVelocity().x < -Bob.SPEED) {
+                    world.getBob().getVelocity().x = -Bob.SPEED;
             }
             
             for(Zombie zombie: world.getLevel().getZombies()){
             	zombie.updateZombie(delta);
             }
             
-            if(bob.getState().equals(State.WALKING)){
+            if(world.getBob().getState().equals(State.WALKING)){
             	stepStateTime += delta;
             	if(stepStateTime > 1/3f){
             		stepStateTime = 0;
@@ -179,10 +181,10 @@ public class BobController {
             }
             
             // simply updates the state time
-            bob.update(delta);
+            world.getBob().update(delta);
             
-            for(int i = (int)(bob.getBounds().x - 6f); i <= (int)(bob.getBounds().x + 6f); i++){
-            	for(int j = (int)(bob.getBounds().y - 6f); j <= (int)(bob.getBounds().y + 6f); j++){
+            for(int i = (int)(world.getBob().getBounds().x - 6f); i <= (int)(world.getBob().getBounds().x + 6f); i++){
+            	for(int j = (int)(world.getBob().getBounds().y - 6f); j <= (int)(world.getBob().getBounds().y + 6f); j++){
                 	Load load = world.getLevel().getLoad(i, j);
                 	if(load != null){
                 		load.update(delta);
@@ -207,23 +209,23 @@ public class BobController {
 	/** Collision checking **/
     private void checkBobCollisionWithObjects(float delta) {
             // scale velocity to frame units
-            bob.getVelocity().scl(delta);
+            world.getBob().getVelocity().scl(delta);
             
             // Obtain the rectangle from the pool instead of instantiating it
             Rectangle bobRect = rectPool.obtain();
             // set the rectangle to bob's bounding box
-            bobRect.set(bob.getBounds().x, bob.getBounds().y, bob.getBounds().width, bob.getBounds().height);
+            bobRect.set(world.getBob().getBounds().x, world.getBob().getBounds().y, world.getBob().getBounds().width, world.getBob().getBounds().height);
             
             // we first check the movement on the horizontal X axis
             int startX, endX;
-            int startY = (int) bob.getBounds().y;
-            int endY = (int) (bob.getBounds().y + bob.getBounds().height);
+            int startY = (int) world.getBob().getBounds().y;
+            int endY = (int) (world.getBob().getBounds().y + world.getBob().getBounds().height);
             // if Bob is heading left then we check if he collides with the block on his left
             // we check the block on his right otherwise
-            if (bob.getVelocity().x < 0) {
-                    startX = endX = (int) Math.floor(bob.getBounds().x + bob.getVelocity().x);
+            if (world.getBob().getVelocity().x < 0) {
+                    startX = endX = (int) Math.floor(world.getBob().getBounds().x + world.getBob().getVelocity().x);
             } else {
-                    startX = endX = (int) Math.floor(bob.getBounds().x + bob.getBounds().width + bob.getVelocity().x);
+                    startX = endX = (int) Math.floor(world.getBob().getBounds().x + world.getBob().getBounds().width + world.getBob().getVelocity().x);
             }
 
             // get the block(s) bob can collide with
@@ -236,7 +238,7 @@ public class BobController {
             populateColectableItems(startX, startY, endX, endY);
 
             // simulate bob's movement on the X
-            bobRect.x += bob.getVelocity().x;
+            bobRect.x += world.getBob().getVelocity().x;
             
             // clear collision boxes in world
             world.getCollisionRects().clear();
@@ -245,7 +247,7 @@ public class BobController {
             for (Block block : collidable) {
                     if (block == null) continue;
                     if (bobRect.overlaps(block.getBounds())) {
-                            bob.getVelocity().x = 0;
+                            world.getBob().getVelocity().x = 0;
                             world.getCollisionRects().add(block.getBounds());
                             break;
                     }
@@ -258,9 +260,9 @@ public class BobController {
                     	if(door instanceof Gate){
                     		Gdx.app.log(TAG, "Level cleared!");
                     	}else{
-                            bob.getVelocity().x = 0;
+                            world.getBob().getVelocity().x = 0;
                             world.getCollisionRects().add(door.getBounds());
-                            for(Item key : bob.getBag().getItems()){
+                            for(Item key : world.getBob().getBag().getItems()){
                             	if(key instanceof Key && door.open((Key)key) ){
                             		world.getLevel().getDoors()[(int)door.getBounds().x][(int)door.getBounds().y] = null;
                             	}
@@ -275,12 +277,12 @@ public class BobController {
             for (Load load : collidableLoads) {
                     if (load == null) continue;
                     float portionWidth = load.getBounds().width/3;
-                    if ((load.getBounds().x+portionWidth) < bob.getBounds().x + bob.getBounds().width && 
-                    		(load.getBounds().x + load.getBounds().width-portionWidth) > bob.getBounds().x && 
-                    		load.getBounds().y < bob.getBounds().y + bob.getBounds().height &&
-                    		load.getBounds().y + load.getBounds().height > bob.getBounds().y) {
+                    if ((load.getBounds().x+portionWidth) < world.getBob().getBounds().x + world.getBob().getBounds().width && 
+                    		(load.getBounds().x + load.getBounds().width-portionWidth) > world.getBob().getBounds().x && 
+                    		load.getBounds().y < world.getBob().getBounds().y + world.getBob().getBounds().height &&
+                    		load.getBounds().y + load.getBounds().height > world.getBob().getBounds().y) {
                     	gunLoadSound.play();
-                    	bob.getGun().reload(load);
+                    	world.getBob().getGun().reload(load);
                     	world.getLevel().getLoads()[(int)load.getBounds().x][(int)load.getBounds().y] = null;
                             break;
                     }
@@ -290,21 +292,21 @@ public class BobController {
             for (Key key : collidableKeys) {
                     if (key == null) continue;
                     float portionWidth = key.getBounds().width/3;
-                    if ((key.getBounds().x+portionWidth) < bob.getBounds().x + bob.getBounds().width && 
-                    		(key.getBounds().x + key.getBounds().width-portionWidth) > bob.getBounds().x && 
-                    		key.getBounds().y < bob.getBounds().y + bob.getBounds().height &&
-                    		key.getBounds().y + key.getBounds().height > bob.getBounds().y) {
-                    	bob.getBag().addItem(key);
+                    if ((key.getBounds().x+portionWidth) < world.getBob().getBounds().x + world.getBob().getBounds().width && 
+                    		(key.getBounds().x + key.getBounds().width-portionWidth) > world.getBob().getBounds().x && 
+                    		key.getBounds().y < world.getBob().getBounds().y + world.getBob().getBounds().height &&
+                    		key.getBounds().y + key.getBounds().height > world.getBob().getBounds().y) {
+                    	world.getBob().getBag().addItem(key);
                     	world.getLevel().getKeys()[(int)key.getBounds().x][(int)key.getBounds().y] = null;
                             break;
                     }
             }
             
-            if(!bob.isDamaged()){
+            if(!world.getBob().isDamaged()){
 	            // if bob collides, make his horizontal velocity 0
 	            for (Zombie zombie : collidableZombies) {
 	            	if (bobRect.overlaps(zombie.getBounds())) {
-	            		bob.getVelocity().x = 0;
+	            		world.getBob().getVelocity().x = 0;
 	            		applyBobDamage();
 	            		break;
 	            	}
@@ -312,64 +314,65 @@ public class BobController {
             }
 
             // reset the x position of the collision box
-            bobRect.x = bob.getPosition().x;
+            bobRect.x = world.getBob().getPosition().x;
             
             // the same thing but on the vertical Y axis
-            startX = (int) bob.getBounds().x;
-            endX = (int) (bob.getBounds().x + bob.getBounds().width);
-            if (bob.getVelocity().y < 0) {
-                    startY = endY = (int) Math.floor(bob.getBounds().y + bob.getVelocity().y);
+            startX = (int) world.getBob().getBounds().x;
+            endX = (int) (world.getBob().getBounds().x + world.getBob().getBounds().width);
+            if (world.getBob().getVelocity().y < 0) {
+                    startY = endY = (int) Math.floor(world.getBob().getBounds().y + world.getBob().getVelocity().y);
             } else {
-                    startY = endY = (int) Math.floor(bob.getBounds().y + bob.getBounds().height + bob.getVelocity().y);
+                    startY = endY = (int) Math.floor(world.getBob().getBounds().y + world.getBob().getBounds().height + world.getBob().getVelocity().y);
             }
             
             populateCollidableObjects(startX, startY, endX, endY);
             
             populateCollidableZombies(startX, startY, endX, endY);
             
-            bobRect.y += bob.getVelocity().y;
+            bobRect.y += world.getBob().getVelocity().y;
             
             for (Block block : collidable) {
                     if (block == null) continue;
                     if (bobRect.overlaps(block.getBounds())) {
-                            if (bob.getVelocity().y < 0) {
+                            if (world.getBob().getVelocity().y < 0) {
                                     grounded = true;
                             }
-                            bob.getVelocity().y = 0;
+                            world.getBob().getVelocity().y = 0;
                             world.getCollisionRects().add(block.getBounds());
                             break;
                     }
             }
-            if(!bob.isDamaged()){
+            if(!world.getBob().isDamaged()){
 	            for (Zombie zombie : collidableZombies) {
 	                if (bobRect.overlaps(zombie.getBounds())) {
-	                	bob.getVelocity().y = 0;
+	                	world.getBob().getVelocity().y = 0;
 	                	applyBobDamage();
 	                    break;
 	                }
 	            }
             }
             // reset the collision box's position on Y
-            bobRect.y = bob.getPosition().y;
+            bobRect.y = world.getBob().getPosition().y;
             
             // update Bob's position
-            bob.getPosition().add(bob.getVelocity());
-            bob.getBounds().x = bob.getPosition().x;
-            bob.getBounds().y = bob.getPosition().y;
+            world.getBob().getPosition().add(world.getBob().getVelocity());
+            world.getBob().getBounds().x = world.getBob().getPosition().x;
+            world.getBob().getBounds().y = world.getBob().getPosition().y;
             
             // un-scale velocity (not in frame time)
-            bob.getVelocity().scl(1 / delta);
+            world.getBob().getVelocity().scl(1 / delta);
             
     }
 
 	private void applyBobDamage() {
-		if(bob.isDamaged()) return;
+		if(world.getBob().isDamaged()) return;
 //		bob.getPosition().x += 0.2f;
-		bob.decreaseHp();
-		if(bob.getHp()  <= 0){
+		world.getBob().decreaseHp();
+		if(world.getBob().getHp()  <= 0){
 			world.setGameOver(true);
+			Assets.instance.music.levelMusic.stop();
 		}else{
-			bob.setDamaged(true);
+			world.getBob().setDamaged(true);
 		}
 	}
     
@@ -653,11 +656,11 @@ public class BobController {
     	drawableShoots.clear();
     	float x1,x2,y1,y2;
     	
-    	x1 = bob.getBounds().x - width;
-    	x2 = bob.getBounds().x + width;
+    	x1 = world.getBob().getBounds().x - width;
+    	x2 = world.getBob().getBounds().x + width;
     	
-    	y1 = bob.getBounds().y - height;
-    	y2 = bob.getBounds().y + height;
+    	y1 = world.getBob().getBounds().y - height;
+    	y2 = world.getBob().getBounds().y + height;
     	
     	Rectangle screenDrawableArea = new Rectangle(x1, y1, x2, y2);
     	
@@ -674,43 +677,43 @@ public class BobController {
     /** Change Bob's state and parameters based on input controls **/
     private boolean processInput() {
             if (keys.get(Keys.JUMP)) {
-                    if (!bob.getState().equals(State.JUMPING)) {
+                    if (!world.getBob().getState().equals(State.JUMPING)) {
                             jumpingPressed = true;
                             jumpPressedTime = System.currentTimeMillis();
-                            bob.setState(State.JUMPING);
-                            bob.getVelocity().y = Bob.JUMP_VELOCITY;
+                            world.getBob().setState(State.JUMPING);
+                            world.getBob().getVelocity().y = Bob.JUMP_VELOCITY;
                             grounded = false;
                     } else {
                             if (jumpingPressed && ((System.currentTimeMillis() - jumpPressedTime) >= MAX_TIME_PRESS_JUMP)) {
                                     jumpingPressed = false;
                             } else {
                                     if (jumpingPressed) {
-                                            bob.getVelocity().y = Bob.JUMP_VELOCITY;
+                                            world.getBob().getVelocity().y = Bob.JUMP_VELOCITY;
                                     }
                             }
                     }
             }
             if (keys.get(Keys.LEFT)) {
                     // left is pressed
-                    bob.setFacingLeft(true);
-                    if (!bob.getState().equals(State.JUMPING)) {
-                            bob.setState(State.WALKING);
+                    world.getBob().setFacingLeft(true);
+                    if (!world.getBob().getState().equals(State.JUMPING)) {
+                            world.getBob().setState(State.WALKING);
                     }
-                    bob.getAcceleration().x = -ACCELERATION;
+                    world.getBob().getAcceleration().x = -ACCELERATION;
                     
             } else if (keys.get(Keys.RIGHT)) {
                     // left is pressed
-                    bob.setFacingLeft(false);
-                    if (!bob.getState().equals(State.JUMPING)) {
-                            bob.setState(State.WALKING);
+                    world.getBob().setFacingLeft(false);
+                    if (!world.getBob().getState().equals(State.JUMPING)) {
+                            world.getBob().setState(State.WALKING);
                     }
-                    bob.getAcceleration().x = ACCELERATION;
+                    world.getBob().getAcceleration().x = ACCELERATION;
                     
             } else {
-                    if (!bob.getState().equals(State.JUMPING)) {
-                            bob.setState(State.IDLE);
+                    if (!world.getBob().getState().equals(State.JUMPING)) {
+                            world.getBob().setState(State.IDLE);
                     }
-                    bob.getAcceleration().x = 0;
+                    world.getBob().getAcceleration().x = 0;
                     
             }           
             
@@ -720,17 +723,17 @@ public class BobController {
 
 	private void checkIfBobFire() {
 		long time = TimeUtils.millis();
-		if(keys.get(Keys.FIRE) && (time - Shoot.lastShoot) >= (1000/bob.getGun().getShootsPerSecond())){
-			if(bob.getGun().shoot()){
+		if(keys.get(Keys.FIRE) && (time - Shoot.lastShoot) >= (1000/world.getBob().getGun().getShootsPerSecond())){
+			if(world.getBob().getGun().shoot()){
 				shootSound.play();
 				Shoot.lastShoot = time;
-				Vector2 sPos = bob.getPosition().cpy();
+				Vector2 sPos = world.getBob().getPosition().cpy();
 				sPos.y += Bob.SIZE/2;
 				Shoot s = new Shoot(sPos);
-				if(bob.isFacingLeft())
+				if(world.getBob().isFacingLeft())
 					s.getVelocity().x = -Shoot.SPEED;
 				else{
-					s.getPosition().x += bob.getBounds().width;
+					s.getPosition().x += world.getBob().getBounds().width;
 					s.getVelocity().x = Shoot.SPEED;
 				}
 				bobShoots.add(s);
@@ -746,6 +749,7 @@ public class BobController {
 	public void restartGame() {
 		bobShoots.clear();
 		world.clear();
+		Assets.instance.music.levelMusic.play();
 	}
 
 	public World getWorld() {

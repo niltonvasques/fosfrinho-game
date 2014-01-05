@@ -3,13 +3,7 @@ package com.niltonvasques.starassault.view;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -32,6 +26,7 @@ import com.niltonvasques.starassault.model.Load;
 import com.niltonvasques.starassault.model.Shoot;
 import com.niltonvasques.starassault.model.World;
 import com.niltonvasques.starassault.model.Zombie;
+import com.niltonvasques.starassault.service.Assets;
 
 public class WorldRenderer implements Disposable{
 	
@@ -40,8 +35,6 @@ public class WorldRenderer implements Disposable{
 
 	//66 ms 180 steps per minute 3 steps per second == 15 frames per second
 	// 1000 ms / 15 frames == 66 ms per frame
-	private static final float RUNNING_FRAME_DURATION = 0.06f;  
-	private static final float LOAD_FRAME_DURATION = 0.2f;
 
 	private World world;
 	private OrthographicCamera cam;
@@ -51,49 +44,13 @@ public class WorldRenderer implements Disposable{
 	/** for debug rendering **/
 	private ShapeRenderer debugRenderer = new ShapeRenderer();
 	
-	/** Disposable Resources */
-	private TextureAtlas textureAtlas;
-	private BitmapFont font;
-
-	/** Textures **/
-	private AtlasRegion bobEmptyRegion;
-	private AtlasRegion bobIdleLeftRegion;
-	private AtlasRegion bobIdleRightRegion;
-	private AtlasRegion bobJumpLeftRegion;
-	private AtlasRegion bobJumpRightRegion;
-	private AtlasRegion bobFallLeftRegion;
-	private AtlasRegion bobFallRightRegion;
-	private AtlasRegion blockRegion;
-	private AtlasRegion gameOverRegion;
-	private AtlasRegion restartRegion;
-	private AtlasRegion heartRegion;
-	private AtlasRegion keyRegion;
-	private AtlasRegion doorRegion;
-	private AtlasRegion gateRegion;
-	
-	private AtlasRegion zombieRegion;
-	private AtlasRegion catazombieRegion;
-	private TextureRegion bobFrameRegion;
-	
-	private Animation walkingLeftAnimation;
-	private Animation walkingRightAnimation;
-	private Animation bobIdleDamagedLeftAnimation;
-	private Animation bobIdleDamagedRightAnimation;
-	private Animation bobWalkingDamagedLeftAnimation;
-	private Animation bobWalkingDamagedRightAnimation;
-	private Animation bobJumpingDamagedLeftAnimation;
-	private Animation bobJumpingDamagedRightAnimation;
-	private Animation bobFallDamagedLeftAnimation;
-	private Animation bobFallDamagedRightAnimation;
-	private Animation loadAnimation;
-	
 	private Stage gameOverStage;
 	
-	private Texture shootTexture;
-
 	private SpriteBatch spriteBatch;
 	private SpriteBatch uiSpriteBatch;
 	private SpriteBatch fontBatch;
+	
+	private Assets assets;
 	
 	
 	private boolean debug = false;
@@ -111,6 +68,7 @@ public class WorldRenderer implements Disposable{
 	}
 
 	public WorldRenderer(BobController controller, boolean debug) {
+		this.assets = Assets.instance;
 		this.bobController = controller;
 		this.world = bobController.getWorld();
 		this.cam = new OrthographicCamera(bobController.getCameraHelper().getViewportWidth(), bobController.getCameraHelper().getViewportHeight());
@@ -127,140 +85,32 @@ public class WorldRenderer implements Disposable{
 		uiSpriteBatch.setProjectionMatrix(uiCamera.combined);
 		fontBatch = new SpriteBatch();
 		
-		Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGB888);
-		pixmap.setColor(Color.WHITE);
-		pixmap.drawPixel(0, 0);
-		
-		shootTexture = new Texture(pixmap);
-		
-		loadTextures();
+		configureGameOverMenu();
 	}
 
-	private void loadTextures() {
+	private void configureGameOverMenu() {
+		Image gameOverImage = new Image(assets.gameOverMenu.gameOverRegion);
+		gameOverImage.setSize(bobController.getCameraHelper().getViewportWidth(), 2f);
+		gameOverImage.setPosition(0, bobController.getCameraHelper().getViewportHeight()-gameOverImage.getHeight());
 		
-		//Load font
-		font = new BitmapFont();
-		font.setScale(2f);
-		font.setColor(Color.WHITE);
+		Image restartSprite = new Image(assets.gameOverMenu.restartRegion);
+		restartSprite.setSize(bobController.getCameraHelper().getViewportWidth(), 2f);
+		restartSprite.setPosition(0, bobController.getCameraHelper().getViewportHeight()/2-2.5f);
 		
-		String bobPrefix = "bob-gun";
-		textureAtlas = new TextureAtlas("data/textures.pack");
-		bobEmptyRegion = textureAtlas.findRegion("bob-empty");
-		bobIdleLeftRegion = textureAtlas.findRegion(bobPrefix+"-01");
-		bobIdleRightRegion = new AtlasRegion(bobIdleLeftRegion);
-		bobIdleRightRegion.flip(true, false);
+		gameOverStage = new Stage(bobController.getCameraHelper().getViewportWidth(), bobController.getCameraHelper().getViewportHeight());
+		gameOverStage.addActor(restartSprite);
+		gameOverStage.addActor(gameOverImage);
 		
-		bobJumpLeftRegion = textureAtlas.findRegion(bobPrefix+"-up");
-		bobJumpRightRegion = new AtlasRegion(bobJumpLeftRegion);
-		bobJumpRightRegion.flip(true, false);
+		bobController.registerInputProcessor(gameOverStage);
 		
-		bobFallLeftRegion = textureAtlas.findRegion(bobPrefix+"-down");
-		bobFallRightRegion = new AtlasRegion(bobFallLeftRegion);
-		bobFallRightRegion.flip(true, false);
-		
-		zombieRegion = textureAtlas.findRegion("zumbi-01");
-		catazombieRegion = textureAtlas.findRegion("catazumbi-01");
-		
-		blockRegion = textureAtlas.findRegion("block");
-		AtlasRegion[] walkingLeftFrames = new AtlasRegion[5];
-		AtlasRegion[] walkingRightFrames = new AtlasRegion[5];
-		for(int i = 0; i < 5; i++){
-			walkingLeftFrames[i] = textureAtlas.findRegion(bobPrefix+"-0" + (i+2));
-			walkingRightFrames[i] = new AtlasRegion(walkingLeftFrames[i]);
-			walkingRightFrames[i].flip(true, false);
-		}
-		
-		walkingLeftAnimation = new Animation(RUNNING_FRAME_DURATION, walkingLeftFrames);
-		walkingRightAnimation = new Animation(RUNNING_FRAME_DURATION, walkingRightFrames);
-		
-		AtlasRegion[] walkingDamagedLeftFrames = new AtlasRegion[10];
-		AtlasRegion[] walkingDamagedRightFrames = new AtlasRegion[10];
-		for(int i = 0; i < 5; i++){
-			walkingDamagedLeftFrames[(i*2)] = textureAtlas.findRegion(bobPrefix+"-0" + (i+2));
-			walkingDamagedLeftFrames[(i*2)+1] = bobEmptyRegion;
-			
-			walkingDamagedRightFrames[(i*2)] = new AtlasRegion(walkingDamagedLeftFrames[(i*2)]);
-			walkingDamagedRightFrames[(i*2)].flip(true, false);
-			walkingDamagedRightFrames[(i*2)+1] = bobEmptyRegion;
-		}
-		
-		bobWalkingDamagedLeftAnimation = new Animation(RUNNING_FRAME_DURATION/2, walkingDamagedLeftFrames);
-		bobWalkingDamagedRightAnimation = new Animation(RUNNING_FRAME_DURATION/2, walkingDamagedRightFrames);
-		
-		AtlasRegion[] bobIdleDamagedLeftFrames = new AtlasRegion[2];
-		bobIdleDamagedLeftFrames[0] = bobIdleLeftRegion;
-		bobIdleDamagedLeftFrames[1] = bobEmptyRegion;
-		bobIdleDamagedLeftAnimation = new Animation(RUNNING_FRAME_DURATION, bobIdleDamagedLeftFrames);
-		
-		AtlasRegion[] bobIdleDamagedRightFrames = new AtlasRegion[2];
-		bobIdleDamagedRightFrames[0] = bobIdleRightRegion;
-		bobIdleDamagedRightFrames[1] = bobEmptyRegion;
-		bobIdleDamagedRightAnimation = new Animation(RUNNING_FRAME_DURATION, bobIdleDamagedRightFrames);
-		
-		AtlasRegion[] bobJumpingDamageLeftFrames = new AtlasRegion[2];
-		bobJumpingDamageLeftFrames[0] = bobJumpLeftRegion;
-		bobJumpingDamageLeftFrames[1] = bobEmptyRegion;
-		bobJumpingDamagedLeftAnimation = new Animation(RUNNING_FRAME_DURATION, bobJumpingDamageLeftFrames);
-		
-		AtlasRegion[] bobJumpingDamagedRightFrames = new AtlasRegion[2];
-		bobJumpingDamagedRightFrames[0] = bobJumpRightRegion;
-		bobJumpingDamagedRightFrames[1] = bobEmptyRegion;
-		bobJumpingDamagedRightAnimation = new Animation(RUNNING_FRAME_DURATION, bobJumpingDamagedRightFrames);
-		
-		AtlasRegion[] bobFallDamageLeftFrames = new AtlasRegion[2];
-		bobFallDamageLeftFrames[0] = bobFallLeftRegion;
-		bobFallDamageLeftFrames[1] = bobEmptyRegion;
-		bobFallDamagedLeftAnimation = new Animation(RUNNING_FRAME_DURATION, bobFallDamageLeftFrames);
-		
-		AtlasRegion[] bobFallDamagedRightFrames = new AtlasRegion[2];
-		bobFallDamagedRightFrames[0] = bobFallRightRegion;
-		bobFallDamagedRightFrames[1] = bobEmptyRegion;
-		bobFallDamagedRightAnimation = new Animation(RUNNING_FRAME_DURATION, bobFallDamagedRightFrames);
-		
-		heartRegion = textureAtlas.findRegion("heart");
-		
-		{//Loading items
-			AtlasRegion[] loadFrames = new AtlasRegion[3];
-			for(int i = 0; i < 3; i++){
-				loadFrames[i] = textureAtlas.findRegion("load-0"+(i+1));
-			}
-			loadAnimation = new Animation(LOAD_FRAME_DURATION, loadFrames);
-			
-			keyRegion = textureAtlas.findRegion("key");
-			doorRegion = textureAtlas.findRegion("door");
-			gateRegion = textureAtlas.findRegion("gate");
-		}
-		
-		
-		{//SET GAME OVER STAGE
-			gameOverRegion = textureAtlas.findRegion("game-over");
-			restartRegion = textureAtlas.findRegion("restart");
-			
-			Image gameOverImage = new Image(gameOverRegion);
-			gameOverImage.setSize(bobController.getCameraHelper().getViewportWidth(), 2f);
-			gameOverImage.setPosition(0, bobController.getCameraHelper().getViewportHeight()-gameOverImage.getHeight());
-			
-			Image restartSprite = new Image(restartRegion);
-			restartSprite.setSize(bobController.getCameraHelper().getViewportWidth(), 2f);
-			restartSprite.setPosition(0, bobController.getCameraHelper().getViewportHeight()/2-2.5f);
-			
-			gameOverStage = new Stage(bobController.getCameraHelper().getViewportWidth(), bobController.getCameraHelper().getViewportHeight());
-			gameOverStage.addActor(restartSprite);
-			gameOverStage.addActor(gameOverImage);
-			
-			bobController.registerInputProcessor(gameOverStage);
-			
-			restartSprite.addListener(new ClickListener(){
-				@Override
-				public void clicked(InputEvent event, float x, float y) {
-					if(world.isGameOver()){
-						bobController.restartGame();
-					}
+		restartSprite.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				if(world.isGameOver()){
+					bobController.restartGame();
 				}
-			});
-		}
-		
-		 
+			}
+		});
 	}
 
 	public void render() {
@@ -283,7 +133,7 @@ public class WorldRenderer implements Disposable{
 		uiSpriteBatch.end();
 		
 		fontBatch.begin();
-			font.draw(fontBatch, "bullets: "+world.getBob().getGun().getLoad().getMunition(), (bobController.getCameraHelper().getViewportWidth()-2)*ppuX, 0.5f*ppuY);
+			assets.fonts.fontNormal.draw(fontBatch, "bullets: "+world.getBob().getGun().getLoad().getMunition(), (bobController.getCameraHelper().getViewportWidth()-2)*ppuX, 0.5f*ppuY);
 		fontBatch.end();
 			
 		if(world.isGameOver()){
@@ -311,13 +161,13 @@ public class WorldRenderer implements Disposable{
 
 	private void drawBlocks() {
 		for (Block block : world.getDrawableBlocks((int)bobController.getCameraHelper().getViewportWidth(), (int)bobController.getCameraHelper().getViewportHeight())) {
-			spriteBatch.draw(blockRegion, block.getPosition().x , block.getPosition().y , Block.SIZE , Block.SIZE );
+			spriteBatch.draw(assets.level.blockRegion, block.getPosition().x , block.getPosition().y , Block.SIZE , Block.SIZE );
 		}
 	}
 	
 	private void drawLoads(){
 		for(Load load: world.getDrawableLoads((int)bobController.getCameraHelper().getViewportWidth(), (int)bobController.getCameraHelper().getViewportHeight())){
-			TextureRegion frame = loadAnimation.getKeyFrame(load.getStateTime(), true);
+			TextureRegion frame = assets.items.loadAnimation.getKeyFrame(load.getStateTime(), true);
 			if(LOG) Gdx.app.log(TAG, "loadFrame"+frame);
 			spriteBatch.draw(frame, load.getBounds().x , load.getBounds().y , load.getBounds().width , load.getBounds().height);
 		}
@@ -337,12 +187,12 @@ public class WorldRenderer implements Disposable{
 		if(y2 > world.getLevel().getHeight())
 			y2 = world.getLevel().getHeight() - 1;
 		
-		Key load;
+		Key key;
 		for(int col = x; col <= x2; col++ ){
 			for(int row = y; row <= y2; row++){
-				load = world.getLevel().getKey(col,row);
-				if(load != null){
-					spriteBatch.draw(keyRegion, load.getBounds().x , load.getBounds().y , load.getBounds().width , load.getBounds().height);
+				key = world.getLevel().getKey(col,row);
+				if(key != null){
+					spriteBatch.draw(assets.items.keyRegion, key.getBounds().x , key.getBounds().y , key.getBounds().width , key.getBounds().height);
 				}
 			}
 				
@@ -369,9 +219,9 @@ public class WorldRenderer implements Disposable{
 				door = world.getLevel().getDoor(col,row);
 				if(door != null){
 					if(door instanceof Gate){
-						spriteBatch.draw(gateRegion, door.getBounds().x , door.getBounds().y , door.getBounds().width , door.getBounds().height);
+						spriteBatch.draw(assets.level.gateRegion, door.getBounds().x , door.getBounds().y , door.getBounds().width , door.getBounds().height);
 					}else{
-						spriteBatch.draw(doorRegion, door.getBounds().x , door.getBounds().y , door.getBounds().width , door.getBounds().height);
+						spriteBatch.draw(assets.level.doorRegion, door.getBounds().x , door.getBounds().y , door.getBounds().width , door.getBounds().height);
 					}
 				}
 			}
@@ -385,50 +235,51 @@ public class WorldRenderer implements Disposable{
 		
 		for (Zombie zombie : drawableZombies) {
 			if(zombie instanceof CataZombie)
-				spriteBatch.draw(catazombieRegion, zombie.getPosition().x , zombie.getPosition().y , zombie.getBounds().width , zombie.getBounds().height );
+				spriteBatch.draw(assets.enemys.catazombieRegion, zombie.getPosition().x , zombie.getPosition().y , zombie.getBounds().width , zombie.getBounds().height );
 			else			
-				spriteBatch.draw(zombieRegion, zombie.getPosition().x , zombie.getPosition().y , zombie.getBounds().width , zombie.getBounds().height );
+				spriteBatch.draw(assets.enemys.zombieRegion, zombie.getPosition().x , zombie.getPosition().y , zombie.getBounds().width , zombie.getBounds().height );
 		}
 	}
 	
 	private void drawShoots(){
 		for(Shoot shoot : bobController.getDrawableShoots(bobController.getCameraHelper().getViewportWidth(), bobController.getCameraHelper().getViewportHeight())){
-			spriteBatch.draw(shootTexture, shoot.getPosition().x, shoot.getPosition().y, Shoot.SIZE, Shoot.SIZE);
+			spriteBatch.draw(assets.shoots.shootTexture, shoot.getPosition().x, shoot.getPosition().y, Shoot.SIZE, Shoot.SIZE);
 		}
 	}
 
 	private void drawBob() {
+		TextureRegion bobFrameRegion;
 		Bob bob = world.getBob();
 		if(bob.getState() == State.WALKING){
 			if(bob.isDamaged()){
-				bobFrameRegion = (bob.isFacingLeft() ? bobWalkingDamagedLeftAnimation.getKeyFrame(bob.getStateTime(), true) 
-						: bobWalkingDamagedRightAnimation.getKeyFrame(bob.getStateTime(), true) );
+				bobFrameRegion = (bob.isFacingLeft() ? assets.bob.bobWalkingDamagedLeftAnimation.getKeyFrame(bob.getStateTime(), true) 
+						: assets.bob.bobWalkingDamagedRightAnimation.getKeyFrame(bob.getStateTime(), true) );
 			}else{
-				bobFrameRegion = (bob.isFacingLeft() ? walkingLeftAnimation.getKeyFrame(bob.getStateTime(), true) 
-						: walkingRightAnimation.getKeyFrame(bob.getStateTime(), true) );
+				bobFrameRegion = (bob.isFacingLeft() ? assets.bob.walkingLeftAnimation.getKeyFrame(bob.getStateTime(), true) 
+						: assets.bob.walkingRightAnimation.getKeyFrame(bob.getStateTime(), true) );
 			}
 		}else if(bob.getState() == State.JUMPING){
 			if(bob.getVelocity().y > 0){
 				if(bob.isDamaged()){
-					bobFrameRegion = (bob.isFacingLeft() ? bobJumpingDamagedLeftAnimation.getKeyFrame(bob.getStateTime(),true) 
-							: bobJumpingDamagedRightAnimation.getKeyFrame(bob.getStateTime(),true));
+					bobFrameRegion = (bob.isFacingLeft() ? assets.bob.bobJumpingDamagedLeftAnimation.getKeyFrame(bob.getStateTime(),true) 
+							: assets.bob.bobJumpingDamagedRightAnimation.getKeyFrame(bob.getStateTime(),true));
 				}else{
-					bobFrameRegion = (bob.isFacingLeft() ? bobJumpLeftRegion : bobJumpRightRegion);
+					bobFrameRegion = (bob.isFacingLeft() ? assets.bob.bobJumpLeftRegion : assets.bob.bobJumpRightRegion);
 				}
 			}else{
 				if(bob.isDamaged()){
-					bobFrameRegion = (bob.isFacingLeft() ? bobFallDamagedLeftAnimation.getKeyFrame(bob.getStateTime(),true) 
-							: bobFallDamagedRightAnimation.getKeyFrame(bob.getStateTime(),true));
+					bobFrameRegion = (bob.isFacingLeft() ? assets.bob.bobFallDamagedLeftAnimation.getKeyFrame(bob.getStateTime(),true) 
+							: assets.bob.bobFallDamagedRightAnimation.getKeyFrame(bob.getStateTime(),true));
 				}else{
-					bobFrameRegion = (bob.isFacingLeft() ? bobFallLeftRegion : bobFallRightRegion);			
+					bobFrameRegion = (bob.isFacingLeft() ? assets.bob.bobFallLeftRegion : assets.bob.bobFallRightRegion);			
 				}
 			}
 		}else{
 			if(bob.isDamaged()){
-				bobFrameRegion = (bob.isFacingLeft() ? bobIdleDamagedLeftAnimation.getKeyFrame(bob.getStateTime(),true) 
-						: bobIdleDamagedRightAnimation.getKeyFrame(bob.getStateTime(),true));
+				bobFrameRegion = (bob.isFacingLeft() ? assets.bob.bobIdleDamagedLeftAnimation.getKeyFrame(bob.getStateTime(),true) 
+						: assets.bob.bobIdleDamagedRightAnimation.getKeyFrame(bob.getStateTime(),true));
 			}else{
-				bobFrameRegion = (bob.isFacingLeft() ? bobIdleLeftRegion : bobIdleRightRegion);
+				bobFrameRegion = (bob.isFacingLeft() ? assets.bob.bobIdleLeftRegion : assets.bob.bobIdleRightRegion);
 			}
 		}
 		spriteBatch.draw(bobFrameRegion, bob.getPosition().x, bob.getPosition().y, Bob.SIZE , Bob.SIZE);
@@ -446,7 +297,7 @@ public class WorldRenderer implements Disposable{
 	
 	private void drawHearts(){
 		for(int i = 0; i < world.getBob().getHp(); i++){
-			uiSpriteBatch.draw(heartRegion, i, bobController.getCameraHelper().getViewportHeight()-0.5f,0.5f, 0.5f);
+			uiSpriteBatch.draw(assets.gameInfo.heart, i, bobController.getCameraHelper().getViewportHeight()-0.5f,0.5f, 0.5f);
 		}
 	}
 
@@ -472,8 +323,5 @@ public class WorldRenderer implements Disposable{
 	public void dispose() {
 		spriteBatch.dispose();
 		uiSpriteBatch.dispose();
-		textureAtlas.dispose();
-		shootTexture.dispose();
-		font.dispose();
 	}
 }
