@@ -38,9 +38,6 @@ public class WorldRenderer implements Disposable{
 	private static final String TAG = "[WorldRenderer]";
 	private static final boolean LOG = false;
 
-	private static final float CAMERA_WIDTH = 10f;
-	private static final float CAMERA_HEIGHT = 7f;
-	
 	//66 ms 180 steps per minute 3 steps per second == 15 frames per second
 	// 1000 ms / 15 frames == 66 ms per frame
 	private static final float RUNNING_FRAME_DURATION = 0.06f;  
@@ -109,20 +106,20 @@ public class WorldRenderer implements Disposable{
 		if(LOG) Gdx.app.log(TAG, "setSize");
 		this.width = w;
 		this.height = h;
-		ppuX = (float)width / CAMERA_WIDTH;
-		ppuY = (float)height / CAMERA_HEIGHT;
+		ppuX = (float)width / bobController.getCameraHelper().getViewportWidth();
+		ppuY = (float)height / bobController.getCameraHelper().getViewportHeight();
 	}
 
-	public WorldRenderer(BobController controller, World world, boolean debug) {
+	public WorldRenderer(BobController controller, boolean debug) {
 		this.bobController = controller;
-		this.world = world;
-		this.cam = new OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT);
+		this.world = bobController.getWorld();
+		this.cam = new OrthographicCamera(bobController.getCameraHelper().getViewportWidth(), bobController.getCameraHelper().getViewportHeight());
 		this.cam.position.set(world.getBob().getPosition().x, world.getBob().getPosition().y, 0);
 		this.cam.update();
 		this.debug = debug;
 		
-		OrthographicCamera uiCamera = new OrthographicCamera(CAMERA_WIDTH,CAMERA_HEIGHT);
-		uiCamera.position.set(CAMERA_WIDTH/2, CAMERA_HEIGHT/2, 0);
+		OrthographicCamera uiCamera = new OrthographicCamera(bobController.getCameraHelper().getViewportWidth(),bobController.getCameraHelper().getViewportHeight());
+		uiCamera.position.set(bobController.getCameraHelper().getViewportWidth()/2, bobController.getCameraHelper().getViewportHeight()/2, 0);
 		uiCamera.update();
 		
 		spriteBatch = new SpriteBatch();
@@ -240,14 +237,14 @@ public class WorldRenderer implements Disposable{
 			restartRegion = textureAtlas.findRegion("restart");
 			
 			Image gameOverImage = new Image(gameOverRegion);
-			gameOverImage.setSize(CAMERA_WIDTH, 2f);
-			gameOverImage.setPosition(0, CAMERA_HEIGHT-gameOverImage.getHeight());
+			gameOverImage.setSize(bobController.getCameraHelper().getViewportWidth(), 2f);
+			gameOverImage.setPosition(0, bobController.getCameraHelper().getViewportHeight()-gameOverImage.getHeight());
 			
 			Image restartSprite = new Image(restartRegion);
-			restartSprite.setSize(CAMERA_WIDTH, 2f);
-			restartSprite.setPosition(0, CAMERA_HEIGHT/2-2.5f);
+			restartSprite.setSize(bobController.getCameraHelper().getViewportWidth(), 2f);
+			restartSprite.setPosition(0, bobController.getCameraHelper().getViewportHeight()/2-2.5f);
 			
-			gameOverStage = new Stage(CAMERA_WIDTH, CAMERA_HEIGHT);
+			gameOverStage = new Stage(bobController.getCameraHelper().getViewportWidth(), bobController.getCameraHelper().getViewportHeight());
 			gameOverStage.addActor(restartSprite);
 			gameOverStage.addActor(gameOverImage);
 			
@@ -286,7 +283,7 @@ public class WorldRenderer implements Disposable{
 		uiSpriteBatch.end();
 		
 		fontBatch.begin();
-			font.draw(fontBatch, "bullets: "+world.getBob().getGun().getLoad().getMunition(), (CAMERA_WIDTH-2)*ppuX, 0.5f*ppuY);
+			font.draw(fontBatch, "bullets: "+world.getBob().getGun().getLoad().getMunition(), (bobController.getCameraHelper().getViewportWidth()-2)*ppuX, 0.5f*ppuY);
 		fontBatch.end();
 			
 		if(world.isGameOver()){
@@ -313,13 +310,13 @@ public class WorldRenderer implements Disposable{
 	
 
 	private void drawBlocks() {
-		for (Block block : world.getDrawableBlocks((int)CAMERA_WIDTH, (int)CAMERA_HEIGHT)) {
+		for (Block block : world.getDrawableBlocks((int)bobController.getCameraHelper().getViewportWidth(), (int)bobController.getCameraHelper().getViewportHeight())) {
 			spriteBatch.draw(blockRegion, block.getPosition().x , block.getPosition().y , Block.SIZE , Block.SIZE );
 		}
 	}
 	
 	private void drawLoads(){
-		for(Load load: world.getDrawableLoads((int)CAMERA_WIDTH, (int)CAMERA_HEIGHT)){
+		for(Load load: world.getDrawableLoads((int)bobController.getCameraHelper().getViewportWidth(), (int)bobController.getCameraHelper().getViewportHeight())){
 			TextureRegion frame = loadAnimation.getKeyFrame(load.getStateTime(), true);
 			if(LOG) Gdx.app.log(TAG, "loadFrame"+frame);
 			spriteBatch.draw(frame, load.getBounds().x , load.getBounds().y , load.getBounds().width , load.getBounds().height);
@@ -327,13 +324,13 @@ public class WorldRenderer implements Disposable{
 	}
 	
 	private void drawKeys(){
-		int x = (int)world.getBob().getPosition().x -(int) CAMERA_WIDTH;
-		int y = (int)world.getBob().getPosition().y - (int)CAMERA_HEIGHT;
+		int x = (int)world.getBob().getPosition().x -(int) bobController.getCameraHelper().getViewportWidth();
+		int y = (int)world.getBob().getPosition().y - (int)bobController.getCameraHelper().getViewportHeight();
 		if(x < 0) x = 0;
 		if(y < 0) y = 0;
 		
-		int x2 = x + 2 * ((int)CAMERA_WIDTH);
-		int y2 = y + 2 * ((int)CAMERA_HEIGHT);
+		int x2 = x + 2 * ((int)bobController.getCameraHelper().getViewportWidth());
+		int y2 = y + 2 * ((int)bobController.getCameraHelper().getViewportHeight());
 		if( x2 > world.getLevel().getWidth()){
 			x2 = world.getLevel().getWidth() - 1;
 		}
@@ -353,13 +350,13 @@ public class WorldRenderer implements Disposable{
 	}
 	
 	private void drawDoor(){
-		int x = (int)world.getBob().getPosition().x -(int) CAMERA_WIDTH;
-		int y = (int)world.getBob().getPosition().y - (int)CAMERA_HEIGHT;
+		int x = (int)world.getBob().getPosition().x -(int) bobController.getCameraHelper().getViewportWidth();
+		int y = (int)world.getBob().getPosition().y - (int)bobController.getCameraHelper().getViewportHeight();
 		if(x < 0) x = 0;
 		if(y < 0) y = 0;
 		
-		int x2 = x + 2 * ((int)CAMERA_WIDTH);
-		int y2 = y + 2 * ((int)CAMERA_HEIGHT);
+		int x2 = x + 2 * ((int)bobController.getCameraHelper().getViewportWidth());
+		int y2 = y + 2 * ((int)bobController.getCameraHelper().getViewportHeight());
 		if( x2 > world.getLevel().getWidth()){
 			x2 = world.getLevel().getWidth() - 1;
 		}
@@ -383,7 +380,7 @@ public class WorldRenderer implements Disposable{
 	}
 	
 	private void drawZombies(){
-		Array<Zombie> drawableZombies = world.getLevel().getDrawableZombies((int)world.getBob().getPosition().x, (int)world.getBob().getPosition().y,(int)CAMERA_WIDTH, (int)CAMERA_HEIGHT);
+		Array<Zombie> drawableZombies = world.getLevel().getDrawableZombies((int)world.getBob().getPosition().x, (int)world.getBob().getPosition().y,(int)bobController.getCameraHelper().getViewportWidth(), (int)bobController.getCameraHelper().getViewportHeight());
 		if(LOG) Gdx.app.log(TAG, "DrawableZombies"+drawableZombies.size);
 		
 		for (Zombie zombie : drawableZombies) {
@@ -395,7 +392,7 @@ public class WorldRenderer implements Disposable{
 	}
 	
 	private void drawShoots(){
-		for(Shoot shoot : bobController.getDrawableShoots(CAMERA_WIDTH, CAMERA_HEIGHT)){
+		for(Shoot shoot : bobController.getDrawableShoots(bobController.getCameraHelper().getViewportWidth(), bobController.getCameraHelper().getViewportHeight())){
 			spriteBatch.draw(shootTexture, shoot.getPosition().x, shoot.getPosition().y, Shoot.SIZE, Shoot.SIZE);
 		}
 	}
@@ -449,7 +446,7 @@ public class WorldRenderer implements Disposable{
 	
 	private void drawHearts(){
 		for(int i = 0; i < world.getBob().getHp(); i++){
-			uiSpriteBatch.draw(heartRegion, i, CAMERA_HEIGHT-0.5f,0.5f, 0.5f);
+			uiSpriteBatch.draw(heartRegion, i, bobController.getCameraHelper().getViewportHeight()-0.5f,0.5f, 0.5f);
 		}
 	}
 
@@ -458,7 +455,7 @@ public class WorldRenderer implements Disposable{
 		// render blocks
         debugRenderer.setProjectionMatrix(cam.combined);
         debugRenderer.begin(ShapeType.Line);
-        for (Block block : world.getDrawableBlocks((int)CAMERA_WIDTH, (int)CAMERA_HEIGHT)) {
+        for (Block block : world.getDrawableBlocks((int)bobController.getCameraHelper().getViewportWidth(), (int)bobController.getCameraHelper().getViewportHeight())) {
                 Rectangle rect = block.getBounds();
                 debugRenderer.setColor(new Color(1, 0, 0, 1));
                 debugRenderer.rect(rect.x, rect.y, rect.width, rect.height);

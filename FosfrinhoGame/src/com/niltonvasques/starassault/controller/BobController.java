@@ -23,6 +23,7 @@ import com.niltonvasques.starassault.model.Load;
 import com.niltonvasques.starassault.model.Shoot;
 import com.niltonvasques.starassault.model.World;
 import com.niltonvasques.starassault.model.Zombie;
+import com.niltonvasques.starassault.util.CameraHelper;
 
 public class BobController {
 	private static final String TAG = "[BobController]";
@@ -50,11 +51,9 @@ public class BobController {
 	private Sound shootSound;
 	private Sound stepSound;
 	private Sound gunLoadSound;
-
-	public Array<Shoot> getBobShoots() {
-		return bobShoots;
-	}
-
+	
+	private CameraHelper cameraHelper; 
+	
 	static Map<Keys, Boolean> keys = new HashMap<BobController.Keys, Boolean>();
 	static {
 		keys.put(Keys.LEFT, false);
@@ -78,16 +77,20 @@ public class BobController {
 	
 	private boolean grounded = true;
 
-	public BobController(World world) {
+	public BobController() {
+		init();
+	}
+	
+	public void init(){
 		shootSound = Gdx.audio.newSound(Gdx.files.internal("data/shoot.wav"));
 		stepSound = Gdx.audio.newSound(Gdx.files.internal("data/step.mp3"));
 		gunLoadSound = Gdx.audio.newSound(Gdx.files.internal("data/gun-load.wav"));
 		
-		this.world = world;
+		this.world = new World();
 		this.bob = world.getBob();
 		this.multiplexer = new InputMultiplexer();
 		Gdx.input.setInputProcessor(multiplexer);
-		
+		this.cameraHelper = new CameraHelper();
 	}
 
 	// ** Key presses and touches **************** //
@@ -189,7 +192,19 @@ public class BobController {
 
     }
 	
-    /** Collision checking **/
+    public CameraHelper getCameraHelper() {
+		return cameraHelper;
+	}
+
+	public void setCameraHelper(CameraHelper cameraHelper) {
+		this.cameraHelper = cameraHelper;
+	}
+
+	public Array<Shoot> getBobShoots() {
+		return bobShoots;
+	}
+
+	/** Collision checking **/
     private void checkBobCollisionWithObjects(float delta) {
             // scale velocity to frame units
             bob.getVelocity().scl(delta);
@@ -731,5 +746,13 @@ public class BobController {
 	public void restartGame() {
 		bobShoots.clear();
 		world.clear();
+	}
+
+	public World getWorld() {
+		return world;
+	}
+
+	public void setWorld(World world) {
+		this.world = world;
 	}
 }
