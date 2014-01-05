@@ -34,7 +34,7 @@ public class World {
 	}
 	
 	private void createWorld() {
-		level = LevelLoader.loadLevel(3);
+		level = LevelLoader.loadLevel(4);
         bob = new Bob(level.getSpanPosition());
         bob.setGun(new Gun38());
         bob.getGun().reload(new Load(30, 0, 0));

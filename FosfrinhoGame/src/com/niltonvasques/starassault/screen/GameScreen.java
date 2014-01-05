@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL10;
 import com.niltonvasques.starassault.controller.BobController;
 import com.niltonvasques.starassault.model.World;
@@ -21,6 +23,8 @@ public class GameScreen implements Screen, InputProcessor {
 	private World world;
 	private WorldRenderer worldRenderer;
 	private BobController controller;
+	
+	private Music levelMusic;
 
 	
 	public GameScreen() {
@@ -49,6 +53,9 @@ public class GameScreen implements Screen, InputProcessor {
 		controller = new BobController(world);
 		worldRenderer = new WorldRenderer(controller,world,false);
 		controller.registerInputProcessor(this);
+		levelMusic = Gdx.audio.newMusic(Gdx.files.internal("data/disire.mp3"));
+		levelMusic.setLooping(true);
+		levelMusic.play();
 	}
 
 	@Override
@@ -69,6 +76,8 @@ public class GameScreen implements Screen, InputProcessor {
 	@Override
 	public void dispose() {
 		Gdx.input.setInputProcessor(null);
+		worldRenderer.dispose();
+		levelMusic.dispose();
 	}
 
 	@Override
