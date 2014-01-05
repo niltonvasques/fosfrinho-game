@@ -49,9 +49,8 @@ public class GameScreen implements Screen, InputProcessor {
 
 	@Override
 	public void show() {
-		world = new World();
-		controller = new BobController(world);
-		worldRenderer = new WorldRenderer(controller,world,false);
+		controller = new BobController();
+		worldRenderer = new WorldRenderer(controller,false);
 		controller.registerInputProcessor(this);
 		levelMusic = Gdx.audio.newMusic(Gdx.files.internal("data/disire.mp3"));
 		levelMusic.setLooping(true);

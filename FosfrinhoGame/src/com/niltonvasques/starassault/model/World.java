@@ -34,7 +34,8 @@ public class World {
 	}
 	
 	private void createWorld() {
-		level = LevelLoader.loadLevel(4);
+		gameOver = false;
+		level = LevelLoader.loadLevel(3);
         bob = new Bob(level.getSpanPosition());
         bob.setGun(new Gun38());
         bob.getGun().reload(new Load(30, 0, 0));
@@ -85,10 +86,7 @@ public class World {
 	}
 
 	public void clear() {
-		gameOver = false;
-		level = LevelLoader.loadLevel(3);
-		bob.setPosition(level.getSpanPosition());
-		bob.clear();
+		createWorld();
 	}
 
 	public Array<Load> getDrawableLoads(int cameraWidth, int cameraHeight) {
