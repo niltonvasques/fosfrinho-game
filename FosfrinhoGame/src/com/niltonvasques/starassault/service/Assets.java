@@ -4,7 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetErrorListener;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -21,135 +23,28 @@ import com.niltonvasques.starassault.util.Constants;
 
 public class Assets implements Disposable, AssetErrorListener{
 	
-//	private void loadTextures() {
-//		
-//		//Load font
-//		font = new BitmapFont();
-//		font.setScale(2f);
-//		font.setColor(Color.WHITE);
-//		
-//		AtlasRegion[] walkingLeftFrames = new AtlasRegion[5];
-//		AtlasRegion[] walkingRightFrames = new AtlasRegion[5];
-//		for(int i = 0; i < 5; i++){
-//			walkingLeftFrames[i] = textureAtlas.findRegion(bobPrefix+"-0" + (i+2));
-//			walkingRightFrames[i] = new AtlasRegion(walkingLeftFrames[i]);
-//			walkingRightFrames[i].flip(true, false);
-//		}
-//		
-//		walkingLeftAnimation = new Animation(RUNNING_FRAME_DURATION, walkingLeftFrames);
-//		walkingRightAnimation = new Animation(RUNNING_FRAME_DURATION, walkingRightFrames);
-//		
-//		AtlasRegion[] walkingDamagedLeftFrames = new AtlasRegion[10];
-//		AtlasRegion[] walkingDamagedRightFrames = new AtlasRegion[10];
-//		for(int i = 0; i < 5; i++){
-//			walkingDamagedLeftFrames[(i*2)] = textureAtlas.findRegion(bobPrefix+"-0" + (i+2));
-//			walkingDamagedLeftFrames[(i*2)+1] = bobEmptyRegion;
-//			
-//			walkingDamagedRightFrames[(i*2)] = new AtlasRegion(walkingDamagedLeftFrames[(i*2)]);
-//			walkingDamagedRightFrames[(i*2)].flip(true, false);
-//			walkingDamagedRightFrames[(i*2)+1] = bobEmptyRegion;
-//		}
-//		
-//		bobWalkingDamagedLeftAnimation = new Animation(RUNNING_FRAME_DURATION/2, walkingDamagedLeftFrames);
-//		bobWalkingDamagedRightAnimation = new Animation(RUNNING_FRAME_DURATION/2, walkingDamagedRightFrames);
-//		
-//		AtlasRegion[] bobIdleDamagedLeftFrames = new AtlasRegion[2];
-//		bobIdleDamagedLeftFrames[0] = bobIdleLeftRegion;
-//		bobIdleDamagedLeftFrames[1] = bobEmptyRegion;
-//		bobIdleDamagedLeftAnimation = new Animation(RUNNING_FRAME_DURATION, bobIdleDamagedLeftFrames);
-//		
-//		AtlasRegion[] bobIdleDamagedRightFrames = new AtlasRegion[2];
-//		bobIdleDamagedRightFrames[0] = bobIdleRightRegion;
-//		bobIdleDamagedRightFrames[1] = bobEmptyRegion;
-//		bobIdleDamagedRightAnimation = new Animation(RUNNING_FRAME_DURATION, bobIdleDamagedRightFrames);
-//		
-//		AtlasRegion[] bobJumpingDamageLeftFrames = new AtlasRegion[2];
-//		bobJumpingDamageLeftFrames[0] = bobJumpLeftRegion;
-//		bobJumpingDamageLeftFrames[1] = bobEmptyRegion;
-//		bobJumpingDamagedLeftAnimation = new Animation(RUNNING_FRAME_DURATION, bobJumpingDamageLeftFrames);
-//		
-//		AtlasRegion[] bobJumpingDamagedRightFrames = new AtlasRegion[2];
-//		bobJumpingDamagedRightFrames[0] = bobJumpRightRegion;
-//		bobJumpingDamagedRightFrames[1] = bobEmptyRegion;
-//		bobJumpingDamagedRightAnimation = new Animation(RUNNING_FRAME_DURATION, bobJumpingDamagedRightFrames);
-//		
-//		AtlasRegion[] bobFallDamageLeftFrames = new AtlasRegion[2];
-//		bobFallDamageLeftFrames[0] = bobFallLeftRegion;
-//		bobFallDamageLeftFrames[1] = bobEmptyRegion;
-//		bobFallDamagedLeftAnimation = new Animation(RUNNING_FRAME_DURATION, bobFallDamageLeftFrames);
-//		
-//		AtlasRegion[] bobFallDamagedRightFrames = new AtlasRegion[2];
-//		bobFallDamagedRightFrames[0] = bobFallRightRegion;
-//		bobFallDamagedRightFrames[1] = bobEmptyRegion;
-//		bobFallDamagedRightAnimation = new Animation(RUNNING_FRAME_DURATION, bobFallDamagedRightFrames);
-//		
-//		heartRegion = textureAtlas.findRegion("heart");
-//		
-//		{//Loading items
-//			AtlasRegion[] loadFrames = new AtlasRegion[3];
-//			for(int i = 0; i < 3; i++){
-//				loadFrames[i] = textureAtlas.findRegion("load-0"+(i+1));
-//			}
-//			loadAnimation = new Animation(LOAD_FRAME_DURATION, loadFrames);
-//			
-//			keyRegion = textureAtlas.findRegion("key");
-//			doorRegion = textureAtlas.findRegion("door");
-//			gateRegion = textureAtlas.findRegion("gate");
-//		}
-//		
-//		
-//		{//SET GAME OVER STAGE
-//			gameOverRegion = textureAtlas.findRegion("game-over");
-//			restartRegion = textureAtlas.findRegion("restart");
-//			
-//			Image gameOverImage = new Image(gameOverRegion);
-//			gameOverImage.setSize(bobController.getCameraHelper().getViewportWidth(), 2f);
-//			gameOverImage.setPosition(0, bobController.getCameraHelper().getViewportHeight()-gameOverImage.getHeight());
-//			
-//			Image restartSprite = new Image(restartRegion);
-//			restartSprite.setSize(bobController.getCameraHelper().getViewportWidth(), 2f);
-//			restartSprite.setPosition(0, bobController.getCameraHelper().getViewportHeight()/2-2.5f);
-//			
-//			gameOverStage = new Stage(bobController.getCameraHelper().getViewportWidth(), bobController.getCameraHelper().getViewportHeight());
-//			gameOverStage.addActor(restartSprite);
-//			gameOverStage.addActor(gameOverImage);
-//			
-//			bobController.registerInputProcessor(gameOverStage);
-//			
-//			restartSprite.addListener(new ClickListener(){
-//				@Override
-//				public void clicked(InputEvent event, float x, float y) {
-//					if(world.isGameOver()){
-//						bobController.restartGame();
-//					}
-//				}
-//			});
-//		}
-//		
-//		 
-//	}
 	
 	public class AssetBob{
 		private static final float RUNNING_FRAME_DURATION = 0.06f;  
 		
-		public AtlasRegion bobEmptyRegion;
-		public AtlasRegion bobIdleLeftRegion;
-		public AtlasRegion bobIdleRightRegion;
-		public AtlasRegion bobJumpLeftRegion;
-		public AtlasRegion bobJumpRightRegion;
-		public AtlasRegion bobFallLeftRegion;
-		public AtlasRegion bobFallRightRegion;
+		public final AtlasRegion bobEmptyRegion;
+		public final AtlasRegion bobIdleLeftRegion;
+		public final AtlasRegion bobIdleRightRegion;
+		public final AtlasRegion bobJumpLeftRegion;
+		public final AtlasRegion bobJumpRightRegion;
+		public final AtlasRegion bobFallLeftRegion;
+		public final AtlasRegion bobFallRightRegion;
 		
-		public Animation walkingLeftAnimation;
-		public Animation walkingRightAnimation;
-		public Animation bobWalkingDamagedLeftAnimation;
-		public Animation bobWalkingDamagedRightAnimation;
-		public Animation bobIdleDamagedLeftAnimation;
-		public Animation bobIdleDamagedRightAnimation;
-		public Animation bobJumpingDamagedLeftAnimation;
-		public Animation bobJumpingDamagedRightAnimation;
-		public Animation bobFallDamagedLeftAnimation;
-		public Animation bobFallDamagedRightAnimation;
+		public final Animation walkingLeftAnimation;
+		public final Animation walkingRightAnimation;
+		public final Animation bobWalkingDamagedLeftAnimation;
+		public final Animation bobWalkingDamagedRightAnimation;
+		public final Animation bobIdleDamagedLeftAnimation;
+		public final Animation bobIdleDamagedRightAnimation;
+		public final Animation bobJumpingDamagedLeftAnimation;
+		public final Animation bobJumpingDamagedRightAnimation;
+		public final Animation bobFallDamagedLeftAnimation;
+		public final Animation bobFallDamagedRightAnimation;
 		
 		public AssetBob(TextureAtlas atlas) {
 			String bobPrefix = "bob-gun";
@@ -224,11 +119,71 @@ public class Assets implements Disposable, AssetErrorListener{
 		}
 	}
 	
+	public class AssetGameInfo{
+		public final TextureRegion heart;
+		
+		public AssetGameInfo(TextureAtlas atlas) {
+			heart = atlas.findRegion("heart");
+		}
+	}
+	
+	public class AssetShoots implements Disposable{
+		
+		public final Texture shootTexture;
+		
+		public AssetShoots() {
+			Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGB888);
+			pixmap.setColor(Color.WHITE);
+			pixmap.drawPixel(0, 0);
+			
+			shootTexture = new Texture(pixmap);
+		}
+		
+		@Override
+		public void dispose() {
+			shootTexture.dispose();
+		}
+	}
+	
+	public class AssetItems{
+		
+		private static final float LOAD_FRAME_DURATION = 0.2f;
+		
+		public final TextureRegion keyRegion;
+		
+		public final Animation loadAnimation;
+		
+		public AssetItems(TextureAtlas atlas) {
+			AtlasRegion[] loadFrames = new AtlasRegion[3];
+			for(int i = 0; i < 3; i++){
+				loadFrames[i] = atlas.findRegion("load-0"+(i+1));
+			}
+			loadAnimation = new Animation(LOAD_FRAME_DURATION, loadFrames);
+			
+			keyRegion = atlas.findRegion("key");
+		}
+	}
+	
+	public class AssetGameOverMenu{
+		
+		public final AtlasRegion gameOverRegion;
+		public final AtlasRegion restartRegion;
+		
+		public AssetGameOverMenu(TextureAtlas atlas) {
+				gameOverRegion = atlas.findRegion("game-over");
+				restartRegion = atlas.findRegion("restart");
+		}
+	}
+	
 	public class AssetLevelDecorator{
-		public AtlasRegion blockRegion;
+		public final AtlasRegion blockRegion;
+		public final AtlasRegion doorRegion;
+		public final AtlasRegion gateRegion;
 		
 		public AssetLevelDecorator(TextureAtlas atlas){
 			blockRegion = atlas.findRegion("block");
+			doorRegion = atlas.findRegion("door");
+			gateRegion = atlas.findRegion("gate");
 		}
 	}
 	
@@ -248,40 +203,62 @@ public class Assets implements Disposable, AssetErrorListener{
 		}
 	}
 	
-	public class AssetPanel{
-		public final AtlasRegion distanceBGRegion;
+	public class AssetEnemys{
+		public final AtlasRegion zombieRegion;
+		public final AtlasRegion catazombieRegion;
 		
-		public AssetPanel(TextureAtlas atlas) {
-			distanceBGRegion = atlas.findRegion("distance-bg");
+		public AssetEnemys(TextureAtlas atlas) {
+			zombieRegion = atlas.findRegion("zumbi-01");
+			catazombieRegion = atlas.findRegion("catazumbi-01");
 		}
 	}
 	
 	public class AssetFont implements Disposable{
-		public final BitmapFont fontSmall;
+//		public final BitmapFont fontSmall;
 		public final BitmapFont fontNormal;
-		private Texture fontTex;
+//		private Texture fontTex;
 		
 		public AssetFont() {
-			fontTex = new Texture(Gdx.files.internal("data/arial.png"),true);
-			/*Setting Nearest Filter for reducing aliasing on font drawing.*/
-			fontTex.setFilter(TextureFilter.MipMapLinearLinear, TextureFilter.Linear);
 			
-			/* Loading arial font */
-			fontNormal = new BitmapFont(Gdx.files.internal("data/arial.fnt"),new TextureRegion(fontTex),false);
-			fontNormal.setColor(Color.BLACK);
-			
-			fontSmall = new BitmapFont(Gdx.files.internal("data/arial.fnt"),new TextureRegion(fontTex),false);
-			fontSmall.setColor(Color.BLACK);
-			fontSmall.setScale(0.5f);
+//			//Load font
+			fontNormal = new BitmapFont();
+			fontNormal.setScale(2f);
+			fontNormal.setColor(Color.WHITE);
+//			fontTex = new Texture(Gdx.files.internal("data/arial.png"),true);
+//			/*Setting Nearest Filter for reducing aliasing on font drawing.*/
+//			fontTex.setFilter(TextureFilter.MipMapLinearLinear, TextureFilter.Linear);
+//			
+//			/* Loading arial font */
+//			fontNormal = new BitmapFont(Gdx.files.internal("data/arial.fnt"),new TextureRegion(fontTex),false);
+//			fontNormal.setColor(Color.BLACK);
+//			
+//			fontSmall = new BitmapFont(Gdx.files.internal("data/arial.fnt"),new TextureRegion(fontTex),false);
+//			fontSmall.setColor(Color.BLACK);
+//			fontSmall.setScale(0.5f);
 		}
 
 		@Override
 		public void dispose() {
-			fontSmall.dispose();
 			fontNormal.dispose();
-			fontTex.dispose();
+		}
+	}
+	
+	public class AssetSounds{
+		
+	}
+	
+	public class AssetMusic implements Disposable{
+		public Music levelMusic;
+		
+		public AssetMusic() {
+			levelMusic = Gdx.audio.newMusic(Gdx.files.internal("data/disire.mp3"));
+			levelMusic.setLooping(true);
 		}
 		
+		@Override
+		public void dispose() {
+			levelMusic.dispose();
+		}
 	}
 	
 	private static final String TAG = "[Assets]";
@@ -289,9 +266,16 @@ public class Assets implements Disposable, AssetErrorListener{
 	public static final Assets instance = new Assets();
 	
 	public AssetBob bob;
-	public AssetJoypad joypad;
-	public AssetPanel panel;
+	public AssetGameInfo gameInfo;
+	public AssetItems items;
+	public AssetGameOverMenu gameOverMenu;
+	public AssetLevelDecorator level;
+	public AssetEnemys enemys;
+	public AssetShoots shoots;
+//	public AssetJoypad joypad;
 	public AssetFont fonts;
+	
+	public AssetMusic music;
 	
 	private AssetManager assetManager;
 	
@@ -314,15 +298,23 @@ public class Assets implements Disposable, AssetErrorListener{
 			t.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		
 		bob = new AssetBob(atlas);
-//		joypad = new AssetJoypad(atlas);
-//		panel = new AssetPanel(atlas);
-//		fonts = new AssetFont();
+		gameInfo = new AssetGameInfo(atlas);
+		items = new AssetItems(atlas);
+		gameOverMenu = new AssetGameOverMenu(atlas);
+		level = new AssetLevelDecorator(atlas);
+		enemys = new AssetEnemys(atlas);
+		shoots = new AssetShoots();
+		fonts = new AssetFont();
+		
+		music = new AssetMusic();
 	}
 	
 	@Override
 	public void dispose() {
 		assetManager.dispose();
 		fonts.dispose();
+		shoots.dispose();
+		music.dispose();
 	}
 
 	@Override

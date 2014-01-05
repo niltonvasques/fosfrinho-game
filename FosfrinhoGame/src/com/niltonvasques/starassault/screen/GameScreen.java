@@ -4,11 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL10;
 import com.niltonvasques.starassault.controller.BobController;
-import com.niltonvasques.starassault.model.World;
+import com.niltonvasques.starassault.service.Assets;
 import com.niltonvasques.starassault.util.ColorUtil;
 import com.niltonvasques.starassault.view.WorldRenderer;
 
@@ -20,12 +19,8 @@ public class GameScreen implements Screen, InputProcessor {
 	
 	private int[] backgroundColorArr = ColorUtil.rgbToArray(BACKGROUND_COLOR);
 	
-	private World world;
 	private WorldRenderer worldRenderer;
 	private BobController controller;
-	
-	private Music levelMusic;
-
 	
 	public GameScreen() {
 		
@@ -49,12 +44,12 @@ public class GameScreen implements Screen, InputProcessor {
 
 	@Override
 	public void show() {
+		Assets.instance.init(new AssetManager());
 		controller = new BobController();
 		worldRenderer = new WorldRenderer(controller,false);
 		controller.registerInputProcessor(this);
-		levelMusic = Gdx.audio.newMusic(Gdx.files.internal("data/disire.mp3"));
-		levelMusic.setLooping(true);
-		levelMusic.play();
+		
+		Assets.instance.music.levelMusic.play();
 	}
 
 	@Override
@@ -76,7 +71,7 @@ public class GameScreen implements Screen, InputProcessor {
 	public void dispose() {
 		Gdx.input.setInputProcessor(null);
 		worldRenderer.dispose();
-		levelMusic.dispose();
+		Assets.instance.dispose();
 	}
 
 	@Override
