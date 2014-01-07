@@ -20,6 +20,7 @@ public class CataZombie extends Zombie{
 	@Override
 	public void updateZombie(float delta) {
 		if(LOG) Gdx.app.log(TAG, "updateZombie");
+		setStateTime(getStateTime()+delta);
 	}
 
 }

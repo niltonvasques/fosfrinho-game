@@ -3,6 +3,7 @@ package com.niltonvasques.starassault.view;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -236,8 +237,30 @@ public class WorldRenderer implements Disposable{
 		for (Zombie zombie : drawableZombies) {
 			if(zombie instanceof CataZombie)
 				spriteBatch.draw(assets.enemys.catazombieRegion, zombie.getPosition().x , zombie.getPosition().y , zombie.getBounds().width , zombie.getBounds().height );
-			else			
-				spriteBatch.draw(assets.enemys.zombieRegion, zombie.getPosition().x , zombie.getPosition().y , zombie.getBounds().width , zombie.getBounds().height );
+			else{
+				TextureRegion frame = null;
+				
+				switch (zombie.getState()) {
+				case WALKING:
+					Animation zombieAnimation = zombie.isFacingLeft() ? assets.enemys.zombieWalkingLeftAnimation : assets.enemys.zombieWalkingRightAnimation;
+					frame = zombieAnimation.getKeyFrame(zombie.getStateTime(), true);
+					break;
+					
+				case DAMAGED:
+					frame = zombie.isFacingLeft() ? assets.enemys.zombieDamagedLeft : assets.enemys.zombieDamagedRight;
+					break;
+					
+				case DYING:
+					frame = zombie.isFacingLeft() ? assets.enemys.zombieDyingLeftAnimation.getKeyFrame(zombie.getStateTime()) : assets.enemys.zombieDyingRightAnimation.getKeyFrame(zombie.getStateTime());
+					break;
+					
+				default:
+					frame = zombie.isFacingLeft() ? assets.enemys.zombieDyingLeftAnimation.getKeyFrame(zombie.getStateTime()) : assets.enemys.zombieDyingRightAnimation.getKeyFrame(zombie.getStateTime());
+					break;
+				}
+				
+				spriteBatch.draw(frame, zombie.getPosition().x , zombie.getPosition().y , zombie.getBounds().width , zombie.getBounds().height );
+			}
 		}
 	}
 	
