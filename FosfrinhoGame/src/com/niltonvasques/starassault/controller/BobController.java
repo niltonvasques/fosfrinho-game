@@ -39,8 +39,6 @@ public class BobController {
 	private final static float GRAVITY 			= -20f;
 	private final static float DAMP				= 0.90f;
 	
-	private static final float WIDTH = 10f;
-	
 	private World 	world;
 	private InputMultiplexer multiplexer;
 	
@@ -130,16 +128,26 @@ public class BobController {
 	/** The main update method **/
     public void update(float delta) {
     	
+    	
     		if(world.isGameOver()){
     			Gdx.app.log(TAG, "Game Over");
     			return;
     		}
+    		
+    		// clear collision boxes in world
+    		world.getCollisionRects().clear();
             // Processing the input - setting the states of Bob
             processInput();
             
             // If Bob is grounded then reset the state to IDLE
             if (grounded && world.getBob().getState().equals(State.JUMPING)) {
                     world.getBob().setState(State.IDLE);
+            }
+            
+            for(Zombie zombie: world.getLevel().getZombies()){
+            	zombie.getAcceleration().y = GRAVITY;
+            	zombie.getAcceleration().scl(delta);
+            	zombie.getVelocity().add(zombie.getAcceleration());
             }
             
             // Setting initial vertical acceleration
@@ -166,10 +174,6 @@ public class BobController {
             }
             if (world.getBob().getVelocity().x < -Bob.SPEED) {
                     world.getBob().getVelocity().x = -Bob.SPEED;
-            }
-            
-            for(Zombie zombie: world.getLevel().getZombies()){
-            	zombie.updateZombie(delta);
             }
             
             if(world.getBob().getState().equals(State.WALKING)){
@@ -240,9 +244,6 @@ public class BobController {
             // simulate bob's movement on the X
             bobRect.x += world.getBob().getVelocity().x;
             
-            // clear collision boxes in world
-            world.getCollisionRects().clear();
-            
             // if bob collides, make his horizontal velocity 0
             for (Block block : collidable) {
                     if (block == null) continue;
@@ -305,7 +306,7 @@ public class BobController {
             if(!world.getBob().isDamaged()){
 	            // if bob collides, make his horizontal velocity 0
 	            for (Zombie zombie : collidableZombies) {
-	            	if (bobRect.overlaps(zombie.getBounds())) {
+	            	if (zombie.isAlive() && bobRect.overlaps(zombie.getBounds())) {
 	            		world.getBob().getVelocity().x = 0;
 	            		applyBobDamage();
 	            		break;
@@ -344,7 +345,7 @@ public class BobController {
             }
             if(!world.getBob().isDamaged()){
 	            for (Zombie zombie : collidableZombies) {
-	                if (bobRect.overlaps(zombie.getBounds())) {
+	                if (zombie.isAlive() && bobRect.overlaps(zombie.getBounds())) {
 	                	world.getBob().getVelocity().y = 0;
 	                	applyBobDamage();
 	                    break;
@@ -413,9 +414,6 @@ public class BobController {
 	            // simulate shoot's movement on the X
 	            shootRect.x += shoot.getVelocity().x;
 	            
-	            // clear collision boxes in world
-	            world.getCollisionRects().clear();
-	            
 	            // if shoot collides, make his horizontal velocity 0
 	            for (Block block : collidable) {
 	                    if (block == null) continue;
@@ -440,13 +438,14 @@ public class BobController {
 	            
 	         // if bob collides, make his horizontal velocity 0
 	            for (Zombie zombie : collidableZombies) {
-	            	if (shootRect.overlaps(zombie.getBounds())) {
+	            	if (zombie.isAlive() && shootRect.overlaps(zombie.getBounds())) {
+	            		if(shoot.getVelocity().x > 0 && !zombie.isFacingLeft()
+	            				|| shoot.getVelocity().x < 0 && zombie.isFacingLeft()){
+	            			zombie.reveserXDirection();
+	            		}
 	            		collide = true;
                 		bobShoots.removeValue(shoot, true);
                 		zombie.decreaseHp();
-                		if(zombie.getHp() == 0){
-                			world.getLevel().getZombies().removeValue(zombie, true);
-                		}
 	            		break;
 	            	}
 	            }
@@ -494,7 +493,7 @@ public class BobController {
 	            
 		         // if bob collides, make his horizontal velocity 0
 	            for (Zombie zombie : collidableZombies) {
-	            	if (shootRect.overlaps(zombie.getBounds())) {
+	            	if (zombie.isAlive() && shootRect.overlaps(zombie.getBounds())) {
 	            		collide = true;
                 		bobShoots.removeValue(shoot, true);
                 		zombie.decreaseHp();
@@ -552,15 +551,11 @@ public class BobController {
 	            // simulate zombie's movement on the X
 	            zombieRect.x += zombie.getVelocity().x;
 	            
-	            // clear collision boxes in world
-	            world.getCollisionRects().clear();
 	            
 	            // if zombie collides, make his horizontal velocity 0
 	            for (Block block : collidable) {
 	                    if (block == null) continue;
 	                    if (zombieRect.overlaps(block.getBounds())) {
-	                    	if (zombie.getVelocity().y < 0) {
-	                    	}
                     		zombie.reveserXDirection();
                             world.getCollisionRects().add(block.getBounds());
                             break;
@@ -587,7 +582,12 @@ public class BobController {
 	            for (Block block : collidable) {
 	                    if (block == null) continue;
 	                    if (zombieRect.overlaps(block.getBounds())) {
-	                    	zombie.reverseYDirection();
+	                    	if (zombie.getVelocity().y < 0) {
+	                    		zombie.getVelocity().y = 0;
+	                    		zombie.getPosition().y = block.getBounds().y + block.getBounds().height;
+	                    		
+	                    	}
+//	                    	zombie.reverseYDirection();
                             world.getCollisionRects().add(block.getBounds());
                             break;
 	                    }
@@ -596,13 +596,19 @@ public class BobController {
 	            // reset the collision box's position on Y
 	            zombieRect.y = zombie.getPosition().y;
 	            
-	            // update zombie's position
-	            zombie.getPosition().add(zombie.getVelocity());
+	            // un-scale velocity (not in frame time)
+	            zombie.getVelocity().scl(1 / delta);
+	            
+	            zombie.updateZombie(delta);
+//	            zombie.getPosition().add(zombie.getVelocity());
 	            zombie.getBounds().x = zombie.getPosition().x;
 	            zombie.getBounds().y = zombie.getPosition().y;
 	            
-	            // un-scale velocity (not in frame time)
-	            zombie.getVelocity().scl(1 / delta);
+	            //If zombie died, remove it from level
+	            if(zombie.getState() == Zombie.State.DIED){
+	            	world.getLevel().getZombies().removeValue(zombie, true);
+	            }
+	            
     		}
             
     }

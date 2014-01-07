@@ -204,12 +204,47 @@ public class Assets implements Disposable, AssetErrorListener{
 	}
 	
 	public class AssetEnemys{
+		private static final float ZOMBIE_WALKING_FRAME_DURATION = 0.1f;
+		private static final float ZOMBIE_DYING_FRAME_DURATION = 0.2f;
+		
 		public final AtlasRegion zombieRegion;
+		public final AtlasRegion zombieDamagedLeft;
+		public final AtlasRegion zombieDamagedRight;
 		public final AtlasRegion catazombieRegion;
+		public final Animation zombieWalkingRightAnimation;
+		public final Animation zombieWalkingLeftAnimation;
+		public final Animation zombieDyingLeftAnimation;
+		public final Animation zombieDyingRightAnimation;
 		
 		public AssetEnemys(TextureAtlas atlas) {
 			zombieRegion = atlas.findRegion("zumbi-01");
 			catazombieRegion = atlas.findRegion("catazumbi-01");
+			zombieDamagedRight = atlas.findRegion("zumbi-damaged");
+			zombieDamagedLeft = new AtlasRegion(zombieDamagedRight);
+			zombieDamagedLeft.flip(true, false);
+			
+			AtlasRegion[] zombieWalkingRightFrames = new AtlasRegion[4];
+			AtlasRegion[] zombieWalkingLeftFrames = new AtlasRegion[4];
+			
+			for(int i = 0; i < 4; i++){
+				zombieWalkingRightFrames[i] = atlas.findRegion("zumbi-0"+(i+1));
+				zombieWalkingLeftFrames[i] = new AtlasRegion(zombieWalkingRightFrames[i]);
+				zombieWalkingLeftFrames[i].flip(true, false);
+			}
+			zombieWalkingRightAnimation = new Animation(ZOMBIE_WALKING_FRAME_DURATION, zombieWalkingRightFrames);
+			zombieWalkingLeftAnimation = new Animation(ZOMBIE_WALKING_FRAME_DURATION, zombieWalkingLeftFrames);
+			
+			AtlasRegion[] zombieDyingLeftFrames = new AtlasRegion[3];
+			AtlasRegion[] zombieDyingRightFrames = new AtlasRegion[3];
+			
+			for(int i = 0; i < 3; i++){
+				zombieDyingRightFrames[i] = atlas.findRegion("zombie-dying-0"+(i+1));
+				zombieDyingLeftFrames[i] = new AtlasRegion(zombieDyingRightFrames[i]);
+				zombieDyingLeftFrames[i].flip(true, false);
+			}
+			
+			zombieDyingLeftAnimation = new Animation(ZOMBIE_DYING_FRAME_DURATION, zombieDyingLeftFrames);
+			zombieDyingRightAnimation = new Animation(ZOMBIE_DYING_FRAME_DURATION, zombieDyingRightFrames);
 		}
 	}
 	
