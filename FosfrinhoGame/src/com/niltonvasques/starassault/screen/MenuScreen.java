@@ -49,7 +49,7 @@ public class MenuScreen implements Screen{
 		
 		ui.draw();
 		
-		Table.drawDebug(ui);
+//		Table.drawDebug(ui);
 		
 	}
 	
@@ -87,7 +87,7 @@ public class MenuScreen implements Screen{
 	    container.add(optionMenu);
 	    container.row().fill(true, true).expand(true, true).pad(10, 0, 10, 0);
 	    container.add(helpMenu);
-	    window.row().fill(0.5f,1f).expand(true,false);
+	    window.row().fill(0.5f,1f).expand(true,true);
 	    window.add(container);
 	    
 	    
