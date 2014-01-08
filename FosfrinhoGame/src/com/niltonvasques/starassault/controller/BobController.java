@@ -3,15 +3,18 @@ package com.niltonvasques.starassault.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.niltonvasques.starassault.FosfrinhoGame;
 import com.niltonvasques.starassault.model.Block;
 import com.niltonvasques.starassault.model.Bob;
 import com.niltonvasques.starassault.model.Bob.State;
@@ -23,8 +26,11 @@ import com.niltonvasques.starassault.model.Load;
 import com.niltonvasques.starassault.model.Shoot;
 import com.niltonvasques.starassault.model.World;
 import com.niltonvasques.starassault.model.Zombie;
+import com.niltonvasques.starassault.screen.MenuScreen;
+import com.niltonvasques.starassault.screen.ScoreScreen;
 import com.niltonvasques.starassault.service.Assets;
 import com.niltonvasques.starassault.util.CameraHelper;
+import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
 
 public class BobController {
 	private static final String TAG = "[BobController]";
@@ -39,6 +45,8 @@ public class BobController {
 	private final static float GRAVITY 			= -20f;
 	private final static float DAMP				= 0.90f;
 	
+	private FosfrinhoGame game;
+	
 	private World 	world;
 	private InputMultiplexer multiplexer;
 	
@@ -46,19 +54,10 @@ public class BobController {
 	private boolean jumpingPressed = false;
 	private Array<Shoot> bobShoots = new Array<Shoot>();
 	private Array<Shoot> drawableShoots = new Array<Shoot>();
-	private Sound shootSound;
-	private Sound stepSound;
-	private Sound gunLoadSound;
 	
 	private CameraHelper cameraHelper; 
 	
 	static Map<Keys, Boolean> keys = new HashMap<BobController.Keys, Boolean>();
-	static {
-		keys.put(Keys.LEFT, false);
-		keys.put(Keys.RIGHT, false);
-		keys.put(Keys.JUMP, false);
-		keys.put(Keys.FIRE, false);
-	};
 	
 	private Pool<Rectangle> rectPool = new Pool<Rectangle>(){
 		@Override
@@ -77,17 +76,23 @@ public class BobController {
 
 	public BobController() {
 		init();
+		game = ((FosfrinhoGame)Gdx.app.getApplicationListener());
 	}
 	
 	public void init(){
-		shootSound = Gdx.audio.newSound(Gdx.files.internal("data/shoot.wav"));
-		stepSound = Gdx.audio.newSound(Gdx.files.internal("data/step.mp3"));
-		gunLoadSound = Gdx.audio.newSound(Gdx.files.internal("data/gun-load.wav"));
+		keys.put(Keys.LEFT, false);
+		keys.put(Keys.RIGHT, false);
+		keys.put(Keys.JUMP, false);
+		keys.put(Keys.FIRE, false);
+		
+		
 		
 		this.world = new World();
 		this.multiplexer = new InputMultiplexer();
 		Gdx.input.setInputProcessor(multiplexer);
 		this.cameraHelper = new CameraHelper();
+		
+		restartGame();
 	}
 
 	// ** Key presses and touches **************** //
@@ -180,7 +185,7 @@ public class BobController {
             	stepStateTime += delta;
             	if(stepStateTime > 1/3f){
             		stepStateTime = 0;
-            		stepSound.play();
+            		Assets.instance.sound.step.play();
             	}
             }
             
@@ -259,7 +264,7 @@ public class BobController {
                     if (door == null) continue;
                     if (bobRect.overlaps(door.getBounds())) {
                     	if(door instanceof Gate){
-                    		Gdx.app.log(TAG, "Level cleared!");
+                    		levelClear();
                     	}else{
                             world.getBob().getVelocity().x = 0;
                             world.getCollisionRects().add(door.getBounds());
@@ -282,7 +287,7 @@ public class BobController {
                     		(load.getBounds().x + load.getBounds().width-portionWidth) > world.getBob().getBounds().x && 
                     		load.getBounds().y < world.getBob().getBounds().y + world.getBob().getBounds().height &&
                     		load.getBounds().y + load.getBounds().height > world.getBob().getBounds().y) {
-                    	gunLoadSound.play();
+                    	Assets.instance.sound.load.play();
                     	world.getBob().getGun().reload(load);
                     	world.getLevel().getLoads()[(int)load.getBounds().x][(int)load.getBounds().y] = null;
                             break;
@@ -364,6 +369,15 @@ public class BobController {
             world.getBob().getVelocity().scl(1 / delta);
             
     }
+
+	private void levelClear() {
+		Assets.instance.music.levelMusic.stop();
+		Gdx.app.log(TAG, "Level cleared!");
+		world.getLevel().setLevelClearTime(TimeUtils.millis() - world.getLevel().getLevelClearTime());
+		game.setScoreTime(world.getLevel().getLevelClearTime());
+		
+		game.setScreen(new ScoreScreen());
+	}
 
 	private void applyBobDamage() {
 		if(world.getBob().isDamaged()) return;
@@ -731,7 +745,7 @@ public class BobController {
 		long time = TimeUtils.millis();
 		if(keys.get(Keys.FIRE) && (time - Shoot.lastShoot) >= (1000/world.getBob().getGun().getShootsPerSecond())){
 			if(world.getBob().getGun().shoot()){
-				shootSound.play();
+				Assets.instance.sound.shoot.play();
 				Shoot.lastShoot = time;
 				Vector2 sPos = world.getBob().getPosition().cpy();
 				sPos.y += Bob.SIZE/2;
@@ -755,6 +769,7 @@ public class BobController {
 	public void restartGame() {
 		bobShoots.clear();
 		world.clear();
+		world.getLevel().setLevelClearTime(TimeUtils.millis());
 		Assets.instance.music.levelMusic.play();
 	}
 

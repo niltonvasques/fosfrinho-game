@@ -11,6 +11,6 @@ public class Main {
 		cfg.width = 960;
 		cfg.height = 640;
 		
-		new LwjglApplication(new StarAssaultGame(), cfg);
+		new LwjglApplication(new FosfrinhoGame(), cfg);
 	}
 }

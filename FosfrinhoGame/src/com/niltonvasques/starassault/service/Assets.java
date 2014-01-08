@@ -5,6 +5,7 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetErrorListener;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -17,6 +18,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Disposable;
 import com.niltonvasques.starassault.util.Constants;
@@ -164,6 +166,22 @@ public class Assets implements Disposable, AssetErrorListener{
 		}
 	}
 	
+	public class AssetSkin implements Disposable{
+		public final Skin skin;
+		public final TextureRegion badlogicSmallRegion;
+		
+		public AssetSkin() {
+			skin = new Skin(Gdx.files.internal("data/uiskin.json"));
+			badlogicSmallRegion = new TextureRegion(new Texture("data/badlogicsmall.jpg"));
+		}
+		
+		@Override
+		public void dispose() {
+			skin.dispose();
+			badlogicSmallRegion.getTexture().dispose();
+		}
+	}
+	
 	public class AssetGameOverMenu{
 		
 		public final AtlasRegion gameOverRegion;
@@ -184,6 +202,14 @@ public class Assets implements Disposable, AssetErrorListener{
 			blockRegion = atlas.findRegion("block");
 			doorRegion = atlas.findRegion("door");
 			gateRegion = atlas.findRegion("gate");
+		}
+	}
+	
+	public class AssetSplash{
+		public final TextureRegion splashScreen;
+		
+		public AssetSplash(TextureAtlas splashAtlas){
+			splashScreen = splashAtlas.findRegion("splash");
 		}
 	}
 	
@@ -279,6 +305,15 @@ public class Assets implements Disposable, AssetErrorListener{
 	}
 	
 	public class AssetSounds{
+		public final Sound shoot;
+		public final Sound load;
+		public final Sound step;
+		
+		public AssetSounds(AssetManager manager) {
+			shoot = manager.get(Resources.SHOOT_SOUND, Sound.class);
+			load = manager.get(Resources.LOAD_SOUND, Sound.class);
+			step = manager.get(Resources.STEP_SOUND, Sound.class);
+		}
 		
 	}
 	
@@ -309,8 +344,11 @@ public class Assets implements Disposable, AssetErrorListener{
 	public AssetShoots shoots;
 //	public AssetJoypad joypad;
 	public AssetFont fonts;
+	public AssetSkin skin;
 	
+	public AssetSplash splash;
 	public AssetMusic music;
+	public AssetSounds sound;
 	
 	private AssetManager assetManager;
 	
@@ -322,15 +360,29 @@ public class Assets implements Disposable, AssetErrorListener{
 		
 		assetManager.setErrorListener(this);
 		
-		assetManager.load(Constants.TEXTURE_ATLAS_PACK, TextureAtlas.class);
+		assetManager.load(Resources.TEXTURE_ATLAS_PACK, TextureAtlas.class);
+		
+		assetManager.load(Resources.SPLASH_ATLAS_PACK, TextureAtlas.class);
+		
+		assetManager.load(Resources.SHOOT_SOUND, Sound.class);
+		assetManager.load(Resources.LOAD_SOUND, Sound.class);
+		assetManager.load(Resources.STEP_SOUND, Sound.class);
+		
+//		shootSound = Gdx.audio.newSound(Gdx.files.internal("data/shoot.wav"));
+//		stepSound = Gdx.audio.newSound(Gdx.files.internal("data/step.mp3"));
+//		gunLoadSound = Gdx.audio.newSound(Gdx.files.internal("data/gun-load.wav"));
 		
 		/*Wait all textures to be loaded */
 		assetManager.finishLoading();
 		
-		TextureAtlas atlas = assetManager.get(Constants.TEXTURE_ATLAS_PACK);
+		TextureAtlas atlas = assetManager.get(Resources.TEXTURE_ATLAS_PACK);
 		
 		for (Texture t : atlas.getTextures())
 			t.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		
+		TextureAtlas splashAtlas = assetManager.get(Resources.SPLASH_ATLAS_PACK);
+		
+		splash = new AssetSplash(splashAtlas);
 		
 		bob = new AssetBob(atlas);
 		gameInfo = new AssetGameInfo(atlas);
@@ -340,8 +392,13 @@ public class Assets implements Disposable, AssetErrorListener{
 		enemys = new AssetEnemys(atlas);
 		shoots = new AssetShoots();
 		fonts = new AssetFont();
-		
+		skin = new AssetSkin();
 		music = new AssetMusic();
+		sound = new AssetSounds(assetManager);
+	}
+	
+	public void dispose(String asset){
+		assetManager.unload(asset);
 	}
 	
 	@Override
@@ -350,6 +407,7 @@ public class Assets implements Disposable, AssetErrorListener{
 		fonts.dispose();
 		shoots.dispose();
 		music.dispose();
+		skin.dispose();
 	}
 
 	@Override

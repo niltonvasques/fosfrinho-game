@@ -18,9 +18,18 @@ public class Level {
 	private Vector2 spanPosition;
 	private Array<Zombie> zombies;
 	private Array<Zombie> drawableZombies = new Array<Zombie>();
+	private long levelClearTime;
 
 	public Level() {
 		loadDemoLevel();
+	}
+
+	public long getLevelClearTime() {
+		return levelClearTime;
+	}
+
+	public void setLevelClearTime(long levelClearTime) {
+		this.levelClearTime = levelClearTime;
 	}
 
 	public Load[][] getLoads() {

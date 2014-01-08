@@ -6,19 +6,22 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.niltonvasques.starassault.controller.BobController;
 import com.niltonvasques.starassault.service.Assets;
 import com.niltonvasques.starassault.util.ColorUtil;
+import com.niltonvasques.starassault.util.Constants;
+import com.niltonvasques.starassault.util.ScreenUtil;
+import com.niltonvasques.starassault.view.DebugRenderer;
 import com.niltonvasques.starassault.view.WorldRenderer;
 
 public class GameScreen implements Screen, InputProcessor {
 	private static final String TAG = "[GameScreen]";
 	private static final boolean LOG = false;
 	
-	private static final int BACKGROUND_COLOR = 0x480e79;
-	
-	private int[] backgroundColorArr = ColorUtil.rgbToArray(BACKGROUND_COLOR);
-	
+	private DebugRenderer debugRenderer;
 	private WorldRenderer worldRenderer;
 	private BobController controller;
 	
@@ -28,11 +31,14 @@ public class GameScreen implements Screen, InputProcessor {
 	
 	@Override
 	public void render(float delta) {
-		Gdx.gl.glClearColor(backgroundColorArr[0]/255f, backgroundColorArr[1]/255f, backgroundColorArr[2]/255f, 1);
-		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		ScreenUtil.setClearColor(Constants.BACKGROUND_COLOR);
+		ScreenUtil.clear();
 		
 		controller.update(delta);
+		debugRenderer.act();
+		
 		worldRenderer.render();
+		debugRenderer.drawView(null);
 		
 		if(LOG) Gdx.app.log(TAG, " FPS "+Gdx.graphics.getFramesPerSecond());
 	}
@@ -46,6 +52,8 @@ public class GameScreen implements Screen, InputProcessor {
 	public void show() {
 		controller = new BobController();
 		worldRenderer = new WorldRenderer(controller,false);
+		debugRenderer = new DebugRenderer();
+		
 		controller.registerInputProcessor(this);
 		
 		Assets.instance.music.levelMusic.play();
@@ -54,6 +62,7 @@ public class GameScreen implements Screen, InputProcessor {
 	@Override
 	public void hide() {
 		Gdx.input.setInputProcessor(null);
+		Assets.instance.music.levelMusic.pause();
 	}
 
 	@Override
@@ -70,7 +79,7 @@ public class GameScreen implements Screen, InputProcessor {
 	public void dispose() {
 		Gdx.input.setInputProcessor(null);
 		worldRenderer.dispose();
-		Assets.instance.dispose();
+		debugRenderer.dispose();
 	}
 
 	@Override
@@ -83,9 +92,7 @@ public class GameScreen implements Screen, InputProcessor {
 			controller.jumpPressed();
 		if(keycode == Keys.X)
 			controller.firePressed();
-		if(keycode == Keys.D){
-			worldRenderer.setDebug(!worldRenderer.isDebug());
-		}
+	
 		return true;
 	}
 
@@ -99,6 +106,10 @@ public class GameScreen implements Screen, InputProcessor {
 			controller.jumpReleased();
 		if(keycode == Keys.X)
 			controller.fireReleased();
+		if(keycode == Keys.D){
+			worldRenderer.setDebug(!worldRenderer.isDebug());
+			debugRenderer.setDebug(!debugRenderer.isDebug());
+		}
 		if(keycode == Keys.ESCAPE)
 			Gdx.app.exit();
 		return true;

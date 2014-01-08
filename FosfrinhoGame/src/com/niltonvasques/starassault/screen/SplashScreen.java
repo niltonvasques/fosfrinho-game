@@ -5,27 +5,24 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.niltonvasques.starassault.FosfrinhoGame;
 import com.niltonvasques.starassault.service.Assets;
+import com.niltonvasques.starassault.service.Resources;
 
 public class SplashScreen implements Screen{
+	
+	private static final float SPLASH_SHOW_TIME = 2f;
 	
 	private Game mGame;
 	
 	private OrthographicCamera mCamera;
-	private Texture mSplashTexture;
-	private TextureRegion mSplashTextureRegion;
 	private SpriteBatch mBatch;
-	private BitmapFont mFont;
 	
-	private Boolean mTouched = false;
+	private float stateTime = 0f;
 	
-	public SplashScreen( Game game) {
-		mGame = game;
+	public SplashScreen() {
+		mGame = (FosfrinhoGame)Gdx.app.getApplicationListener();
 		
 		mCamera = new OrthographicCamera();
 		mCamera.setToOrtho(false, 800, 480);
@@ -33,48 +30,32 @@ public class SplashScreen implements Screen{
 		// instantiating a sprite batch 
 		mBatch = new SpriteBatch();
 		
-		// instantiating a font for draw texts on the screen
-		mFont = new BitmapFont();
-		
-		// load the splash image and create the texture region
-		mSplashTexture = new Texture("data/splash.png");
- 
-        // we set the linear texture filter to improve the stretching
-		mSplashTexture.setFilter( TextureFilter.Linear, TextureFilter.Linear );
- 
-        // in the image atlas, our splash image begins at (0,0) at the
-        // upper-left corner and has a dimension of 640x480
-		mSplashTextureRegion = new TextureRegion( mSplashTexture, 0, 0, 512, 307 );
-		
 	}
 	
 	@Override
 	public void render(float delta) {
+		
+		stateTime += delta;
 		
 		mCamera.update();
 		mBatch.setProjectionMatrix(mCamera.combined);
 		
 		mBatch.begin();
 		
-		mBatch.draw(mSplashTextureRegion, 0, 0, 800, 480 );		
-		
-		mFont.setScale(2);
-		mFont.draw(mBatch, "Tap anywhere to begin!", 250, 50);
+		mBatch.draw(Assets.instance.splash.splashScreen, 0, 0, 800, 480 );		
 		
 		mBatch.end();
 		
-		if(Gdx.input.isTouched()){
-//			mTouched = true;
-			mGame.setScreen(new GameScreen());
+		if(stateTime > SPLASH_SHOW_TIME){
+			mGame.setScreen(new MenuScreen());
 			dispose();
 		}
 	}
 	
 	@Override
 	public void dispose() {
-		mSplashTexture.dispose();
 		mBatch.dispose();
-		mFont.dispose();
+		Assets.instance.dispose(Resources.SPLASH_ATLAS_PACK);
 	}
 
 	@Override
@@ -83,8 +64,6 @@ public class SplashScreen implements Screen{
 		
 	}
 	
-	private boolean loading = false;
-
 	@Override
 	public void show() {
 		
