@@ -44,7 +44,6 @@ public class GameScreen implements Screen, InputProcessor {
 
 	@Override
 	public void show() {
-		Assets.instance.init(new AssetManager());
 		controller = new BobController();
 		worldRenderer = new WorldRenderer(controller,false);
 		controller.registerInputProcessor(this);
