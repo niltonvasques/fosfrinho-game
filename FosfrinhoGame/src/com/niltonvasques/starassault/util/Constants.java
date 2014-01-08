@@ -1,5 +1,7 @@
 package com.niltonvasques.starassault.util;
 
+import com.badlogic.gdx.graphics.Color;
+
 public class Constants {
 	/**
 	 * CAMERA_WIDTH is amount of units that camera has in your width.
@@ -23,9 +25,11 @@ public class Constants {
 	 */
 	public static final float CAMERA_HALF_WIDTH = CAMERA_WIDTH / 2f;
 	
-	/**
-	 * 
-	 */
-	public static final String TEXTURE_ATLAS_PACK = "data/textures.pack";
+	
+	
+	public static final int BACKGROUND_COLOR_RGBA = 0x480e79ff;
+	
+	public static final Color BACKGROUND_COLOR = new Color(BACKGROUND_COLOR_RGBA);
+
 	
 }
