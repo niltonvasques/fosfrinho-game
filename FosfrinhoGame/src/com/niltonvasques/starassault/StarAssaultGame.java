@@ -3,13 +3,14 @@ package com.niltonvasques.starassault;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.niltonvasques.starassault.screen.GameScreen;
+import com.niltonvasques.starassault.screen.SplashScreen;
 
 public class StarAssaultGame extends Game {
 	
 	@Override
 	public void create() {		
 		Gdx.app.setLogLevel(Gdx.app.LOG_DEBUG);
-		setScreen(new GameScreen());
+		setScreen(new SplashScreen(this));
 	}
 
 	@Override
