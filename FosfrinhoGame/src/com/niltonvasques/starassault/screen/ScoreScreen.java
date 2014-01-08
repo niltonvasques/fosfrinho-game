@@ -86,7 +86,7 @@ public class ScoreScreen implements Screen{
 	    container.add(optionMenu);
 	    container.row().fill(true, true).expand(true, true).pad(10, 0, 10, 0);
 	    container.add(continueButton);
-	    window.row().fill(0.5f,1f).expand(true,false);
+	    window.row().fill(0.5f,1f).expand(true,true);
 	    window.add(container);
 	    
 	    
