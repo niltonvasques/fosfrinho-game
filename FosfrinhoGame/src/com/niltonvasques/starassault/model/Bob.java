@@ -23,6 +23,7 @@ public class Bob {
 	Vector2 acceleration = new Vector2();
 	Vector2 velocity = new Vector2();
 	Rectangle bounds = new Rectangle();
+	
 	State state = State.IDLE;
 	boolean facingLeft = true;
 	float stateTime = 0;
