@@ -1,24 +1,54 @@
 package com.niltonvasques.fosfrinho.components.bob;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.niltonvasques.fosfrinho.components.Message;
 import com.niltonvasques.fosfrinho.components.PhysicsComponent;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
 import com.niltonvasques.fosfrinho.physics.PhysicsManager;
+import com.niltonvasques.fosfrinho.physics.PhysicsManager.SensorCollisionListener;
 
 public class BobPhysicsComponent extends PhysicsComponent{
 	
-	public final static float SPEED = 4f; // unit per second
-	public final static float JUMP_FORCE = 10f;
+	private static final String TAG = "[BobPhysicsComponent]";
+	
+	private final static float SPEED = 4f; // unit per second
+	private final static float JUMP_FORCE = 10f;
 	private final static long MAX_TIME_PRESS_JUMP 	= 150l;
 	
 	private Body body;
-	private boolean grounded;
+	private boolean grounded = false;
+	
+	private int numFootsOnGround = 0;
 	
 	public BobPhysicsComponent(GameObject o) {
 		super(o);
-		body = PhysicsManager.instance.registerCollisionComponent(this,false,"Sensor");		
+		body = PhysicsManager.instance.registerDynamicBody(o, "data/fosfrinho.json", "bob");
+		PhysicsManager.instance.attachSensorToBody(body, o.getBounds().width, new SensorCollisionListener() {
+			
+			@Override
+			public void onEndContact() {
+				Gdx.app.log(TAG, "onEndContact");
+				numFootsOnGround--;
+				if(numFootsOnGround <= 0){
+					grounded = false;
+				}				
+			}
+			
+			@Override
+			public void onBeginContact() {
+				Gdx.app.log(TAG, "onBeginContact");
+				numFootsOnGround++;
+				if(numFootsOnGround > 0){
+					grounded = true;
+				}
+			}
+		});
+	}
+	
+	@Override
+	public void update(GameObject o, float delta) {
 	}
 
 	@Override
@@ -31,25 +61,17 @@ public class BobPhysicsComponent extends PhysicsComponent{
 			//ok to jump
 				body.applyLinearImpulse( new Vector2(0, body.getMass() * JUMP_FORCE),body.getWorldCenter(), true);
 			break;
-			
-		case GROUNDED:
-			grounded = true;
-			break;
-			
-		case FLYING:
-			grounded = false;
-			break;
-			
+						
 		case BTN_LEFT_PRESSED:
-			body.setLinearVelocity(-4f, body.getLinearVelocity().y);
-//			body.applyLinearImpulse( new Vector2(-body.getMass() * 4,0),body.getWorldCenter(), true);
-//			body.applyLinearImpulse(-1, 0, body.getPosition().x, body.getPosition().y, true);
+			if(body.getLinearVelocity().x > -SPEED ){
+				body.applyLinearImpulse(-0.10f, 0, body.getPosition().x, body.getPosition().y, true);
+			}
 			break;
 			
 		case BTN_RIGHT_PRESSED:
-//			body.applyLinearImpulse( new Vector2(body.getMass() * 4,0),body.getWorldCenter(), true);
-			body.setLinearVelocity(4f, body.getLinearVelocity().y);
-//			body.applyLinearImpulse(1, 0, body.getPosition().x, body.getPosition().y, true);
+			if(body.getLinearVelocity().x < SPEED ){
+				body.applyLinearImpulse(0.10f, 0, body.getPosition().x, body.getPosition().y, true);
+			}
 			break;
 			
 		case BTN_RIGHT_RELEASED:

@@ -56,11 +56,11 @@ public class GameScreen implements Screen{
 		
 		batch.begin();
 //		
-//			for(GameObject o : blocks){
-//				o.draw(batch);
-//			}
-//			
-//			bob.draw(batch);
+			for(GameObject o : blocks){
+				o.draw(batch);
+			}
+////			
+			bob.draw(batch);
 //			
 		batch.end();
 	}
@@ -93,7 +93,7 @@ public class GameScreen implements Screen{
 		this.cam = new OrthographicCamera(cameraHelper.getViewportWidth(), cameraHelper.getViewportHeight());
 		this.cameraHelper.applyTo(cam);
 		
-		PhysicsManager.instance.enableDebug(cam);
+//		PhysicsManager.instance.enableDebug(cam);
 	}
 
 	@Override

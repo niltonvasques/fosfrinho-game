@@ -8,6 +8,7 @@ import com.niltonvasques.fosfrinho.gameobject.GameObject;
 public class BobMoveComponent implements Component{
 	
 	private static final String TAG = "[BobMoveComponent]";
+	private static final boolean LOG = false;
 	
 	public final static float SPEED = 4f; // unit per second
 	public final static float JUMP_VELOCITY = 7f;
@@ -52,7 +53,7 @@ public class BobMoveComponent implements Component{
 
 	@Override
 	public void receive(Message m) {
-		Gdx.app.log(TAG, "Message receive: "+m);
+		if(LOG) Gdx.app.log(TAG, "Message receive: "+m);
 		
 		switch (m) {
 		case BTN_LEFT_PRESSED:

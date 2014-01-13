@@ -20,13 +20,13 @@ public abstract class PhysicsComponent implements Component{
 		bounds = o.getBounds();
 	}
 
-	@Override
-	public void update(GameObject o, float delta) {	
-		
-		o.getBounds().x = (getBody().getPosition().x-o.getBounds().width*0.5f);
-		o.getBounds().y = (getBody().getPosition().y-o.getBounds().height*0.5f);
-		
-	}
+//	@Override
+//	public void update(GameObject o, float delta) {	
+//		
+////		o.getBounds().x = (getBody().getPosition().x-o.getBounds().width*0.5f);
+////		o.getBounds().y = (getBody().getPosition().y-o.getBounds().height*0.5f);
+//		
+//	}
 	
 	public abstract Body getBody();
 
