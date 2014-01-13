@@ -9,6 +9,7 @@ import com.niltonvasques.fosfrinho.util.Assets;
 
 public class BobRenderComponent extends DrawComponent{
 	private static final String TAG = "[BobRenderComponent]";
+	private static final boolean LOG = false;
 	
 	private boolean facingLeft = true;
 	
@@ -19,7 +20,7 @@ public class BobRenderComponent extends DrawComponent{
 
 	@Override
 	public void receive(Message m) {
-		Gdx.app.log(TAG, "Message receive: "+m);
+		if(LOG) Gdx.app.log(TAG, "Message receive: "+m);
 		switch (m) {
 		case BOB_FACING_LEFT:
 			facingLeft = true;

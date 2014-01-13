@@ -9,16 +9,20 @@ import com.niltonvasques.fosfrinho.physics.PhysicsManager;
 public class BlockPhysicsComponent extends PhysicsComponent{
 	
 	private Body body;
-	
 	public BlockPhysicsComponent(GameObject o) {
 		super(o);
-		body = PhysicsManager.instance.registerCollisionComponent(this,true);		
+		body = PhysicsManager.instance.registerStaticBody(o);
 	}
 
 	@Override
 	public void receive(Message m) {
 		switch (m) {
 		}
+		
+	}
+
+	@Override
+	public void update(GameObject o, float delta) {
 		
 	}
 
