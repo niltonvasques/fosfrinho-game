@@ -1,6 +1,7 @@
 package com.niltonvasques.fosfrinho.input;
 
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.utils.Array;
 import com.niltonvasques.fosfrinho.components.comm.CommunicationCom;
@@ -89,13 +90,36 @@ public class InputManager implements InputProcessor{
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
+		for(CommunicationCom o : listeners){
+			if(screenY < Gdx.graphics.getHeight()/2){
+				if(screenX < Gdx.graphics.getWidth()/2){
+						o.send(Message.FIRE);
+				}else{
+					o.send(Message.BOB_JUMP_PRESSED);
+				}			
+			}else if(screenX < Gdx.graphics.getWidth()/2){
+				o.send(Message.BTN_LEFT_PRESSED);
+			}else{
+				o.send(Message.BTN_RIGHT_PRESSED);
+			}
+		}
 		return false;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
+		for(CommunicationCom o : listeners){
+			if(screenY < Gdx.graphics.getHeight()/2){
+				if(screenX < Gdx.graphics.getWidth()/2){
+				}else{
+					o.send(Message.BOB_JUMP_RELEASED);
+				}			
+			}else if(screenX < Gdx.graphics.getWidth()/2){
+				o.send(Message.BTN_LEFT_RELEASED);
+			}else{
+				o.send(Message.BTN_RIGHT_RELEASED);
+			}
+		}
 		return false;
 	}
 
