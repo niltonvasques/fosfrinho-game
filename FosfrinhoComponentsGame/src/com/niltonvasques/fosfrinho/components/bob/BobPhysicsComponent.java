@@ -63,6 +63,7 @@ public class BobPhysicsComponent extends PhysicsComponent{
 
 	@Override
 	public void receive(Message m) {
+		Gdx.app.log(TAG, ""+m);
 		switch (m) {
 		case BOB_JUMP_PRESSED:
 			if(grounded)
@@ -71,13 +72,13 @@ public class BobPhysicsComponent extends PhysicsComponent{
 						
 		case BTN_LEFT_PRESSED:
 			if(body.getLinearVelocity().x > -SPEED ){
-				body.applyLinearImpulse(-0.10f, 0, body.getPosition().x, body.getPosition().y, true);
+				body.applyLinearImpulse(-0.80f, 0, body.getPosition().x, body.getPosition().y, true);
 			}
 			break;
 			
 		case BTN_RIGHT_PRESSED:
 			if(body.getLinearVelocity().x < SPEED ){
-				body.applyLinearImpulse(0.10f, 0, body.getPosition().x, body.getPosition().y, true);
+				body.applyLinearImpulse(0.80f, 0, body.getPosition().x, body.getPosition().y, true);
 			}
 			break;
 			
