@@ -6,18 +6,14 @@ import com.niltonvasques.fosfrinho.gameobject.GameObject;
 
 public abstract class PhysicsComponent implements Component{
 	
-	private Rectangle bounds;
+	private GameObject gameObject;
 	
 	public Rectangle getBounds() {
-		return bounds;
+		return gameObject.getBounds();
 	}
 
-	public void setBounds(Rectangle bounds) {
-		this.bounds = bounds;
-	}
-	
 	public PhysicsComponent(GameObject o) {
-		bounds = o.getBounds();
+		gameObject = o;
 	}
 
 //	@Override
@@ -30,5 +26,8 @@ public abstract class PhysicsComponent implements Component{
 	
 	public abstract Body getBody();
 
+	public GameObject getGameObject() {
+		return gameObject;
+	}
 
 }

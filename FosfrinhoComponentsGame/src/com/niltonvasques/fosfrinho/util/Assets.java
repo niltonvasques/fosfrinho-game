@@ -32,8 +32,8 @@ public class Assets implements Disposable, AssetErrorListener{
 		public final AtlasRegion bobFallLeftRegion;
 		public final AtlasRegion bobFallRightRegion;
 		
-		public final Animation walkingLeftAnimation;
-		public final Animation walkingRightAnimation;
+		public final Animation bobWalkingLeftAnimation;
+		public final Animation bobWalkingRightAnimation;
 		public final Animation bobWalkingDamagedLeftAnimation;
 		public final Animation bobWalkingDamagedRightAnimation;
 		public final Animation bobIdleDamagedLeftAnimation;
@@ -66,8 +66,8 @@ public class Assets implements Disposable, AssetErrorListener{
 				walkingRightFrames[i].flip(true, false);
 			}
 			
-			walkingLeftAnimation = new Animation(RUNNING_FRAME_DURATION, walkingLeftFrames);
-			walkingRightAnimation = new Animation(RUNNING_FRAME_DURATION, walkingRightFrames);
+			bobWalkingLeftAnimation = new Animation(RUNNING_FRAME_DURATION, walkingLeftFrames);
+			bobWalkingRightAnimation = new Animation(RUNNING_FRAME_DURATION, walkingRightFrames);
 			
 			AtlasRegion[] walkingDamagedLeftFrames = new AtlasRegion[10];
 			AtlasRegion[] walkingDamagedRightFrames = new AtlasRegion[10];

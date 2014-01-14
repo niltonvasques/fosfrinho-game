@@ -3,7 +3,7 @@ package com.niltonvasques.fosfrinho.components.bob;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.niltonvasques.fosfrinho.components.Component;
-import com.niltonvasques.fosfrinho.components.Message;
+import com.niltonvasques.fosfrinho.components.comm.Message;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
 
 public class BobInputComponent implements Component{

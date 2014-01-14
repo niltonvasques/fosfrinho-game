@@ -1,21 +1,23 @@
 package com.niltonvasques.fosfrinho.gameobject;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.Array;
-import com.niltonvasques.fosfrinho.components.Component;
-import com.niltonvasques.fosfrinho.components.PhysicsComponent;
+import com.niltonvasques.fosfrinho.components.DefaultRenderCom;
+import com.niltonvasques.fosfrinho.components.DefaultStaticPhysicsCom;
 import com.niltonvasques.fosfrinho.components.bob.BobInputComponent;
 import com.niltonvasques.fosfrinho.components.bob.BobMoveComponent;
 import com.niltonvasques.fosfrinho.components.bob.BobPhysicsComponent;
 import com.niltonvasques.fosfrinho.components.bob.BobRenderComponent;
-import com.niltonvasques.fosfrinho.components.level.BlockPhysicsComponent;
-import com.niltonvasques.fosfrinho.components.level.BlockRenderComponent;
+import com.niltonvasques.fosfrinho.components.display.DisplayRenderComponent;
+import com.niltonvasques.fosfrinho.components.enemy.ZombiePhysicsComponent;
+import com.niltonvasques.fosfrinho.components.enemy.ZombieRenderComponent;
+import com.niltonvasques.fosfrinho.gameobject.GameObject.Type;
+import com.niltonvasques.fosfrinho.util.Assets;
 
 public class GameObjectFactory {
 
 	public static GameObject createBobGameObject(SpriteBatch batch, float x, float y){
 		
-		GameObject bob = new GameObject(x, y, 0.5f, 0.5f);
+		GameObject bob = new GameObject(Type.BOB, x, y, 0.5f, 0.5f);
 		
 		bob.addComponent(new BobInputComponent());
 		
@@ -28,14 +30,34 @@ public class GameObjectFactory {
 		return bob;
 	}
 	
-	public static GameObject createBlockGameObject(SpriteBatch batch, float x, float y){
+	public static GameObject createBlockGameObject(float x, float y){
 		
-		GameObject block = new GameObject(x,y,1f,1f);
+		GameObject block = new GameObject(Type.BLOCK, x, y, 1f, 1f);
 		
-		block.addComponent(new BlockRenderComponent());
+		block.addComponent(new DefaultRenderCom(Assets.instance.level.blockRegion));
 		
-		block.addComponent(new BlockPhysicsComponent(block));
+		block.addComponent(new DefaultStaticPhysicsCom(block));
 		
 		return block;
+	}
+	
+	
+	public static GameObject createZombieGameObject(float x, float y){
+		
+		GameObject zombie = new GameObject(Type.ZOMBIE, x, y, 0.5f, 0.9f);
+		
+		zombie.addComponent(new ZombieRenderComponent());
+		
+		zombie.addComponent(new ZombiePhysicsComponent(zombie));
+		
+		return zombie;
+	}
+	
+	public static GameObject createFpsDisplayGameObject(float x, float y){
+		GameObject display = new GameObject(Type.DISPLAY, x, y, 0.5f, 0.9f);
+		
+		display.addComponent(new DisplayRenderComponent());
+		
+		return display;
 	}
 }

@@ -18,4 +18,10 @@ public class Resources {
 	public static final String LOAD_SOUND = "data/gun-load.wav";
 	
 	public static final String STEP_SOUND = "data/step.mp3";
+	
+	/**
+	 * BODY LOADER JSONS
+	 */
+	
+	public static final String BODY_LOADER_JSON_PATH = "data/fosfrinho.json";
 }
