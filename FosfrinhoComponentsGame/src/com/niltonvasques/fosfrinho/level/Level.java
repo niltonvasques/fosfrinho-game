@@ -1,5 +1,7 @@
 package com.niltonvasques.fosfrinho.level;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
@@ -16,8 +18,8 @@ public class Level {
 //	private Door[][] doors;
 //	private Key[][] keys;
 	private Vector2 spanPosition;
-//	private Array<Zombie> zombies;
-//	private Array<Zombie> drawableZombies = new Array<Zombie>();
+	private Array<GameObject> zombies;
+	private Array<GameObject> drawableZombies = new Array<GameObject>();
 	private long levelClearTime;
 
 	public Level() {
@@ -114,39 +116,41 @@ public class Level {
 		this.spanPosition = spanPosition;
 	}
 
-//	public Array<Zombie> getZombies() {
-//		return zombies;
-//	}
+	public Array<GameObject> getZombies() {
+		return zombies;
+	}
 
-//	public void setZombies(Array<Zombie> zombies) {
-//		this.zombies = zombies;		
-//	}
+	public void setZombies(Array<GameObject> zombies) {
+		this.zombies = zombies;		
+	}
 	
-//	public Array<Zombie> getDrawableZombies(int xCenter, int yCenter, int width, int height){
-//		if(LOG) Gdx.app.debug(TAG, "Zombies size: "+zombies.size);
-//		
-//		drawableZombies.clear();
-//		float x1,x2,y1,y2;
-//    	
-//    	x1 = xCenter- width;
-//    	x2 = xCenter + width;
-//    	
-//    	y1 = yCenter - height;
-//    	y2 = yCenter + height;
-//		
-//		Rectangle screenDrawableArea = new Rectangle(x1, y1, x2, y2);
-//		
-//		if(LOG) Gdx.app.debug(TAG, "screenDrawableArea: "+screenDrawableArea);
-//    	
-//    	for(Zombie zombie: zombies){
-//    		if(LOG) Gdx.app.debug(TAG, "zombie.getBounds(): "+zombie.getBounds());
-//    		if(zombie.getBounds().overlaps(screenDrawableArea)){
-//    			drawableZombies.add(zombie);
-//    		}
-//    	}
-//		
-//		return drawableZombies;		
-//	}
+	public Array<GameObject> getDrawableZombies(int xCenter, int yCenter, int width, int height){
+		if(LOG) Gdx.app.debug(TAG, "Zombies size: "+zombies.size);
+		
+		drawableZombies.clear();
+		float x1,x2,y1,y2;
+    	
+    	x1 = xCenter- width;
+    	x2 = xCenter + width;
+    	
+    	y1 = yCenter - height;
+    	y2 = yCenter + height;
+		
+		Rectangle screenDrawableArea = new Rectangle(x1, y1, x2, y2);
+		
+		if(LOG) Gdx.app.debug(TAG, "screenDrawableArea: "+screenDrawableArea);
+    	
+		if(zombies != null){
+	    	for(GameObject zombie: zombies){
+	    		if(LOG) Gdx.app.debug(TAG, "zombie.getBounds(): "+zombie.getBounds());
+	    		if(zombie.getBounds().overlaps(screenDrawableArea)){
+	    			drawableZombies.add(zombie);
+	    		}
+	    	}
+		}
+		
+		return drawableZombies;		
+	}
 //
 //	private void loadDemoLevel() {
 //		width = 10;

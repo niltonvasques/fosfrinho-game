@@ -2,7 +2,7 @@ package com.niltonvasques.fosfrinho.components.bob;
 
 import com.badlogic.gdx.Gdx;
 import com.niltonvasques.fosfrinho.components.Component;
-import com.niltonvasques.fosfrinho.components.Message;
+import com.niltonvasques.fosfrinho.components.comm.Message;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
 
 public class BobMoveComponent implements Component{
@@ -23,21 +23,17 @@ public class BobMoveComponent implements Component{
 	@Override
 	public void update(GameObject o, float delta) {
 		if(leftPressed && !rightPressed){
-			o.getVelocity().x = -SPEED;
-			o.send(Message.BOB_FACING_LEFT);
+			o.send(Message.FACING_LEFT);
 		}
 		
 		if(!leftPressed && rightPressed){
-			o.getVelocity().x = SPEED;
-			o.send(Message.BOB_FACING_RIGHT);
+			o.send(Message.FACING_RIGHT);
 		}
 		
 		if(!leftPressed && !rightPressed){
-			o.getVelocity().x = 0;
 		}
 		
 		if(jumpPressed){
-			o.getVelocity().y = JUMP_VELOCITY;
 		}
 		
 //		o.getVelocity().y += -10*delta;

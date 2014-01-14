@@ -3,34 +3,29 @@ package com.niltonvasques.fosfrinho.gameobject;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 import com.niltonvasques.fosfrinho.components.Component;
+import com.niltonvasques.fosfrinho.components.ContainerCom;
 import com.niltonvasques.fosfrinho.components.DrawComponent;
-import com.niltonvasques.fosfrinho.components.Message;
+import com.niltonvasques.fosfrinho.components.comm.CommunicationCom;
+import com.niltonvasques.fosfrinho.components.comm.Message;
 
-
-public class GameObject {
+public class GameObject extends ContainerCom implements CommunicationCom{
 	
-	public static final int COMPONENTS_MAX_CAPACITY = 10;
+	public enum Type{
+		BOB, BLOCK, ZOMBIE, DISPLAY
+	}
 	
 	private Rectangle bounds; 
 	private Vector2 acceleration = new Vector2();
 	private Vector2 velocity = new Vector2();
 	
+	private Type type;
+	
 	private DrawComponent drawComponent;
-
-	private Component[] components;
 	
-	public GameObject( float x, float y, float width, float height) {
-		this.components = new Component[COMPONENTS_MAX_CAPACITY];
-		for(int i = 0; i < COMPONENTS_MAX_CAPACITY; i++){
-			this.components[i] = null;
-		}
+	public GameObject(Type type, float x, float y, float width, float height) {
+		this.type = type;
 		this.bounds = new Rectangle(x, y, width, height);
-	}
-	
-	public Component[] getComponents() {
-		return components;
 	}
 
 	public DrawComponent getDrawComponent() {
@@ -41,41 +36,14 @@ public class GameObject {
 		this.drawComponent = drawComponent;
 	}
 
+	@Override
 	public boolean addComponent(Component component) {
 		
 		if(component instanceof DrawComponent){
 			drawComponent = (DrawComponent) component;
 		}
 		
-		for(int i = 0; i < COMPONENTS_MAX_CAPACITY; i++){
-			if(this.components[i] == null){
-				this.components[i] = component;
-				return true;
-			}
-		}
-		
-		return false;
-	}
-
-	public void send(Message message){
-		
-		if(components != null){
-			for(int i = 0; i < COMPONENTS_MAX_CAPACITY; i++){
-				if(this.components[i] != null){
-					components[i].receive(message);
-				}
-			}
-		}		
-	}
-	
-	public void update(float delta){
-		if(components != null){
-			for(int i = 0; i < COMPONENTS_MAX_CAPACITY; i++){
-				if(this.components[i] != null){
-					components[i].update(this,delta);
-				}
-			}
-		}		
+		return super.addComponent(component);
 	}
 	
 	public void draw(SpriteBatch batch){
@@ -106,6 +74,30 @@ public class GameObject {
 
 	public void setVelocity(Vector2 velocity) {
 		this.velocity = velocity;
+	}
+	
+	public void send(Message message){
+		if(getComponents() != null){
+			for(int i = 0; i < COMPONENTS_MAX_CAPACITY; i++){
+				if(getComponents()[i] != null){
+					getComponents()[i].receive(message);
+				}
+			}
+		}		
+	}
+	
+	public void update(float delta){
+		if(getComponents() != null){
+			for(int i = 0; i < COMPONENTS_MAX_CAPACITY; i++){
+				if(getComponents()[i] != null){
+					getComponents()[i].update(this,delta);
+				}
+			}
+		}		
+	}
+
+	public Type getType() {
+		return type;
 	}
 	
 }

@@ -2,8 +2,8 @@ package com.niltonvasques.fosfrinho.level;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
 import com.niltonvasques.fosfrinho.gameobject.GameObjectFactory;
 
@@ -30,9 +30,9 @@ public class LevelLoader {
     private static final int KEY = 0xff00ff; 		// pink
     
 
-    public static Level loadLevel(SpriteBatch batch, int number) {
+    public static Level loadLevel(int number) {
     	
-//    	Array<Zombie> zombies = new Array<Zombie>();
+    	Array<GameObject> zombies = new Array<GameObject>();
     	
         Level level = new Level();
 
@@ -70,7 +70,7 @@ public class LevelLoader {
                 
                 switch(pixel){
                 	case BLOCK:
-                        blocks[col][iRow] = GameObjectFactory.createBlockGameObject(batch, col, iRow);
+                        blocks[col][iRow] = GameObjectFactory.createBlockGameObject(col, iRow);
                 		break;
                 	
                 	case START_POS:
@@ -78,11 +78,11 @@ public class LevelLoader {
                         level.setSpanPosition(new Vector2(col, iRow));
                 		break;
 //                		
-//                	case ZOMBIE:
-//                		if(LOG) Gdx.app.log(TAG, "FIND_ZUMBI");
-//                		Zombie zombie = new NormalZombie(new Vector2(col, iRow));
-//                		zombies.add(zombie);
-//                		break;
+                	case ZOMBIE:
+                		if(LOG) Gdx.app.log(TAG, "FIND_ZUMBI");
+                		GameObject zombie = GameObjectFactory.createZombieGameObject(col, iRow);
+                		zombies.add(zombie);
+                		break;
 //                		
 //                	case CATAZOMBIE:
 //                		CataZombie cataZombie = new CataZombie(new Vector2(col, iRow));
@@ -123,7 +123,7 @@ public class LevelLoader {
 
         // setting the blocks
         level.setBlocks(blocks);
-//        level.setZombies(zombies);
+        level.setZombies(zombies);
 //        level.setLoads(loads);
 //        level.setKeys(keys);
 //        level.setDoors(doors);

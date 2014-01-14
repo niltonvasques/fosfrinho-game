@@ -3,11 +3,13 @@ package com.niltonvasques.fosfrinho.physics;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
@@ -16,11 +18,12 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.niltonvasques.fosfrinho.components.Message;
 import com.niltonvasques.fosfrinho.components.PhysicsComponent;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
+import com.niltonvasques.fosfrinho.gameobject.GameObject.Type;
 import com.niltonvasques.fosfrinho.util.BodyEditorLoader;
 
 public class PhysicsManager {
@@ -38,10 +41,10 @@ public class PhysicsManager {
 	private boolean debug = false;
 	private World world;
 	private Array<Body> bodies = new Array<Body>();
-	
+
 	public interface SensorCollisionListener{
-		public void onBeginContact();
-		public void onEndContact();
+		public void onBeginContact(GameObject o);
+		public void onEndContact(GameObject o);
 	}
 
 	private PhysicsManager() {
@@ -50,12 +53,14 @@ public class PhysicsManager {
 
 		world.setContactListener(new ContactListener() {
 
-			// global scope
-			int numFootContacts;
-
 			@Override
 			public void preSolve(Contact contact, Manifold oldManifold) {
-				// TODO Auto-generated method stub
+				GameObject a = (GameObject)contact.getFixtureA().getBody().getUserData();
+				GameObject b = (GameObject)contact.getFixtureB().getBody().getUserData();
+				if( (a.getType() == Type.ZOMBIE && b.getType() == Type.BOB)
+						|| (b.getType() == Type.ZOMBIE && a.getType() == Type.BOB)){
+					contact.setEnabled(false);
+				}
 
 			}
 
@@ -70,22 +75,16 @@ public class PhysicsManager {
 				if (contact.getFixtureA() != null
 						&& (contact.getFixtureA().getUserData()) != null) {
 					if(contact.getFixtureA().getUserData() instanceof SensorCollisionListener){
-						((SensorCollisionListener)contact.getFixtureA().getUserData()).onEndContact();
+						((SensorCollisionListener)contact.getFixtureA().getUserData()).onEndContact((GameObject)contact.getFixtureB().getBody().getUserData());
 					}					
 				}
 
 				if (contact.getFixtureB() != null
 						&& (contact.getFixtureB().getUserData()) != null) {
 					if(contact.getFixtureB().getUserData() instanceof SensorCollisionListener){
-						((SensorCollisionListener)contact.getFixtureB().getUserData()).onEndContact();
+						((SensorCollisionListener)contact.getFixtureB().getUserData()).onEndContact((GameObject)contact.getFixtureB().getBody().getUserData());
 					}
 				}
-
-//				if (numFootContacts < 1) {
-//					for (PhysicsComponent p : physicsComponents) {
-//						p.receive(Message.FLYING);
-//					}
-//				}
 
 			}
 
@@ -94,22 +93,16 @@ public class PhysicsManager {
 				if (contact.getFixtureA() != null
 						&& (contact.getFixtureA().getUserData()) != null) {
 					if(contact.getFixtureA().getUserData() instanceof SensorCollisionListener){
-						((SensorCollisionListener)contact.getFixtureA().getUserData()).onBeginContact();
+						((SensorCollisionListener)contact.getFixtureA().getUserData()).onBeginContact((GameObject)contact.getFixtureA().getBody().getUserData());
 					}					
 				}
 
 				if (contact.getFixtureB() != null
 						&& (contact.getFixtureB().getUserData()) != null) {
 					if(contact.getFixtureB().getUserData() instanceof SensorCollisionListener){
-						((SensorCollisionListener)contact.getFixtureB().getUserData()).onBeginContact();
+						((SensorCollisionListener)contact.getFixtureB().getUserData()).onBeginContact((GameObject)contact.getFixtureA().getBody().getUserData());
 					}
 				}
-
-//				if (numFootContacts > 0) {
-//					for (PhysicsComponent p : physicsComponents) {
-//						p.receive(Message.GROUNDED);
-//					}
-//				}
 
 			}
 		});
@@ -125,37 +118,63 @@ public class PhysicsManager {
 		camera = cam;
 		debug = true;
 	}
-	
+
+	public void disableDebug(){
+		debug = false;
+	}
+
 	public Body registerStaticBody(GameObject g){
-		
+
 		Body body = CreateBody(world,
 				new Vector2(g.getBounds().x, g.getBounds().y), 0f,BodyType.StaticBody);
 		MakeRectFixture(body, g.getBounds().width,
 				g.getBounds().height, 1f, 0f);
 		body.setUserData(g);
-		
+
 		return body;
 	}
-	
+
 	public Body registerDynamicBody(GameObject g){
 		Body body = CreateBody(world,
 				new Vector2(g.getBounds().x, g.getBounds().y), 0f,BodyType.DynamicBody);
 		MakeRectFixture(body, g.getBounds().width,
 				g.getBounds().height, 1f, 0f);
 		body.setUserData(g);
-		
+
 		return body;
 	}
-	
+
+	public Body registerDynamicBody(GameObject g, float density){
+		Body body = CreateBody(world,
+				new Vector2(g.getBounds().x, g.getBounds().y), 0f,BodyType.DynamicBody);
+		MakeRectFixture(body, g.getBounds().width,
+				g.getBounds().height, density, 0f);
+		body.setUserData(g);
+
+		return body;
+	}
+
 	public Body registerDynamicBody(GameObject g,String path, String loaderName){
-		
+
 		if(path == null || loaderName == null){
 			return registerDynamicBody(g);
 		}
-		
-		Body body = createBodyFromBodyLoader(path, loaderName, g.getBounds().x, g.getBounds().y, g.getBounds().width);
+
+		Body body = createBodyFromBodyLoader(path, loaderName, g.getBounds().x, g.getBounds().y, g.getBounds().width, 1f, 0);
 		body.setUserData(g);
-		
+
+		return body;
+	}
+
+	public Body registerDynamicBody(GameObject g,String path, String loaderName, float density, float restitution){
+
+		if(path == null || loaderName == null){
+			return registerDynamicBody(g);
+		}
+
+		Body body = createBodyFromBodyLoader(path, loaderName, g.getBounds().x, g.getBounds().y, g.getBounds().width, density, restitution);
+		body.setUserData(g);
+
 		return body;
 	}
 
@@ -163,27 +182,26 @@ public class PhysicsManager {
 		physicsComponents.add(value);
 	}
 
-//	public Body registerCollisionComponent(PhysicsComponent value,
-//			boolean staticBody, String sensor) {
-//		physicsComponents.add(value);
-//		if (staticBody) {
-//			Body body = CreateBody(world, new Vector2(value.getBounds().x,
-//					value.getBounds().y), 0f, staticBody ? BodyType.StaticBody
-//					: BodyType.DynamicBody);
-//			MakeRectFixture(body, value.getBounds().width,
-//					value.getBounds().height, 1f, 0f);
-//			return body;
-//		}
-//
-//		return createBody(value.getBounds().x, value.getBounds().y,
-//				value.getBounds().width, value.getBounds().height, sensor);
-//	}
+	//	public Body registerCollisionComponent(PhysicsComponent value,
+	//			boolean staticBody, String sensor) {
+	//		physicsComponents.add(value);
+	//		if (staticBody) {
+	//			Body body = CreateBody(world, new Vector2(value.getBounds().x,
+	//					value.getBounds().y), 0f, staticBody ? BodyType.StaticBody
+	//					: BodyType.DynamicBody);
+	//			MakeRectFixture(body, value.getBounds().width,
+	//					value.getBounds().height, 1f, 0f);
+	//			return body;
+	//		}
+	//
+	//		return createBody(value.getBounds().x, value.getBounds().y,
+	//				value.getBounds().width, value.getBounds().height, sensor);
+	//	}
 
 	private Body createBodyFromBodyLoader(String path, String loaderName,
-			float x, float y, float scale) {
+			float x, float y, float scale, float density, float restitution) {
 		// 0. Create a loader for the file saved from the editor.
 		FileHandle file = Gdx.files.internal(path);
-		Gdx.app.log(TAG, file.readString());
 
 		BodyEditorLoader loader = new BodyEditorLoader(file);
 
@@ -196,7 +214,8 @@ public class PhysicsManager {
 
 		// 2. Create a FixtureDef, as usual.
 		FixtureDef fd = new FixtureDef();
-		fd.density = 1;
+		fd.density = density;
+		fd.restitution = restitution;
 		// fd.friction = 0.5f;
 		// fd.restitution = 0f;
 
@@ -206,35 +225,94 @@ public class PhysicsManager {
 		// 4. Create the body fixture automatically by using the loader.
 		loader.attachFixture(body, loaderName, fd, scale);
 
-//		// shape definition for main fixture
-//		PolygonShape polygonShape = new PolygonShape();
-//
-//		// fixture definition
-//		FixtureDef myFixtureDef = new FixtureDef();
-//		myFixtureDef.shape = polygonShape;
-//		myFixtureDef.density = 1;
-//
-//		// add foot sensor fixture
-//		polygonShape.setAsBox(scale * 0.4f, scale * 0.1f, new Vector2(
-//				scale * 0.5f, -0.02f), 0);
-//		myFixtureDef.isSensor = true;
-//		Fixture footSensorFixture = body.createFixture(myFixtureDef);
-//		footSensorFixture.setUserData("Sensor");
+		//		// shape definition for main fixture
+		//		PolygonShape polygonShape = new PolygonShape();
+		//
+		//		// fixture definition
+		//		FixtureDef myFixtureDef = new FixtureDef();
+		//		myFixtureDef.shape = polygonShape;
+		//		myFixtureDef.density = 1;
+		//
+		//		// add foot sensor fixture
+		//		polygonShape.setAsBox(scale * 0.4f, scale * 0.1f, new Vector2(
+		//				scale * 0.5f, -0.02f), 0);
+		//		myFixtureDef.isSensor = true;
+		//		Fixture footSensorFixture = body.createFixture(myFixtureDef);
+		//		footSensorFixture.setUserData("Sensor");
 
 		return body;
 	}
-	
+
+	/**
+	 * Attach a default sensor in bottom position of body
+	 * @param body that sensor will be attached.
+	 * @param scale in real world of body.
+	 * @param userData is the listener that will called when a collision is happen.
+	 */
 	public void attachSensorToBody(Body body, float scale, SensorCollisionListener userData){
 		PolygonShape polygonShape = new PolygonShape();
 		// add foot sensor fixture
 		polygonShape.setAsBox(scale * 0.4f, scale * 0.1f, new Vector2(
 				scale * 0.5f, -0.02f), 0);
-		
+
 		FixtureDef myFixtureDef = new FixtureDef();
 		myFixtureDef.shape = polygonShape;
 		myFixtureDef.density = 1;
 		myFixtureDef.isSensor = true;
-		
+
+		Fixture footSensorFixture = body.createFixture(myFixtureDef);
+		footSensorFixture.setUserData(userData);
+
+		polygonShape.dispose();
+	}
+
+	/**
+	 * Attach a default sensor in bottom position of body
+	 * @param body that sensor will be attached.
+	 * @param scale in real world of body.
+	 * @param userData is the listener that will called when a collision is happen.
+	 */
+	public void attachWheelFixtureToBody(Body body, float scale){
+		float OUTER_RADIUS = scale* 0.5f;
+		float INNER_RADIUS = OUTER_RADIUS * 0.25f;
+		int DIVISIONS = 10;
+
+		// Outer shape.
+		ChainShape chainShape = new ChainShape();
+		Vector2[] vertices = new Vector2[DIVISIONS+1];
+
+		for(int idx = 0; idx < DIVISIONS; idx++)
+		{
+			float angle = ((MathUtils.PI*2)/DIVISIONS)*idx;
+			float xPos, yPos;
+
+			xPos = OUTER_RADIUS*MathUtils.cos(angle) + scale * 0.5f;
+			yPos = INNER_RADIUS*MathUtils.sin(angle) + scale * 0.1f;
+			vertices[idx] = new Vector2(xPos,yPos);
+		}
+
+		vertices[DIVISIONS] = vertices[0];
+
+		chainShape.createChain(vertices);
+
+		FixtureDef myFixtureDef = new FixtureDef();
+		myFixtureDef.shape = chainShape;
+		myFixtureDef.density = 1;
+		myFixtureDef.restitution = 0;
+		//		myFixtureDef.isSensor = true;
+
+		Fixture footSensorFixture = body.createFixture(myFixtureDef);
+
+		chainShape.dispose();
+	}
+
+	public void attachSensorToBody(Body body, Shape shape, SensorCollisionListener userData){
+
+		FixtureDef myFixtureDef = new FixtureDef();
+		myFixtureDef.shape = shape;
+		myFixtureDef.density = 1;
+		myFixtureDef.isSensor = true;
+
 		Fixture footSensorFixture = body.createFixture(myFixtureDef);
 		footSensorFixture.setUserData(userData);
 	}
@@ -254,8 +332,8 @@ public class PhysicsManager {
 
 		float w = ConvertToBox(width / 2f);
 		float h = ConvertToBox(height / 2f);
-//		bodyShape.setAsBox(w, h);
-		bodyShape.setAsBox(h, w, new Vector2(h, w), 0f);
+		//		bodyShape.setAsBox(w, h);
+		bodyShape.setAsBox(w, h, new Vector2(w, h), 0f);
 
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.density = density;
@@ -280,7 +358,7 @@ public class PhysicsManager {
 
 		// shape definition for main fixture
 		PolygonShape polygonShape = new PolygonShape();
-//		polygonShape.setAsBox(w * 0.5f, h * 0.5f); // a 2x4 rectangle
+		//		polygonShape.setAsBox(w * 0.5f, h * 0.5f); // a 2x4 rectangle
 		polygonShape.setAsBox(h * 0.5f, w * 0.5f, new Vector2(h, w), 0f);
 
 		// fixture definition
@@ -325,9 +403,9 @@ public class PhysicsManager {
 		// accumulator-=BOX_STEP;
 		// }
 		world.step(dt, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
-		
+
 		world.getBodies(bodies);
-		
+
 		for(Body body : bodies){
 			if(body.getType() == BodyType.DynamicBody){
 				GameObject obj = (GameObject)body.getUserData();
