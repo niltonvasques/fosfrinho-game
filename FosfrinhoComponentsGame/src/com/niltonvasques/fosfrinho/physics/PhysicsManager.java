@@ -57,11 +57,20 @@ public class PhysicsManager {
 			public void preSolve(Contact contact, Manifold oldManifold) {
 				GameObject a = (GameObject)contact.getFixtureA().getBody().getUserData();
 				GameObject b = (GameObject)contact.getFixtureB().getBody().getUserData();
-				if( (a.getType() == Type.ZOMBIE && b.getType() == Type.BOB)
-						|| (b.getType() == Type.ZOMBIE && a.getType() == Type.BOB)){
-					contact.setEnabled(false);
+				boolean found = false;
+				for(Type t : a.getNotCollidable()){
+					if( b.getType() == t ){
+						contact.setEnabled(false);
+						found = true;
+					}
 				}
-
+				if(!found){
+					for(Type t : b.getNotCollidable()){
+						if( a.getType() == t ){
+							contact.setEnabled(false);
+						}
+					}
+				}
 			}
 
 			@Override

@@ -12,7 +12,6 @@ public class Level {
 	
 	private int width;
 	private int height;
-//	private Block[][] blocks;
 	private GameObject[][] blocks;
 //	private Load[][] loads;
 //	private Door[][] doors;
