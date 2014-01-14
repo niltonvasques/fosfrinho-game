@@ -3,6 +3,7 @@ package com.niltonvasques.fosfrinho.gameobject;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.niltonvasques.fosfrinho.components.Component;
 import com.niltonvasques.fosfrinho.components.ContainerCom;
 import com.niltonvasques.fosfrinho.components.DrawComponent;
@@ -16,8 +17,8 @@ public class GameObject extends ContainerCom implements CommunicationCom{
 	}
 	
 	private Rectangle bounds; 
-	private Vector2 acceleration = new Vector2();
-	private Vector2 velocity = new Vector2();
+	
+	private Array<Type> notCollidable = new Array<Type>();
 	
 	private Type type;
 	
@@ -60,22 +61,6 @@ public class GameObject extends ContainerCom implements CommunicationCom{
 		this.bounds = bounds;
 	}
 	
-	public Vector2 getAcceleration() {
-		return acceleration;
-	}
-
-	public void setAcceleration(Vector2 acceleration) {
-		this.acceleration = acceleration;
-	}
-
-	public Vector2 getVelocity() {
-		return velocity;
-	}
-
-	public void setVelocity(Vector2 velocity) {
-		this.velocity = velocity;
-	}
-	
 	public void send(Message message){
 		if(getComponents() != null){
 			for(int i = 0; i < COMPONENTS_MAX_CAPACITY; i++){
@@ -99,5 +84,15 @@ public class GameObject extends ContainerCom implements CommunicationCom{
 	public Type getType() {
 		return type;
 	}
+
+	public Array<Type> getNotCollidable() {
+		return notCollidable;
+	}
 	
+	public void addNotCollidableType(Type t){
+		notCollidable.add(t);
+	}
+
+	
+ 
 }

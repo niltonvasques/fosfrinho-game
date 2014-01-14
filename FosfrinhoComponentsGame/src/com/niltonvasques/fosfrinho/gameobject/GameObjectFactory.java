@@ -19,6 +19,8 @@ public class GameObjectFactory {
 		
 		GameObject bob = new GameObject(Type.BOB, x, y, 0.5f, 0.5f);
 		
+		bob.addNotCollidableType(Type.ZOMBIE);
+		
 		bob.addComponent(new BobInputComponent());
 		
 		bob.addComponent(new BobPhysicsComponent(bob));
@@ -45,6 +47,8 @@ public class GameObjectFactory {
 	public static GameObject createZombieGameObject(float x, float y){
 		
 		GameObject zombie = new GameObject(Type.ZOMBIE, x, y, 0.5f, 0.9f);
+		
+		zombie.addNotCollidableType(Type.ZOMBIE);
 		
 		zombie.addComponent(new ZombieRenderComponent());
 		
