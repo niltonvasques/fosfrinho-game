@@ -8,7 +8,8 @@ import com.niltonvasques.fosfrinho.util.Assets;
 public class DefaultRenderCom extends DrawComponent{
 	private TextureRegion defaultRegion;
 	
-	public DefaultRenderCom(TextureRegion defaultRegion) {
+	public DefaultRenderCom(GameObject o, TextureRegion defaultRegion) {
+		super(o);
 		this.defaultRegion = defaultRegion;
 	}
 

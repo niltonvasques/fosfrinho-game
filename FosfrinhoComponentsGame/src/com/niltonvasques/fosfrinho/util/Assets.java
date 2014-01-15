@@ -126,7 +126,8 @@ public class Assets implements Disposable, AssetErrorListener{
 	
 	public class AssetShoots implements Disposable{
 		
-		public final Texture shootTexture;
+		private final Texture shootTexture;
+		public final TextureRegion shootRegion;
 		
 		public AssetShoots() {
 			Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGB888);
@@ -134,6 +135,7 @@ public class Assets implements Disposable, AssetErrorListener{
 			pixmap.drawPixel(0, 0);
 			
 			shootTexture = new Texture(pixmap);
+			shootRegion = new TextureRegion(shootTexture);
 		}
 		
 		@Override

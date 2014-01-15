@@ -1,5 +1,7 @@
 package com.niltonvasques.fosfrinho.physics;
 
+import sun.font.CreatedFontTracker;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -16,17 +18,20 @@ import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.JointEdge;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.niltonvasques.fosfrinho.components.PhysicsComponent;
+import com.badlogic.gdx.utils.Pool;
+import com.niltonvasques.fosfrinho.components.bob.gun.ShootPhysicsCom;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
 import com.niltonvasques.fosfrinho.gameobject.GameObject.Type;
 import com.niltonvasques.fosfrinho.util.BodyEditorLoader;
 
 public class PhysicsManager {
+	
 	private static String TAG = "[PhysicsManager]";
 	private static final float GRAVITY = -20f;
 	private static final float WORLD_TO_BOX = 1f;
@@ -34,13 +39,12 @@ public class PhysicsManager {
 
 	public static PhysicsManager instance = new PhysicsManager();
 
-	private Array<PhysicsComponent> physicsComponents;
-
 	private Box2DDebugRenderer boxDebugRenderer;
 	private OrthographicCamera camera;
 	private boolean debug = false;
 	private World world;
 	private Array<Body> bodies = new Array<Body>();
+	private Array<Body> bodiesFlaggedsForDelete = new Array<Body>();
 
 	public interface SensorCollisionListener{
 		public void onBeginContact(GameObject o);
@@ -48,7 +52,6 @@ public class PhysicsManager {
 	}
 
 	private PhysicsManager() {
-		physicsComponents = new Array<PhysicsComponent>();
 		world = new World(new Vector2(0, GRAVITY), true);
 
 		world.setContactListener(new ContactListener() {
@@ -91,7 +94,7 @@ public class PhysicsManager {
 				if (contact.getFixtureB() != null
 						&& (contact.getFixtureB().getUserData()) != null) {
 					if(contact.getFixtureB().getUserData() instanceof SensorCollisionListener){
-						((SensorCollisionListener)contact.getFixtureB().getUserData()).onEndContact((GameObject)contact.getFixtureB().getBody().getUserData());
+						((SensorCollisionListener)contact.getFixtureB().getUserData()).onEndContact((GameObject)contact.getFixtureA().getBody().getUserData());
 					}
 				}
 
@@ -102,7 +105,7 @@ public class PhysicsManager {
 				if (contact.getFixtureA() != null
 						&& (contact.getFixtureA().getUserData()) != null) {
 					if(contact.getFixtureA().getUserData() instanceof SensorCollisionListener){
-						((SensorCollisionListener)contact.getFixtureA().getUserData()).onBeginContact((GameObject)contact.getFixtureA().getBody().getUserData());
+						((SensorCollisionListener)contact.getFixtureA().getUserData()).onBeginContact((GameObject)contact.getFixtureB().getBody().getUserData());
 					}					
 				}
 
@@ -136,6 +139,16 @@ public class PhysicsManager {
 
 		Body body = CreateBody(world,
 				new Vector2(g.getBounds().x, g.getBounds().y), 0f,BodyType.StaticBody);
+		MakeRectFixture(body, g.getBounds().width,
+				g.getBounds().height, 1f, 0f);
+		body.setUserData(g);
+
+		return body;
+	}
+	
+	public Body registerDynamicBody(GameObject g, float x, float y){
+		Body body = CreateBody(world,
+				new Vector2(x, y), 0f,BodyType.DynamicBody);
 		MakeRectFixture(body, g.getBounds().width,
 				g.getBounds().height, 1f, 0f);
 		body.setUserData(g);
@@ -186,26 +199,6 @@ public class PhysicsManager {
 
 		return body;
 	}
-
-	public void registerCollisionComponent(PhysicsComponent value) {
-		physicsComponents.add(value);
-	}
-
-	//	public Body registerCollisionComponent(PhysicsComponent value,
-	//			boolean staticBody, String sensor) {
-	//		physicsComponents.add(value);
-	//		if (staticBody) {
-	//			Body body = CreateBody(world, new Vector2(value.getBounds().x,
-	//					value.getBounds().y), 0f, staticBody ? BodyType.StaticBody
-	//					: BodyType.DynamicBody);
-	//			MakeRectFixture(body, value.getBounds().width,
-	//					value.getBounds().height, 1f, 0f);
-	//			return body;
-	//		}
-	//
-	//		return createBody(value.getBounds().x, value.getBounds().y,
-	//				value.getBounds().width, value.getBounds().height, sensor);
-	//	}
 
 	private Body createBodyFromBodyLoader(String path, String loaderName,
 			float x, float y, float scale, float density, float restitution) {
@@ -406,14 +399,13 @@ public class PhysicsManager {
 	private float accumulator;
 
 	public void Update(float dt) {
-		// accumulator+=dt;
-		// while(accumulator>BOX_STEP){
-		// world.step(BOX_STEP,BOX_VELOCITY_ITERATIONS,BOX_POSITION_ITERATIONS);
-		// accumulator-=BOX_STEP;
-		// }
+		
+		destroyBodies();
+		
 		world.step(dt, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
 
 		world.getBodies(bodies);
+		
 
 		for(Body body : bodies){
 			if(body.getType() == BodyType.DynamicBody){
@@ -423,12 +415,38 @@ public class PhysicsManager {
 			}
 		}
 
+		
 		if (debug)
 			boxDebugRenderer.render(world, camera.combined);
 	}
 
+	private static final int MAX_DESTROY_BODIES_PER_STEP = 50;
+	private static int destroysCount = 0;
+	private void destroyBodies() {
+		if(!world.isLocked()){
+			int removeCount = 0;
+			for(Body body : bodiesFlaggedsForDelete){
+				if(body != null){
+					body.setActive(false);
+					bodiesFlaggedsForDelete.removeValue(body, true);
+					world.destroyBody(body);
+					destroysCount++;
+					Gdx.app.log(TAG, "destroyBody: "+destroysCount);
+					removeCount++;
+					if(removeCount > MAX_DESTROY_BODIES_PER_STEP) break;
+				}
+			}
+		}
+	}
+
 	public boolean isDebug() {
 		return debug;
+	}
+
+	public void destroyBody(Body body) {
+		if(!bodiesFlaggedsForDelete.contains(body, true)){
+			bodiesFlaggedsForDelete.add(body);
+		}
 	}
 
 }

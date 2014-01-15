@@ -7,7 +7,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.Array;
 import com.niltonvasques.fosfrinho.components.comm.CommunicationCom;
 import com.niltonvasques.fosfrinho.components.comm.Message;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
@@ -26,7 +25,6 @@ public class GameScreen implements Screen{
 	
 	private GameObject display;
 	
-	private GameObject bob;
 	private CameraHelper cameraHelper;
 	private OrthographicCamera cam;
 	private SpriteBatch batch;
@@ -43,46 +41,24 @@ public class GameScreen implements Screen{
 			return;
 		}
 		
-		display.update(delta);
-		
 		PhysicsManager.instance.Update(delta);
 		
-		//Updating
-		Array<GameObject> blocks = level.getDrawableBlocks((int)cameraHelper.getPosition().x, (int)cameraHelper.getPosition().y,
-				(int)cameraHelper.getViewportWidth(),(int)cameraHelper.getViewportHeight());
-		
-		Array<GameObject> zombies = level.getDrawableZombies((int)cameraHelper.getPosition().x, (int)cameraHelper.getPosition().y,
-				(int)cameraHelper.getViewportWidth(),(int)cameraHelper.getViewportHeight());
-		
-		
-		for(GameObject o : blocks){
-			o.update(delta);
-		}
-		
-		for(GameObject o : level.getZombies()){
-			o.update(delta);
-		}
-		
-		bob.update(delta);
+		display.update(delta);
+		level.update(delta);
 		
 		//Drawing
 		cameraHelper.update(delta);
 		cameraHelper.applyTo(cam);
 		
+		level.prepareDraw((int)cameraHelper.getPosition().x, (int)cameraHelper.getPosition().y,
+				(int)cameraHelper.getViewportWidth(),(int)cameraHelper.getViewportHeight());
+		
 		if(!PhysicsManager.instance.isDebug()){
 			batch.setProjectionMatrix(cam.combined);
 			
 			batch.begin();
-			
-				for(GameObject o : blocks){
-					o.draw(batch);
-				}
 				
-				for(GameObject z : zombies){
-					z.draw(batch);
-				}
-				
-				bob.draw(batch);
+				level.draw(batch);
 				
 			batch.end();
 		}
@@ -110,12 +86,10 @@ public class GameScreen implements Screen{
 		
 		level = LevelLoader.loadLevel(3);
 		
-		bob = GameObjectFactory.createBobGameObject(batch,level.getSpanPosition().x,level.getSpanPosition().y);
-		
-		input.addListener(bob);
+		input.addListener(level.getBob());
 		
 		this.cameraHelper = new CameraHelper();
-		this.cameraHelper.setTarget(bob);
+		this.cameraHelper.setTarget(level.getBob());
 		
 		this.cam = new OrthographicCamera(cameraHelper.getViewportWidth(), cameraHelper.getViewportHeight());
 		this.cameraHelper.applyTo(cam);

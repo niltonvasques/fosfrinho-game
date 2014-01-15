@@ -10,7 +10,7 @@ import com.niltonvasques.fosfrinho.physics.PhysicsManager;
 import com.niltonvasques.fosfrinho.physics.PhysicsManager.SensorCollisionListener;
 import com.niltonvasques.fosfrinho.util.Resources;
 
-public class ZombiePhysicsComponent extends PhysicsComponent{
+public class ZombiePhysicsCom extends PhysicsComponent{
 	
 	private static final String TAG = "[ZombiePhysicsComponent]";
 	private static final boolean LOG = false;
@@ -24,7 +24,7 @@ public class ZombiePhysicsComponent extends PhysicsComponent{
 	
 	private int numFootsOnGround = 0;
 	
-	public ZombiePhysicsComponent(GameObject o) {
+	public ZombiePhysicsCom(GameObject o) {
 		super(o);
 		body = PhysicsManager.instance.registerDynamicBody(o, Resources.BODY_LOADER_JSON_PATH, "zombie",100f, 0f);
 		

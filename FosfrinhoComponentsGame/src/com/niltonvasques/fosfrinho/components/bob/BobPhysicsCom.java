@@ -7,11 +7,12 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.niltonvasques.fosfrinho.components.PhysicsComponent;
 import com.niltonvasques.fosfrinho.components.comm.Message;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
+import com.niltonvasques.fosfrinho.gameobject.GameObject.Type;
 import com.niltonvasques.fosfrinho.physics.PhysicsManager;
 import com.niltonvasques.fosfrinho.physics.PhysicsManager.SensorCollisionListener;
 import com.niltonvasques.fosfrinho.util.Resources;
 
-public class BobPhysicsComponent extends PhysicsComponent{
+public class BobPhysicsCom extends PhysicsComponent{
 	
 	private static final String TAG = "[BobPhysicsComponent]";
 	private static final boolean LOG = false;
@@ -25,17 +26,21 @@ public class BobPhysicsComponent extends PhysicsComponent{
 	
 	private int numFootsOnGround = 0;
 	
-	public BobPhysicsComponent(GameObject o) {
+	public BobPhysicsCom(GameObject o) {
 		super(o);
+		
 		body = PhysicsManager.instance.registerDynamicBody(o, Resources.BODY_LOADER_JSON_PATH, "bob");
-		
 		PhysicsManager.instance.attachSensorToBody(body, o.getBounds().width, footSensorListener);
-		
 		PolygonShape polygon = new PolygonShape();
 		polygon.setAsBox(o.getBounds().width*0.5f, o.getBounds().height*0.5f,
 				new Vector2(o.getBounds().width*0.5f, o.getBounds().height*0.5f),0);
-		
 		PhysicsManager.instance.attachSensorToBody(body, polygon, bodySensorListener);
+		
+		getGameObject().subscribeEvent(Message.BOB_JUMP_PRESSED, this);
+		getGameObject().subscribeEvent(Message.BTN_LEFT_PRESSED, this);
+		getGameObject().subscribeEvent(Message.BTN_RIGHT_PRESSED, this);
+		getGameObject().subscribeEvent(Message.BTN_LEFT_RELEASED, this);
+		getGameObject().subscribeEvent(Message.BTN_RIGHT_RELEASED, this);
 	}
 	
 	@Override
@@ -63,7 +68,8 @@ public class BobPhysicsComponent extends PhysicsComponent{
 
 	@Override
 	public void receive(Message m) {
-		Gdx.app.log(TAG, ""+m);
+//		if(LOG) Gdx.app.log(TAG, ""+m);
+		
 		switch (m) {
 		case BOB_JUMP_PRESSED:
 			if(grounded)
@@ -103,18 +109,26 @@ public class BobPhysicsComponent extends PhysicsComponent{
 		@Override
 		public void onEndContact(GameObject o) {
 			if(LOG) Gdx.app.log(TAG, "onEndContact");
-			numFootsOnGround--;
-			if(numFootsOnGround <= 0){
-				grounded = false;
-			}				
+			if(o.getType() == Type.BLOCK){
+				numFootsOnGround--;
+				if(numFootsOnGround <= 0){
+					grounded = false;
+				}				
+			}
 		}
 		
 		@Override
 		public void onBeginContact(GameObject o) {
 			if(LOG) Gdx.app.log(TAG, "onBeginContact "+o.getType());
-			numFootsOnGround++;
-			if(numFootsOnGround > 0){
-				grounded = true;
+			if(o.getType() == Type.BLOCK){
+				numFootsOnGround++;
+				if(numFootsOnGround > 0){
+					grounded = true;
+				}
+			}
+			
+			if(o.getType() == Type.ZOMBIE){
+				getGameObject().send(Message.DAMAGED);
 			}
 		}
 	};
@@ -128,7 +142,10 @@ public class BobPhysicsComponent extends PhysicsComponent{
 		
 		@Override
 		public void onBeginContact(GameObject o) {
-			if(LOG) Gdx.app.log(TAG, "bodySensorListener onBeginContact");
+			if(LOG) Gdx.app.log(TAG, "bodySensorListener onBeginContact"+o.getType());
+			if(o.getType() == Type.ZOMBIE){
+				getGameObject().send(Message.DAMAGED);
+			}
 		}
 	};
 	

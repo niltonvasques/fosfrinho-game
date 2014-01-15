@@ -1,8 +1,10 @@
 package com.niltonvasques.fosfrinho.gameobject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.niltonvasques.fosfrinho.components.Component;
 import com.niltonvasques.fosfrinho.components.ContainerCom;
@@ -13,16 +15,19 @@ import com.niltonvasques.fosfrinho.components.comm.Message;
 public class GameObject extends ContainerCom implements CommunicationCom{
 	
 	public enum Type{
-		BOB, BLOCK, ZOMBIE, DISPLAY
+		BOB, BLOCK, ZOMBIE, DISPLAY, SHOOT
 	}
 	
 	private Rectangle bounds; 
+	private Type type;
+	private DrawComponent drawComponent;
+
+	private Map<String, Property> properties = new HashMap<String, Property>();
+	private Map<Message, Array<Component>> eventsSubscribes = new HashMap<Message, Array<Component>>();
 	
 	private Array<Type> notCollidable = new Array<Type>();
+	private Array<Action> pendingActions = new Array<Action>();
 	
-	private Type type;
-	
-	private DrawComponent drawComponent;
 	
 	public GameObject(Type type, float x, float y, float width, float height) {
 		this.type = type;
@@ -62,13 +67,19 @@ public class GameObject extends ContainerCom implements CommunicationCom{
 	}
 	
 	public void send(Message message){
-		if(getComponents() != null){
-			for(int i = 0; i < COMPONENTS_MAX_CAPACITY; i++){
-				if(getComponents()[i] != null){
-					getComponents()[i].receive(message);
-				}
-			}
-		}		
+		if(!eventsSubscribes.containsKey(message)) return;
+		
+		for(Component c : eventsSubscribes.get(message)){
+			c.receive(message);
+		}
+		
+//		if(getComponents() != null){
+//			for(int i = 0; i < COMPONENTS_MAX_CAPACITY; i++){
+//				if(getComponents()[i] != null){
+//					getComponents()[i].receive(message);
+//				}
+//			}
+//		}		
 	}
 	
 	public void update(float delta){
@@ -93,6 +104,47 @@ public class GameObject extends ContainerCom implements CommunicationCom{
 		notCollidable.add(t);
 	}
 
+	public Array<Action> getPendingActions() {
+		return pendingActions;
+	}
+
+	public void registerPendingAction(Action a){
+		pendingActions.add(a);
+	}
+
+	public void detachComponent(Component com) {
+		for(int i = 0; i < COMPONENTS_MAX_CAPACITY; i++){
+			if(getComponents()[i] != null && com == getComponents()[i]){
+				getComponents()[i] = null;
+			}
+		}		
+	}
+	
+	public void detachAllComponents() {
+		for(int i = 0; i < COMPONENTS_MAX_CAPACITY; i++){
+			if(getComponents()[i] != null){
+				getComponents()[i] = null;
+			}
+		}		
+	}
+
+	public Map<String, Property> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Map<String, Property> properties) {
+		this.properties = properties;
+	}
+	
+	public void subscribeEvent(Message event, Component c){
+		if(eventsSubscribes.containsKey(event)){
+			eventsSubscribes.get(event).add(c);
+		}else{
+			eventsSubscribes.put(event,new Array<Component>());
+			eventsSubscribes.get(event).add(c);
+		}
+	}
+	
 	
  
 }
