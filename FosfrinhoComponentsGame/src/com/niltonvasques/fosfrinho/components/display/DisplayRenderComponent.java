@@ -11,7 +11,8 @@ public class DisplayRenderComponent extends DrawComponent {
 	
 	private FPSRenderer fpsRenderer;
 	
-	public DisplayRenderComponent() {
+	public DisplayRenderComponent(GameObject o) {
+		super(o);
 		fpsRenderer = new FPSRenderer();
 	}
 	

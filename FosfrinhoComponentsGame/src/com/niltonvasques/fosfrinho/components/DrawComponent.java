@@ -1,13 +1,17 @@
 package com.niltonvasques.fosfrinho.components;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
 
 public abstract class DrawComponent implements Component{
 
+	private GameObject object;
 	private float stateTime = 0f; 
+	
+	public DrawComponent(GameObject o) {
+		this.object = o;
+	}
 	
 	@Override
 	public void update(GameObject o, float delta) {
@@ -26,6 +30,11 @@ public abstract class DrawComponent implements Component{
 
 	public void setStateTime(float stateTime) {
 		this.stateTime = stateTime;
+	}
+	
+	@Override
+	public GameObject getGameObject() {
+		return object;
 	}
 
 }

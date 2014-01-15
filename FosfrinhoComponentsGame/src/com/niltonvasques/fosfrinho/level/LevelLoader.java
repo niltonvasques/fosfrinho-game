@@ -32,8 +32,6 @@ public class LevelLoader {
 
     public static Level loadLevel(int number) {
     	
-    	Array<GameObject> zombies = new Array<GameObject>();
-    	
         Level level = new Level();
 
         // Loading the png into a Pixmap
@@ -67,21 +65,21 @@ public class LevelLoader {
             for (int col = 0; col < level.getWidth(); col++) {
                 int pixel = (pixmap.getPixel(col, row) >>> 8) & 0xffffff;
                 int iRow = level.getHeight() - 1 - row;
-                
+                GameObject obj = null;
                 switch(pixel){
                 	case BLOCK:
-                        blocks[col][iRow] = GameObjectFactory.createBlockGameObject(col, iRow);
+                        obj = GameObjectFactory.createBlockGameObject(col, iRow);
                 		break;
                 	
                 	case START_POS:
                 		if(LOG) Gdx.app.log(TAG, "pixel["+row+"]"+"["+col+"]: "+Integer.toHexString(pixel));
                         level.setSpanPosition(new Vector2(col, iRow));
+                		obj = GameObjectFactory.createBobGameObject(level.getSpanPosition().x,level.getSpanPosition().y);
                 		break;
 //                		
                 	case ZOMBIE:
                 		if(LOG) Gdx.app.log(TAG, "FIND_ZUMBI");
-                		GameObject zombie = GameObjectFactory.createZombieGameObject(col, iRow);
-                		zombies.add(zombie);
+                		obj = GameObjectFactory.createZombieGameObject(col, iRow);
                 		break;
 //                		
 //                	case CATAZOMBIE:
@@ -118,15 +116,12 @@ public class LevelLoader {
             			break;
                 }
                 
+                if(obj != null){
+                	level.addGameObject(obj);
+                }                
             }
         }
 
-        // setting the blocks
-        level.setBlocks(blocks);
-        level.setZombies(zombies);
-//        level.setLoads(loads);
-//        level.setKeys(keys);
-//        level.setDoors(doors);
         return level;
     }
 

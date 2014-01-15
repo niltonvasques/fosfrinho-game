@@ -4,8 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.niltonvasques.fosfrinho.components.Component;
 import com.niltonvasques.fosfrinho.components.comm.Message;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
+import com.niltonvasques.fosfrinho.gameobject.Property;
 
-public class BobMoveComponent implements Component{
+public class BobMoveCom implements Component{
 	
 	private static final String TAG = "[BobMoveComponent]";
 	private static final boolean LOG = false;
@@ -14,20 +15,34 @@ public class BobMoveComponent implements Component{
 	public final static float JUMP_VELOCITY = 7f;
 	private final static long MAX_TIME_PRESS_JUMP 	= 150l;
 	
-
+	private GameObject object;
+	
 	private boolean leftPressed = false;
 	private boolean rightPressed = false;
 	private boolean jumpPressed = false;
 	private long jumpPressedTime = 0;
 	
+	public BobMoveCom(GameObject o) {
+		this.object = o;
+		
+		if(!o.getProperties().containsKey("FACING_LEFT")){
+			o.getProperties().put("FACING_LEFT",new Property("FACING_LEFT",true));
+		}
+		
+		o.subscribeEvent(Message.BTN_LEFT_PRESSED, this);
+		o.subscribeEvent(Message.BTN_RIGHT_PRESSED, this);
+	}
+	
 	@Override
 	public void update(GameObject o, float delta) {
 		if(leftPressed && !rightPressed){
 			o.send(Message.FACING_LEFT);
+			o.getProperties().get("FACING_LEFT").value = true;
 		}
 		
 		if(!leftPressed && rightPressed){
 			o.send(Message.FACING_RIGHT);
+			o.getProperties().get("FACING_LEFT").value = false;
 		}
 		
 		if(!leftPressed && !rightPressed){
@@ -72,6 +87,11 @@ public class BobMoveComponent implements Component{
 			break;
 		}
 		
+	}
+	
+	@Override
+	public GameObject getGameObject() {
+		return object;
 	}
 
 }
