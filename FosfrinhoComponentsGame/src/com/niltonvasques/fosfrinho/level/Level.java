@@ -11,7 +11,7 @@ import com.niltonvasques.fosfrinho.gameobject.GameObjectFactory;
 import com.niltonvasques.fosfrinho.gameobject.Property;
 import com.niltonvasques.fosfrinho.util.Pools;
 
-public class Level extends GameObjectContainer{
+public class Level extends GameObjectContainer {
 	
 	private static final String TAG = "[Level]";
 	private static final boolean LOG = false;
@@ -21,6 +21,8 @@ public class Level extends GameObjectContainer{
 	private Vector2 spanPosition;
 	private long levelClearTime;
 	private GameObject bob;
+	
+	private GameObject networkBob; 
 
 	public Level() {
 		
@@ -62,12 +64,25 @@ public class Level extends GameObjectContainer{
 		return bob;
 	}
 	
+	public GameObject getNetworkBob() {
+		return networkBob;
+	}
+	
 	@Override
 	public void addGameObject(GameObject o) {
 		super.addGameObject(o);
 		
-		if(o.getType() == Type.BOB){
+		switch (o.getType()) {
+		case BOB:
 			bob = o;
+			break;
+			
+		case NETWORK_BOB:
+			networkBob = o;
+			break;
+
+		default:
+			break;
 		}
 	}
 	

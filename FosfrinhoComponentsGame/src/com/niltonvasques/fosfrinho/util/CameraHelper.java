@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
+import com.niltonvasques.fosfrinho.util.resources.Constants;
 
 public class CameraHelper {
 	

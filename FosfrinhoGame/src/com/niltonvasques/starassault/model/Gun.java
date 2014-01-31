@@ -17,6 +17,10 @@ public abstract class Gun {
 		this.damagePerShoot = damagePerShoot;
 	}
 	
+	public Gun(){
+		
+	}
+	
 	public int getShootsPerSecond() {
 		return shootsPerSecond;
 	}

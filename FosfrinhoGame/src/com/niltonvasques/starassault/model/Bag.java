@@ -12,6 +12,10 @@ public class Bag {
 		items = new Array<Item>(capacity);
 	}
 	
+	public Bag(){
+		items = new Array<Item>(capacity);
+	}
+	
 	public Array<Item> getItems() {
 		return items;
 	}

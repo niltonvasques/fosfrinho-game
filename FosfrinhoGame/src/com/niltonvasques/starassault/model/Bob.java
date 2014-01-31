@@ -39,6 +39,11 @@ public class Bob {
 		this.bounds.height = SIZE;
 		this.bounds.width = SIZE;
 	}
+	
+	public Bob(){
+		this.bounds.height = SIZE;
+		this.bounds.width = SIZE;
+	}
 
 	public boolean isFacingLeft() {
 		return facingLeft;

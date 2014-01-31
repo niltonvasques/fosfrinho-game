@@ -18,7 +18,7 @@
 		<link>
 			<name>assets</name>
 			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/Star-Assault-android/assets</locationURI>
+			<location>/home/niltonvasques/Development/GameDev/Workspace/fosfrinho-repository/FosfrinhoGame-android/assets</location>
 		</link>
 	</linkedResources>
 </projectDescription>

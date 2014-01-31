@@ -14,7 +14,7 @@ import com.niltonvasques.fosfrinho.components.display.DisplayRenderComponent;
 import com.niltonvasques.fosfrinho.components.enemy.ZombiePhysicsCom;
 import com.niltonvasques.fosfrinho.components.enemy.ZombieRenderCom;
 import com.niltonvasques.fosfrinho.gameobject.GameObject.Type;
-import com.niltonvasques.fosfrinho.util.Assets;
+import com.niltonvasques.fosfrinho.util.resources.Assets;
 
 public class GameObjectFactory {
 
@@ -35,6 +35,25 @@ public class GameObjectFactory {
 		bob.addComponent(new BobRenderCom(bob));
 		
 		bob.addComponent(new BobGunCom(bob));
+		
+		return bob;
+	}
+	
+	public static GameObject createBobNetworkGameObject(float x, float y){
+		
+		GameObject bob = new GameObject(Type.NETWORK_BOB, x, y, 0.5f, 0.5f);
+		
+//		bob.addNotCollidableType(Type.ZOMBIE);
+		
+//		bob.addComponent(new BobPhysicsCom(bob));
+		
+		bob.addComponent(new BobHealthComponent(bob));
+		
+//		bob.addComponent(new BobMoveCom(bob));
+		
+		bob.addComponent(new BobRenderCom(bob));
+		
+//		bob.addComponent(new BobGunCom(bob));
 		
 		return bob;
 	}

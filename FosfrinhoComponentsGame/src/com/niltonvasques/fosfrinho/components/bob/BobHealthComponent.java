@@ -1,6 +1,7 @@
 package com.niltonvasques.fosfrinho.components.bob;
 
 import com.badlogic.gdx.Gdx;
+import com.niltonvasques.fosfrinho.components.ContainerCom;
 import com.niltonvasques.fosfrinho.components.HealthComponent;
 import com.niltonvasques.fosfrinho.components.comm.Message;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
@@ -18,7 +19,7 @@ public class BobHealthComponent extends HealthComponent{
 	}
 	
 	@Override
-	public void update(GameObject o, float delta) {
+	public void update(ContainerCom o, float delta) {
 		super.update(o, delta);
 		
 		//TODO: need fix this

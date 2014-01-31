@@ -6,7 +6,7 @@ import com.niltonvasques.fosfrinho.components.DrawComponent;
 import com.niltonvasques.fosfrinho.components.comm.Message;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
 import com.niltonvasques.fosfrinho.gameobject.Property;
-import com.niltonvasques.fosfrinho.util.Assets;
+import com.niltonvasques.fosfrinho.util.resources.Assets;
 
 public class BobRenderCom extends DrawComponent{
 	

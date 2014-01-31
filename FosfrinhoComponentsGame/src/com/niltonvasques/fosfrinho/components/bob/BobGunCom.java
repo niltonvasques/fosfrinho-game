@@ -3,6 +3,7 @@ package com.niltonvasques.fosfrinho.components.bob;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.niltonvasques.fosfrinho.components.Component;
+import com.niltonvasques.fosfrinho.components.ContainerCom;
 import com.niltonvasques.fosfrinho.components.comm.Message;
 import com.niltonvasques.fosfrinho.gameobject.Action;
 import com.niltonvasques.fosfrinho.gameobject.Action.Type;
@@ -25,7 +26,7 @@ public class BobGunCom implements Component{
 	}
 	
 	@Override
-	public void update(GameObject o, float delta) {
+	public void update(ContainerCom o, float delta) {
 		// TODO Auto-generated method stub
 		
 	}

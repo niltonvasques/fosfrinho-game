@@ -6,7 +6,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Pool;
+import com.niltonvasques.fosfrinho.components.ContainerCom;
 import com.niltonvasques.fosfrinho.components.PhysicsComponent;
 import com.niltonvasques.fosfrinho.components.comm.Message;
 import com.niltonvasques.fosfrinho.gameobject.Action;
@@ -72,7 +72,7 @@ public class ShootPhysicsCom extends PhysicsComponent{
 	}
 	
 	@Override
-	public void update(GameObject o, float delta) {
+	public void update(ContainerCom o, float delta) {
 		body.setLinearVelocity(leftDirection ? -SPEED : SPEED, 0);
 	}
 

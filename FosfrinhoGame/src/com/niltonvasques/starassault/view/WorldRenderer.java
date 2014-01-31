@@ -126,6 +126,7 @@ public class WorldRenderer implements Disposable{
 			drawKeys();
 			drawZombies();
 			drawBob();
+			drawEnemy();
 			drawShoots();
 		spriteBatch.end();
 
@@ -273,6 +274,45 @@ public class WorldRenderer implements Disposable{
 	private void drawBob() {
 		TextureRegion bobFrameRegion;
 		Bob bob = world.getBob();
+		if(bob.getState() == State.WALKING){
+			if(bob.isDamaged()){
+				bobFrameRegion = (bob.isFacingLeft() ? assets.bob.bobWalkingDamagedLeftAnimation.getKeyFrame(bob.getStateTime(), true) 
+						: assets.bob.bobWalkingDamagedRightAnimation.getKeyFrame(bob.getStateTime(), true) );
+			}else{
+				bobFrameRegion = (bob.isFacingLeft() ? assets.bob.walkingLeftAnimation.getKeyFrame(bob.getStateTime(), true) 
+						: assets.bob.walkingRightAnimation.getKeyFrame(bob.getStateTime(), true) );
+			}
+		}else if(bob.getState() == State.JUMPING){
+			if(bob.getVelocity().y > 0){
+				if(bob.isDamaged()){
+					bobFrameRegion = (bob.isFacingLeft() ? assets.bob.bobJumpingDamagedLeftAnimation.getKeyFrame(bob.getStateTime(),true) 
+							: assets.bob.bobJumpingDamagedRightAnimation.getKeyFrame(bob.getStateTime(),true));
+				}else{
+					bobFrameRegion = (bob.isFacingLeft() ? assets.bob.bobJumpLeftRegion : assets.bob.bobJumpRightRegion);
+				}
+			}else{
+				if(bob.isDamaged()){
+					bobFrameRegion = (bob.isFacingLeft() ? assets.bob.bobFallDamagedLeftAnimation.getKeyFrame(bob.getStateTime(),true) 
+							: assets.bob.bobFallDamagedRightAnimation.getKeyFrame(bob.getStateTime(),true));
+				}else{
+					bobFrameRegion = (bob.isFacingLeft() ? assets.bob.bobFallLeftRegion : assets.bob.bobFallRightRegion);			
+				}
+			}
+		}else{
+			if(bob.isDamaged()){
+				bobFrameRegion = (bob.isFacingLeft() ? assets.bob.bobIdleDamagedLeftAnimation.getKeyFrame(bob.getStateTime(),true) 
+						: assets.bob.bobIdleDamagedRightAnimation.getKeyFrame(bob.getStateTime(),true));
+			}else{
+				bobFrameRegion = (bob.isFacingLeft() ? assets.bob.bobIdleLeftRegion : assets.bob.bobIdleRightRegion);
+			}
+		}
+		spriteBatch.draw(bobFrameRegion, bob.getPosition().x, bob.getPosition().y, Bob.SIZE , Bob.SIZE);
+	}
+	
+	private void drawEnemy() {
+		TextureRegion bobFrameRegion;
+		Bob bob = bobController.getEnemy();
+		if(bob == null) return;
 		if(bob.getState() == State.WALKING){
 			if(bob.isDamaged()){
 				bobFrameRegion = (bob.isFacingLeft() ? assets.bob.bobWalkingDamagedLeftAnimation.getKeyFrame(bob.getStateTime(), true) 

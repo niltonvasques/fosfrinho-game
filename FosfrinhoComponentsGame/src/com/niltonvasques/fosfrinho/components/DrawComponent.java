@@ -14,7 +14,7 @@ public abstract class DrawComponent implements Component{
 	}
 	
 	@Override
-	public void update(GameObject o, float delta) {
+	public void update(ContainerCom o, float delta) {
 		stateTime += delta;
 	}
 	

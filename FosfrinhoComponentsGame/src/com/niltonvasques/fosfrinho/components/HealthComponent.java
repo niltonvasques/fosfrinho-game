@@ -23,14 +23,14 @@ public abstract class HealthComponent implements Component{
 	}
 	
 	@Override
-	public void update(GameObject o, float delta) {
+	public void update(ContainerCom o, float delta) {
 		
 		if(isDamaged()){
 			damageStateTime += delta;
 			if(damageStateTime > IMMUNITY_TIME){
 				damageStateTime = 0f;
 				damaged = false;
-				o.getProperties().get("DAMAGED").value = false;
+				((GameObject)o).getProperties().get("DAMAGED").value = false;
 			}
 		}
 		

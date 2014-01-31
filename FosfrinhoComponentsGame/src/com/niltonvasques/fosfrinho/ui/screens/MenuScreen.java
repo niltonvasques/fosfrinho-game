@@ -1,26 +1,20 @@
-package com.niltonvasques.starassault.screen;
+package com.niltonvasques.fosfrinho.ui.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.niltonvasques.starassault.FosfrinhoGame;
-import com.niltonvasques.starassault.service.Assets;
-import com.niltonvasques.starassault.util.Constants;
-import com.niltonvasques.starassault.util.ScreenUtil;
+import com.niltonvasques.fosfrinho.FosfrinhoGame;
+import com.niltonvasques.fosfrinho.util.ScreenUtil;
+import com.niltonvasques.fosfrinho.util.net.HostPacket;
+import com.niltonvasques.fosfrinho.util.net.TransferProtocol.OnReceive;
+import com.niltonvasques.fosfrinho.util.net.udp.UDPTransfer;
+import com.niltonvasques.fosfrinho.util.resources.Assets;
+import com.niltonvasques.fosfrinho.util.resources.Constants;
 
 public class MenuScreen implements Screen{
 	private static String TAG = "[MenuScreen]";
@@ -77,14 +71,14 @@ public class MenuScreen implements Screen{
 	    
 	    Table container = new Table(Assets.instance.skin.skin);
 	    
-	    TextButton newGame = new TextButton("New Game",Assets.instance.skin.skin);
-	    TextButton optionMenu = new TextButton("Options",Assets.instance.skin.skin);
+	    TextButton newGameClient = new TextButton("New Game - Client Mode",Assets.instance.skin.skin);
+	    TextButton newGameServer = new TextButton("New Game - Server Mode",Assets.instance.skin.skin);
 	    TextButton helpMenu = new TextButton("Help",Assets.instance.skin.skin);
 	    
 	    container.row().fill(true, true).expand(true, true).pad(10, 0, 10, 0);
-	    container.add(newGame);
+	    container.add(newGameClient);
 	    container.row().fill(true, true).expand(true, true).pad(10, 0, 10, 0);
-	    container.add(optionMenu);
+	    container.add(newGameServer);
 	    container.row().fill(true, true).expand(true, true).pad(10, 0, 10, 0);
 	    container.add(helpMenu);
 	    window.row().fill(0.5f,1f).expand(true,true);
@@ -103,20 +97,35 @@ public class MenuScreen implements Screen{
 	    
 	    ui.addActor(window);
 	    
-	    newGame.addListener(new ClickListener() {
+	    newGameClient.addListener(new ClickListener() {
 	    	@Override
 	    	public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
-	    		game.setScreen(new GameScreen());
-	    		MenuScreen.this.dispose();
+	    		
+	    		UDPTransfer.getInstance().setOnReceive(new OnReceive() {
+					@Override
+					public void onReceive(HostPacket msg) {
+						game.setScreen(new GameScreen());
+						MenuScreen.this.dispose();
+					}
+				});
+	    		
+	    		UDPTransfer.getInstance().startClient();
 	    	};
 	    	
 	    });
 	    
-	    optionMenu.addListener(new ClickListener() {
+	    newGameServer.addListener(new ClickListener() {
 	    	@Override
 	    	public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y) {
-	    		FosfrinhoGame game = (FosfrinhoGame)Gdx.app.getApplicationListener();
-	    		game.setServer(true);
+	    		UDPTransfer.getInstance().setOnReceive(new OnReceive() {
+					@Override
+					public void onReceive(HostPacket msg) {
+						game.setScreen(new GameScreen());
+						MenuScreen.this.dispose();
+					}
+				});
+	    		
+	    		UDPTransfer.getInstance().startServer();
 	    	};
 	    	
 	    });

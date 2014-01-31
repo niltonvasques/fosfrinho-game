@@ -21,7 +21,7 @@ public class DefaultStaticPhysicsCom extends PhysicsComponent{
 	}
 
 	@Override
-	public void update(GameObject o, float delta) {
+	public void update(ContainerCom o, float delta) {
 		
 	}
 

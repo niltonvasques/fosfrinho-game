@@ -4,13 +4,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.niltonvasques.fosfrinho.components.ContainerCom;
 import com.niltonvasques.fosfrinho.components.PhysicsComponent;
 import com.niltonvasques.fosfrinho.components.comm.Message;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
 import com.niltonvasques.fosfrinho.gameobject.GameObject.Type;
 import com.niltonvasques.fosfrinho.physics.PhysicsManager;
 import com.niltonvasques.fosfrinho.physics.PhysicsManager.SensorCollisionListener;
-import com.niltonvasques.fosfrinho.util.Resources;
+import com.niltonvasques.fosfrinho.util.resources.Resources;
 
 public class BobPhysicsCom extends PhysicsComponent{
 	
@@ -44,7 +45,7 @@ public class BobPhysicsCom extends PhysicsComponent{
 	}
 	
 	@Override
-	public void update(GameObject o, float delta) {
+	public void update(ContainerCom o, float delta) {
 		
 		if(grounded){
 			

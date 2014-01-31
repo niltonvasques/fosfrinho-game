@@ -7,8 +7,10 @@ import com.niltonvasques.starassault.screen.MenuScreen;
 import com.niltonvasques.starassault.screen.SplashScreen;
 
 public class FosfrinhoGame extends Game {
+	private static final String TAG = "[Fosfrinho Game]";
 	
 	private long scoreTime = 0;
+	private boolean server = false;
 	
 	@Override
 	public void create() {		
@@ -43,6 +45,15 @@ public class FosfrinhoGame extends Game {
 
 	public void setScoreTime(long scoreTime) {
 		this.scoreTime = scoreTime;
+	}
+
+	public void setServer(boolean b) {
+		this.server = b;
+		Gdx.app.log(TAG, "Server mode "+(b ? "enabled" : "disabled"));
+	}
+	
+	public boolean isServer(){
+		return this.server;
 	}
 	
 }

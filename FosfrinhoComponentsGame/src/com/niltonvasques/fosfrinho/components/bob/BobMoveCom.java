@@ -2,6 +2,7 @@ package com.niltonvasques.fosfrinho.components.bob;
 
 import com.badlogic.gdx.Gdx;
 import com.niltonvasques.fosfrinho.components.Component;
+import com.niltonvasques.fosfrinho.components.ContainerCom;
 import com.niltonvasques.fosfrinho.components.comm.Message;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
 import com.niltonvasques.fosfrinho.gameobject.Property;
@@ -34,15 +35,15 @@ public class BobMoveCom implements Component{
 	}
 	
 	@Override
-	public void update(GameObject o, float delta) {
+	public void update(ContainerCom o, float delta) {
 		if(leftPressed && !rightPressed){
 			o.send(Message.FACING_LEFT);
-			o.getProperties().get("FACING_LEFT").value = true;
+			((GameObject)o).getProperties().get("FACING_LEFT").value = true;
 		}
 		
 		if(!leftPressed && rightPressed){
 			o.send(Message.FACING_RIGHT);
-			o.getProperties().get("FACING_LEFT").value = false;
+			((GameObject)o).getProperties().get("FACING_LEFT").value = false;
 		}
 		
 		if(!leftPressed && !rightPressed){

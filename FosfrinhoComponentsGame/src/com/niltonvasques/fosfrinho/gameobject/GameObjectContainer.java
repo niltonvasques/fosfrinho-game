@@ -4,9 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
+import com.niltonvasques.fosfrinho.components.ContainerCom;
 import com.niltonvasques.fosfrinho.components.comm.CommunicationCom;
 
-public abstract class GameObjectContainer {
+public abstract class GameObjectContainer extends ContainerCom{
 	
 	private static final String TAG = "[GameObjectContainer]";
 	private static final boolean LOG = false;
@@ -68,6 +69,14 @@ public abstract class GameObjectContainer {
 		for(GameObject o : gameObjects){
 			o.update(delta);
 		}			
+		
+		if(getComponents() != null){
+			for(int i = 0; i < COMPONENTS_MAX_CAPACITY; i++){
+				if(getComponents()[i] != null){
+					getComponents()[i].update(this,delta);
+				}
+			}
+		}		
 	}
 
 	public void draw(SpriteBatch batch) {
