@@ -1,4 +1,4 @@
-package com.niltonvasques.fosfrinho.util;
+package com.niltonvasques.fosfrinho.util.resources;
 
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;

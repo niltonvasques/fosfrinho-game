@@ -1,4 +1,4 @@
-package com.niltonvasques.fosfrinho.screens;
+package com.niltonvasques.fosfrinho.ui.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -15,9 +15,9 @@ import com.niltonvasques.fosfrinho.input.InputManager;
 import com.niltonvasques.fosfrinho.level.Level;
 import com.niltonvasques.fosfrinho.level.LevelLoader;
 import com.niltonvasques.fosfrinho.physics.PhysicsManager;
-import com.niltonvasques.fosfrinho.util.Assets;
 import com.niltonvasques.fosfrinho.util.CameraHelper;
 import com.niltonvasques.fosfrinho.util.ScreenUtil;
+import com.niltonvasques.fosfrinho.util.resources.Assets;
 
 public class GameScreen implements Screen{
 	
@@ -75,7 +75,6 @@ public class GameScreen implements Screen{
 
 	@Override
 	public void show() {
-		Assets.instance.init(new AssetManager());
 		
 		input = new InputManager();
 		input.addListener(comm);
@@ -118,10 +117,9 @@ public class GameScreen implements Screen{
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-		
+		level.send(Message.DISPOSE);
 	}
-	
+
 	private CommunicationCom comm = new CommunicationCom() {
 		
 		@Override

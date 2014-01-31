@@ -121,6 +121,8 @@ public class LevelLoader {
                 }                
             }
         }
+        
+        level.addComponent(new NetworkCom(level));
 
         return level;
     }

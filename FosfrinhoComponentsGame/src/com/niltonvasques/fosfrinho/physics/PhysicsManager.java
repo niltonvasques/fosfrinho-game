@@ -28,7 +28,7 @@ import com.badlogic.gdx.utils.Pool;
 import com.niltonvasques.fosfrinho.components.bob.gun.ShootPhysicsCom;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
 import com.niltonvasques.fosfrinho.gameobject.GameObject.Type;
-import com.niltonvasques.fosfrinho.util.BodyEditorLoader;
+import com.niltonvasques.fosfrinho.util.resources.BodyEditorLoader;
 
 public class PhysicsManager {
 	

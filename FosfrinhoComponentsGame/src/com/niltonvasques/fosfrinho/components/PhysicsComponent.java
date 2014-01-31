@@ -17,7 +17,7 @@ public abstract class PhysicsComponent implements Component{
 	}
 
 //	@Override
-//	public void update(GameObject o, float delta) {	
+//	public void update(ContainerCom o, float delta) {	
 //		
 ////		o.getBounds().x = (getBody().getPosition().x-o.getBounds().width*0.5f);
 ////		o.getBounds().y = (getBody().getPosition().y-o.getBounds().height*0.5f);

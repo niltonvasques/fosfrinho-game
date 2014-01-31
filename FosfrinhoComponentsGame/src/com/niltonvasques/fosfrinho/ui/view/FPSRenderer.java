@@ -1,10 +1,10 @@
-package com.niltonvasques.fosfrinho.view;
+package com.niltonvasques.fosfrinho.ui.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.niltonvasques.fosfrinho.util.Assets;
+import com.niltonvasques.fosfrinho.util.resources.Assets;
 
 public class FPSRenderer extends Stage {
 	

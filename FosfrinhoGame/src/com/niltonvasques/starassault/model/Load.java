@@ -14,6 +14,10 @@ public class Load {
 		this.ammo = ammo;
 		this.bounds = new Rectangle(x, y, SIZE, SIZE);
 	}
+	
+	public Load(){
+		
+	}
 
 	public int getMunition() {
 		return ammo;

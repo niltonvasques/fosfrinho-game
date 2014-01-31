@@ -6,7 +6,7 @@ import com.niltonvasques.fosfrinho.gameobject.GameObject;
 public interface Component {
 
 	public GameObject getGameObject();
-	public void update(GameObject o, float delta);
+	public void update(ContainerCom o, float delta);
 	public void receive(Message m);
 	
 }

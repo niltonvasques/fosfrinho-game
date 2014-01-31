@@ -12,10 +12,10 @@ import com.niltonvasques.fosfrinho.components.DrawComponent;
 import com.niltonvasques.fosfrinho.components.comm.CommunicationCom;
 import com.niltonvasques.fosfrinho.components.comm.Message;
 
-public class GameObject extends ContainerCom implements CommunicationCom{
+public class GameObject extends ContainerCom {
 	
 	public enum Type{
-		BOB, BLOCK, ZOMBIE, DISPLAY, SHOOT
+		BOB, NETWORK_BOB, BLOCK, ZOMBIE, DISPLAY, SHOOT
 	}
 	
 	private Rectangle bounds; 
@@ -23,7 +23,6 @@ public class GameObject extends ContainerCom implements CommunicationCom{
 	private DrawComponent drawComponent;
 
 	private Map<String, Property> properties = new HashMap<String, Property>();
-	private Map<Message, Array<Component>> eventsSubscribes = new HashMap<Message, Array<Component>>();
 	
 	private Array<Type> notCollidable = new Array<Type>();
 	private Array<Action> pendingActions = new Array<Action>();
@@ -65,23 +64,7 @@ public class GameObject extends ContainerCom implements CommunicationCom{
 	public void setBounds(Rectangle bounds) {
 		this.bounds = bounds;
 	}
-	
-	public void send(Message message){
-		if(!eventsSubscribes.containsKey(message)) return;
 		
-		for(Component c : eventsSubscribes.get(message)){
-			c.receive(message);
-		}
-		
-//		if(getComponents() != null){
-//			for(int i = 0; i < COMPONENTS_MAX_CAPACITY; i++){
-//				if(getComponents()[i] != null){
-//					getComponents()[i].receive(message);
-//				}
-//			}
-//		}		
-	}
-	
 	public void update(float delta){
 		if(getComponents() != null){
 			for(int i = 0; i < COMPONENTS_MAX_CAPACITY; i++){
@@ -134,17 +117,6 @@ public class GameObject extends ContainerCom implements CommunicationCom{
 
 	public void setProperties(Map<String, Property> properties) {
 		this.properties = properties;
-	}
-	
-	public void subscribeEvent(Message event, Component c){
-		if(eventsSubscribes.containsKey(event)){
-			eventsSubscribes.get(event).add(c);
-		}else{
-			eventsSubscribes.put(event,new Array<Component>());
-			eventsSubscribes.get(event).add(c);
-		}
-	}
-	
-	
+	}	
  
 }

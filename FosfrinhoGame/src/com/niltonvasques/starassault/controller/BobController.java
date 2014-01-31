@@ -3,15 +3,13 @@ package com.niltonvasques.starassault.controller;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.niltonvasques.starassault.FosfrinhoGame;
@@ -26,15 +24,20 @@ import com.niltonvasques.starassault.model.Load;
 import com.niltonvasques.starassault.model.Shoot;
 import com.niltonvasques.starassault.model.World;
 import com.niltonvasques.starassault.model.Zombie;
-import com.niltonvasques.starassault.screen.MenuScreen;
 import com.niltonvasques.starassault.screen.ScoreScreen;
 import com.niltonvasques.starassault.service.Assets;
+import com.niltonvasques.starassault.service.net.Client;
+import com.niltonvasques.starassault.service.net.Host;
+import com.niltonvasques.starassault.service.net.Host.OnReceive;
+import com.niltonvasques.starassault.service.net.Message;
+import com.niltonvasques.starassault.service.net.Server;
 import com.niltonvasques.starassault.util.CameraHelper;
-import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
 
 public class BobController {
 	private static final String TAG = "[BobController]";
 	private static final boolean LOG = false;
+	
+	private Host host;
 	
 	enum Keys {
 		LEFT, RIGHT, JUMP, FIRE
@@ -45,10 +48,15 @@ public class BobController {
 	private final static float GRAVITY 			= -20f;
 	private final static float DAMP				= 0.90f;
 	
-	private FosfrinhoGame game;
+	private final static float DELAY_TO_NOTIFY_HOST = 0.1f;
 	
+	private float notifyStateTime = 0;
+	
+	private FosfrinhoGame game;
 	private World 	world;
 	private InputMultiplexer multiplexer;
+	
+	private Bob enemy;
 	
 	private long jumpPressedTime = 0;
 	private boolean jumpingPressed = false;
@@ -86,13 +94,40 @@ public class BobController {
 		keys.put(Keys.FIRE, false);
 		
 		
-		
 		this.world = new World();
 		this.multiplexer = new InputMultiplexer();
 		Gdx.input.setInputProcessor(multiplexer);
 		this.cameraHelper = new CameraHelper();
 		
 		restartGame();
+		
+		if( ((FosfrinhoGame)Gdx.app.getApplicationListener()).isServer() ){
+			host = new Server();
+		}else{
+			host = new Client();
+		}
+		
+		host.setOnReceive(new OnReceive() {
+			@Override
+			public void onReceive(Message msg) {
+				try{
+					enemy = json.fromJson(Bob.class, msg.getContent());
+					Gdx.app.log(TAG, "enemy object received");
+				}catch (Exception e) {
+					Gdx.app.error(TAG, e.getMessage()+" "+msg.getContent());
+				}
+			}
+		});
+		
+		host.asyncStart();
+		
+	}
+	
+	
+	private Json json = new Json();
+	
+	private void notifyHost(){
+		host.send(new Message(json.toJson(getWorld().getBob())));
 	}
 
 	// ** Key presses and touches **************** //
@@ -200,7 +235,12 @@ public class BobController {
                 	}
                 }
             }
-
+            
+            notifyStateTime += delta;
+            if(notifyStateTime >= DELAY_TO_NOTIFY_HOST){
+            	notifyHost();
+            	notifyStateTime = 0f;
+            }
     }
 	
     public CameraHelper getCameraHelper() {
@@ -780,4 +820,9 @@ public class BobController {
 	public void setWorld(World world) {
 		this.world = world;
 	}
+
+	public Bob getEnemy() {
+		return enemy;
+	}
+	
 }

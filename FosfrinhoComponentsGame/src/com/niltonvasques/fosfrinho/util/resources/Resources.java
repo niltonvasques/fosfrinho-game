@@ -1,4 +1,4 @@
-package com.niltonvasques.fosfrinho.util;
+package com.niltonvasques.fosfrinho.util.resources;
 
 public class Resources {
 	/**

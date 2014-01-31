@@ -3,7 +3,7 @@ package com.niltonvasques.fosfrinho.components;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.niltonvasques.fosfrinho.components.comm.Message;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
-import com.niltonvasques.fosfrinho.util.Assets;
+import com.niltonvasques.fosfrinho.util.resources.Assets;
 
 public class DefaultRenderCom extends DrawComponent{
 	private TextureRegion defaultRegion;
@@ -25,7 +25,7 @@ public class DefaultRenderCom extends DrawComponent{
 	}
 
 	@Override
-	public void update(GameObject o, float delta) {
+	public void update(ContainerCom o, float delta) {
 		// TODO Auto-generated method stub
 		
 	}
