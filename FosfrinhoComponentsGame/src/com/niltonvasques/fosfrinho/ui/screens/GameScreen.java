@@ -30,11 +30,15 @@ public class GameScreen implements Screen{
 	private SpriteBatch batch;
 	private Level level;
 	private InputManager input;
+	private boolean loaded = false;
 	
 	@Override
 	public void render(float delta) {
+		
 		ScreenUtil.setClearColor(Color.BLACK);
 		ScreenUtil.clear();
+		
+		if(!loaded) return;
 		
 		if(Gdx.input.isKeyPressed(Keys.ESCAPE)){
 			Gdx.app.exit();
@@ -95,6 +99,7 @@ public class GameScreen implements Screen{
 		
 		display = GameObjectFactory.createFpsDisplayGameObject(0, 0);
 		
+		this.loaded = true;
 	}
 
 	@Override

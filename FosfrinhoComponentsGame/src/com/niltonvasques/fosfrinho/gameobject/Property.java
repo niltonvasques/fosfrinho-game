@@ -4,6 +4,9 @@ public class Property <T>{
 	public String name;
 	public T value;	
 	
+	public Property() {
+	}
+	
 	public Property(String name, T value) {
 		this.name = name;
 		this.value = value;

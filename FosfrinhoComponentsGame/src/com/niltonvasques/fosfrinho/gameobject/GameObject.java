@@ -31,6 +31,7 @@ public class GameObject extends ContainerCom {
 	public GameObject(Type type, float x, float y, float width, float height) {
 		this.type = type;
 		this.bounds = new Rectangle(x, y, width, height);
+		this.properties.put("BOUNDS", new Property<Rectangle>("BOUNDS", bounds));
 	}
 
 	public DrawComponent getDrawComponent() {

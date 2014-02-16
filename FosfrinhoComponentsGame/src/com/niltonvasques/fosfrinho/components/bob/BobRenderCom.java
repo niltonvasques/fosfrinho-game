@@ -17,14 +17,15 @@ public class BobRenderCom extends DrawComponent{
 	private static final String TAG = "[BobRenderComponent]";
 	private static final boolean LOG = false;
 	
-	private boolean facingLeft = true;
 	private State state = State.IDLE;
 	
 	public BobRenderCom(GameObject o) {
 		super(o);
 		
-		o.subscribeEvent(Message.FACING_LEFT, this);
-		o.subscribeEvent(Message.FACING_RIGHT, this);
+		if(!o.getProperties().containsKey("FACING_LEFT")){
+			o.getProperties().put("FACING_LEFT",new Property("FACING_LEFT",true));
+		}
+		
 		o.subscribeEvent(Message.WALKING, this);
 		o.subscribeEvent(Message.IDLE, this);
 		o.subscribeEvent(Message.BOB_FALLING, this);
@@ -36,13 +37,6 @@ public class BobRenderCom extends DrawComponent{
 	public void receive(Message m) {
 		if(LOG) Gdx.app.log(TAG, "Message receive: "+m);
 		switch (m) {
-		case FACING_LEFT:
-			facingLeft = true;
-			break;
-			
-		case FACING_RIGHT:
-			facingLeft = false;
-			break;
 			
 		case WALKING:
 			state = State.WALKING;
@@ -70,6 +64,7 @@ public class BobRenderCom extends DrawComponent{
 	public TextureRegion getRenderFrame() {
 		TextureRegion frame;
 		Property<Boolean> damaged = getGameObject().getProperties().get("DAMAGED");
+		boolean facingLeft = (Boolean) getGameObject().getProperties().get("FACING_LEFT").value;
 		
 		switch (state) {
 		case IDLE:
