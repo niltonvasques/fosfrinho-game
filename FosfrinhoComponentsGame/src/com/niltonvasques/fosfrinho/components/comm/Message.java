@@ -1,7 +1,7 @@
 package com.niltonvasques.fosfrinho.components.comm;
 
 public enum Message {
-	FACING_LEFT, FACING_RIGHT, DAMAGED, FIRE, 
+	DAMAGED, FIRE, 
 	BOB_JUMP_PRESSED, BOB_JUMP_RELEASED, GROUNDED, FLYING,	
 	WALKING, IDLE, BOB_JUMPING, BOB_FALLING,	
 	

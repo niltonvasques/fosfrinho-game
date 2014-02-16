@@ -7,6 +7,7 @@ import com.niltonvasques.fosfrinho.components.ContainerCom;
 import com.niltonvasques.fosfrinho.components.PhysicsComponent;
 import com.niltonvasques.fosfrinho.components.comm.Message;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
+import com.niltonvasques.fosfrinho.gameobject.Property;
 import com.niltonvasques.fosfrinho.physics.PhysicsManager;
 import com.niltonvasques.fosfrinho.physics.PhysicsManager.SensorCollisionListener;
 import com.niltonvasques.fosfrinho.util.resources.Resources;
@@ -21,8 +22,6 @@ public class ZombiePhysicsCom extends PhysicsComponent{
 	private Body body;
 	private boolean grounded = false;
 	
-	private boolean facingLeft = false;
-	
 	private int numFootsOnGround = 0;
 	
 	public ZombiePhysicsCom(GameObject o) {
@@ -33,31 +32,26 @@ public class ZombiePhysicsCom extends PhysicsComponent{
 		
 		PhysicsManager.instance.attachSensorToBody(body, o.getBounds().width, footSensorListener);
 		
-		if(MathUtils.random(100) % 2 == 0){
-			facingLeft = false;
-		}else{
-			facingLeft = true;
+		if(!o.getProperties().containsKey("FACING_LEFT")){
+			o.getProperties().put("FACING_LEFT",new Property("FACING_LEFT",true));
 		}
 		
-		warningFacing();
+		if(MathUtils.random(100) % 2 == 0){
+			getGameObject().getProperties().get("FACING_LEFT").value = false;
+		}else{
+			getGameObject().getProperties().get("FACING_LEFT").value = true;
+		}
 	}
 
-	private void warningFacing() {
-		if(facingLeft){
-			getGameObject().send(Message.FACING_LEFT);
-		}
-		else{
-			getGameObject().send(Message.FACING_RIGHT);
-		}
-	}
-	
 	@Override
 	public void update(ContainerCom o, float delta) {
 		if(grounded){
 			
+			boolean facingLeft = (Boolean) getGameObject().getProperties().get("FACING_LEFT").value;
+			
 			if(body.getLinearVelocity().x == 0){
 				facingLeft = !facingLeft;
-				warningFacing();				
+				getGameObject().getProperties().get("FACING_LEFT").value = facingLeft;
 			}
 			
 			if(facingLeft && body.getLinearVelocity().x > -SPEED ){
@@ -117,7 +111,7 @@ public class ZombiePhysicsCom extends PhysicsComponent{
 		
 		@Override
 		public void onBeginContact(GameObject o) {
-			if(LOG) Gdx.app.log(TAG, "onBeginContact "+facingLeft);
+			if(LOG) Gdx.app.log(TAG, "onBeginContact ");
 			numFootsOnGround++;
 			if(numFootsOnGround > 0){
 				grounded = true;

@@ -27,7 +27,7 @@ public class BobMoveCom implements Component{
 		this.object = o;
 		
 		if(!o.getProperties().containsKey("FACING_LEFT")){
-			o.getProperties().put("FACING_LEFT",new Property("FACING_LEFT",true));
+			o.getProperties().put("FACING_LEFT", new Property("FACING_LEFT",true));
 		}
 		
 		o.subscribeEvent(Message.BTN_LEFT_PRESSED, this);
@@ -37,12 +37,10 @@ public class BobMoveCom implements Component{
 	@Override
 	public void update(ContainerCom o, float delta) {
 		if(leftPressed && !rightPressed){
-			o.send(Message.FACING_LEFT);
 			((GameObject)o).getProperties().get("FACING_LEFT").value = true;
 		}
 		
 		if(!leftPressed && rightPressed){
-			o.send(Message.FACING_RIGHT);
 			((GameObject)o).getProperties().get("FACING_LEFT").value = false;
 		}
 		

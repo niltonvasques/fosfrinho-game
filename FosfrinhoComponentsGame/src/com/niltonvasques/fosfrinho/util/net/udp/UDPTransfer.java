@@ -38,6 +38,7 @@ public class UDPTransfer implements TransferProtocol{
 	private static final int HEADER_LENGHT 								= 72;
 	
 	
+	public static final int FLAG_EMPTY_MASK								= 0; //00000000
 	public static final int FLAG_ACK_MASK								= 1; //00000001
 	public static final int FLAG_RELIABLE_MASK							= 2; //00000010
 	public static final int FLAG_HANDSHAKE_MASK							= 4; //00000100
@@ -80,13 +81,13 @@ public class UDPTransfer implements TransferProtocol{
 		server = false;
 		try {
 			socket = new DatagramSocket(DEFAULT_CLIENT_PORT);
-			clientAddress = InetAddress.getByName("localhost");
+			InetAddress address = InetAddress.getByName("localhost");
 			
 			byte[] data = new byte[HEADER_LENGHT/8];
 			
 			mountRawPacket(data, FLAG_RELIABLE_MASK | FLAG_HANDSHAKE_MASK);
 			
-			send(clientAddress,socket,data);
+			send(address,socket,data);
 			
 			timeout = TIMEOUT_DEFAULT;
 			asyncRun();
@@ -125,27 +126,52 @@ public class UDPTransfer implements TransferProtocol{
 			{
 				DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 				
-				Gdx.app.log(TAG, "WAITING FOR A PACKET!!!");
+				Gdx.app.log(TAG, (server ? "Server: ":"Client: ")+"WAITING FOR A PACKET!!!");
 				
 				socket.receive(receivePacket);
-				
-				clientAddress = receivePacket.getAddress();
 				
 				Gdx.app.log(TAG,"RECEIVED: PACKET = |"+extractSequenceNumber(receiveData)+" | "+extractAcknowledgeNumber(receiveData)+
 						" | "+extractLenght(receiveData)+" | "+extractFlags(receiveData)+" | to addr="+receivePacket.getAddress());
 				
 				int flags = extractFlags(receiveData);
 				
-				if((flags & FLAG_ACK_MASK) == FLAG_ACK_MASK){ //ACK RELIABLE PACKETS
+				/*
+				 * If the packet to be contains an ack, we need remove it from the reliable packets sended.
+				 * This way we know that this packet was sucess delivered.
+				 */
+				if((flags & FLAG_ACK_MASK) == FLAG_ACK_MASK){ 
+					
+					/*
+					 * If the ack packet contains an handshake, we know that this handshake is an
+					 * handshake accepted to the server, and we need store the address, for start a connection.
+					 */
+					if(((flags & FLAG_HANDSHAKE_MASK) == FLAG_HANDSHAKE_MASK) && clientAddress == null){
+						clientAddress = receivePacket.getAddress();
+						if(receiver != null) receiver.onReceive(new HostPacket());
+					}
 					reliablePackets.remove(extractAcknowledgeNumber(receiveData));
 				}
 				
+				/* Checking for a reliable packet, if this packet has a reliable mask,
+				 * we need send a ack answer for the client. 
+				 */
 				if((flags & FLAG_RELIABLE_MASK) == FLAG_RELIABLE_MASK){
+					int responseFlags = FLAG_EMPTY_MASK;
+					
+					/* If received an handshake packet, and do not have a client connected
+					 * response with an ack handshake to accept the connect. Otherwise,
+					 * just response the ack packet without accept the request for a connection. 
+					 */
+					if(((flags & FLAG_HANDSHAKE_MASK) == FLAG_HANDSHAKE_MASK) && clientAddress == null){
+						clientAddress = receivePacket.getAddress();
+						responseFlags |= FLAG_HANDSHAKE_MASK;
+					}
 					//Sending ACK...
 					byte[] sendData = new byte[HEADER_LENGHT/8];
-					mountAckPacket(sendData, extractSequenceNumber(receiveData), 0);
+					mountAckPacket(sendData, extractSequenceNumber(receiveData), responseFlags);
 					send(receivePacket.getAddress(), socket, sendData);
 				}
+				
 				
 				if(extractLenght(receiveData) > 0){
 					String data = extractData(receiveData);
@@ -260,12 +286,10 @@ public class UDPTransfer implements TransferProtocol{
 	}
 	
 	private void setLenght(byte[] arr, int data){
-		
 		arr[INDEX_LENGHT+0] = (byte) ((data >> 24) & 0xFF);
 		arr[INDEX_LENGHT+1] = (byte) ((data >> 16) & 0xFF);
 		arr[INDEX_LENGHT+2] = (byte) ((data >> 8) & 0xFF);
 		arr[INDEX_LENGHT+3] = (byte) (data & 0xFF);
-		
 	}
 	
 	private void setData(byte[] arr, String data){
@@ -276,10 +300,10 @@ public class UDPTransfer implements TransferProtocol{
 	
 	private int extractLenght(byte[] arr){
 		int lenght = 0;
-		lenght |= (((int)arr[INDEX_LENGHT+0]) << 24);
-		lenght |= (((int)arr[INDEX_LENGHT+1]) << 16);
-		lenght |= (((int)arr[INDEX_LENGHT+2]) << 8);
-		lenght |= (((int)arr[INDEX_LENGHT+3]));
+		lenght |= (( ((int)arr[INDEX_LENGHT+0]) << 24) & 0XFF000000 );
+		lenght |= (( ((int)arr[INDEX_LENGHT+1]) << 16) & 0xFF0000 );
+		lenght |= (( ((int)arr[INDEX_LENGHT+2]) << 8) & 0xFF00 );
+		lenght |= ( ((int)arr[INDEX_LENGHT+3]) & 0xFF );
 		
 		return lenght;
 	}

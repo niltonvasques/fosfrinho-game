@@ -1,6 +1,8 @@
 package com.niltonvasques.fosfrinho.level;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
@@ -10,6 +12,7 @@ import com.niltonvasques.fosfrinho.components.ContainerCom;
 import com.niltonvasques.fosfrinho.components.comm.Message;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
 import com.niltonvasques.fosfrinho.gameobject.GameObjectFactory;
+import com.niltonvasques.fosfrinho.gameobject.Property;
 import com.niltonvasques.fosfrinho.util.net.HostPacket;
 import com.niltonvasques.fosfrinho.util.net.TransferProtocol;
 import com.niltonvasques.fosfrinho.util.net.TransferProtocol.OnReceive;
@@ -31,18 +34,8 @@ public class NetworkCom implements Component{
 	public NetworkCom(Level level) {
 		
 		protocol = UDPTransfer.getInstance();
-		
-//		protocol = new UDPSocket(true);
-		
-//		try{
-//			protocol = new Client();
-//			protocol.openSocket();
-//		}catch (Exception e) {
-//			Gdx.app.log(TAG, "How an server was not found... assumes me as a server!");
-//			protocol = new Server();
-//		}
 		protocol.setOnReceive(receiver);
-//		protocol.asyncStart();
+		
 		json = new Json();
 		this.level = level;
 		
@@ -58,7 +51,8 @@ public class NetworkCom implements Component{
 	public void update(ContainerCom o, float delta){
 		
 		if(notifyStateTime >= NOTIFY_DELAY){
-			protocol.send(new HostPacket(json.toJson(level.getBob().getBounds())));
+			String jsonStr = json.toJson(level.getBob().getProperties());
+			protocol.send(new HostPacket(jsonStr));
 			notifyStateTime = 0f;
 		}
 		notifyStateTime += delta;
@@ -87,12 +81,17 @@ public class NetworkCom implements Component{
 		public void onReceive(HostPacket msg) {
 //			Gdx.app.log(TAG, msg.getContent());
 			
-			Rectangle rect = json.fromJson(Rectangle.class, msg.getContent());
-			if( level.getNetworkBob() == null){
-				level.addGameObject(GameObjectFactory.createBobNetworkGameObject(rect.x, rect.y));
+			Map<String, Property> properties = json.fromJson(HashMap.class, msg.getContent());
+			
+			if(properties != null && properties.containsKey("BOUNDS")){
+				Rectangle rect = (Rectangle) properties.get("BOUNDS").value;
+				if( level.getNetworkBob() == null ){
+					level.addGameObject(GameObjectFactory.createBobNetworkGameObject(rect.x, rect.y));
+				}
+				level.getNetworkBob().getBounds().x = rect.x;
+				level.getNetworkBob().getBounds().y = rect.y;
+				level.getNetworkBob().getProperties().get("FACING_LEFT").value = properties.get("FACING_LEFT").value;
 			}
-			level.getNetworkBob().getBounds().x = rect.x;
-			level.getNetworkBob().getBounds().y = rect.y;
 		}
 	};
 
