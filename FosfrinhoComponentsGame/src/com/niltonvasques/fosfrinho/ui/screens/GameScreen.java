@@ -85,9 +85,12 @@ public class GameScreen implements Screen{
 		
 		Gdx.input.setInputProcessor(input);
 		
+		display = GameObjectFactory.createFpsDisplayGameObject(0, 0);
+		
 		batch = new SpriteBatch();
 		
 		level = LevelLoader.loadLevel(3);
+		level.setDisplayGameObject(display);
 		
 		input.addListener(level.getBob());
 		
@@ -97,7 +100,6 @@ public class GameScreen implements Screen{
 		this.cam = new OrthographicCamera(cameraHelper.getViewportWidth(), cameraHelper.getViewportHeight());
 		this.cameraHelper.applyTo(cam);
 		
-		display = GameObjectFactory.createFpsDisplayGameObject(0, 0);
 		
 		this.loaded = true;
 	}
@@ -122,7 +124,7 @@ public class GameScreen implements Screen{
 
 	@Override
 	public void dispose() {
-		level.send(Message.DISPOSE);
+		level.send(Message.DISPOSE, null);
 	}
 
 	private CommunicationCom comm = new CommunicationCom() {
@@ -131,7 +133,7 @@ public class GameScreen implements Screen{
 		public void update(float delta) { }
 		
 		@Override
-		public void send(Message message) {
+		public void send(Message message, Object... data) {
 			switch(message){
 			case DEBUG:
 				if(PhysicsManager.instance.isDebug()){

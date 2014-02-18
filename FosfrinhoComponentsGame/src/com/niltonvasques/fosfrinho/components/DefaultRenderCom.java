@@ -14,7 +14,7 @@ public class DefaultRenderCom extends DrawComponent{
 	}
 
 	@Override
-	public void receive(Message m) {
+	public void receive(Message m, Object... data) {
 		// TODO Auto-generated method stub
 		
 	}

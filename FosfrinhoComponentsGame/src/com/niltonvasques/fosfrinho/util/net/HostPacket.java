@@ -2,6 +2,10 @@ package com.niltonvasques.fosfrinho.util.net;
 
 public class HostPacket {
 	
+	public enum Type{
+		BOB, SHOOT, GOODBYE
+	}
+	
 	public static final int CONTROL_MASK = 0x01;
 	
 	private String content = "";
@@ -15,6 +19,7 @@ public class HostPacket {
 	 */
 	
 	private int flags;
+	private Type type = Type.BOB;
 
 	public HostPacket() {
 		flags = CONTROL_MASK;
@@ -42,6 +47,14 @@ public class HostPacket {
 			return true;
 		}
 		return false;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
+	}
+
+	public Type getType() {
+		return type;
 	}
 	
 }

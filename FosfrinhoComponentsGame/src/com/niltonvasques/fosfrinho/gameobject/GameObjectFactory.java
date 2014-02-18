@@ -4,6 +4,7 @@ import com.niltonvasques.fosfrinho.components.DefaultRenderCom;
 import com.niltonvasques.fosfrinho.components.DefaultStaticPhysicsCom;
 import com.niltonvasques.fosfrinho.components.bob.BobGunCom;
 import com.niltonvasques.fosfrinho.components.bob.BobHealthComponent;
+import com.niltonvasques.fosfrinho.components.bob.BobHeartsRenderComponent;
 import com.niltonvasques.fosfrinho.components.bob.BobInputCom;
 import com.niltonvasques.fosfrinho.components.bob.BobMoveCom;
 import com.niltonvasques.fosfrinho.components.bob.BobPhysicsCom;
@@ -35,6 +36,8 @@ public class GameObjectFactory {
 		bob.addComponent(new BobRenderCom(bob));
 		
 		bob.addComponent(new BobGunCom(bob));
+		
+		bob.addComponent(new BobHeartsRenderComponent(bob));
 		
 		return bob;
 	}
@@ -97,7 +100,7 @@ public class GameObjectFactory {
 		GameObject shoot = new GameObject(Type.SHOOT, x, y, SHOOT_SIZE, SHOOT_SIZE);
 		
 		shoot.addNotCollidableType(Type.SHOOT);
-		shoot.addNotCollidableType(Type.BOB);
+//		shoot.addNotCollidableType(Type.BOB);
 		
 		shoot.addComponent(new ShootPhysicsCom(shoot,left));
 		

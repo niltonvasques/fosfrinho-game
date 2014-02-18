@@ -57,7 +57,7 @@ public class ZombiePhysicsCom extends PhysicsComponent{
 			if(facingLeft && body.getLinearVelocity().x > -SPEED ){
 //				body.applyLinearImpulse(-0.10f, 0, body.getPosition().x, body.getPosition().y, true);
 				body.setLinearVelocity(-SPEED, body.getLinearVelocity().y);
-				o.send(Message.WALKING);
+				o.send(Message.WALKING, null);
 				if(LOG) Gdx.app.log(TAG, "left run");
 			}
 			
@@ -65,7 +65,7 @@ public class ZombiePhysicsCom extends PhysicsComponent{
 //				body.applyLinearImpulse(0.10f, 0, body.getPosition().x, body.getPosition().y, true);
 				body.setLinearVelocity(SPEED, body.getLinearVelocity().y);
 				if(LOG) Gdx.app.log(TAG, "right run");
-				o.send(Message.WALKING);
+				o.send(Message.WALKING, null);
 			}
 			
 			
@@ -80,15 +80,6 @@ public class ZombiePhysicsCom extends PhysicsComponent{
 //				o.send(Message.BOB_JUMPING);
 			}
 			
-		}
-		
-	}
-
-	@Override
-	public void receive(Message m) {
-		switch (m) {
-		default:
-			break;
 		}
 		
 	}

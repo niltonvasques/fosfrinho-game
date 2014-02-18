@@ -25,6 +25,11 @@ public class BobPhysicsCom extends PhysicsComponent{
 	private Body body;
 	private boolean grounded = false;
 	
+	private boolean btnLeftPressed = false;
+	private boolean btnRightPressed = false;
+	
+	private boolean dead = false;
+	
 	private int numFootsOnGround = 0;
 	
 	public BobPhysicsCom(GameObject o) {
@@ -47,28 +52,42 @@ public class BobPhysicsCom extends PhysicsComponent{
 	@Override
 	public void update(ContainerCom o, float delta) {
 		
+		if(dead) return;
+		
+		if(btnLeftPressed && !btnRightPressed){
+			if(body.getLinearVelocity().x > -SPEED ){
+				body.applyLinearImpulse(-0.80f, 0, body.getPosition().x, body.getPosition().y, true);
+			}
+		}
+		
+		if(btnRightPressed && !btnLeftPressed){
+			if(body.getLinearVelocity().x < SPEED ){
+				body.applyLinearImpulse(0.80f, 0, body.getPosition().x, body.getPosition().y, true);
+			}
+		}
+		
 		if(grounded){
 			
 			if(body.getLinearVelocity().x == 0 && body.getLinearVelocity().y == 0){
-				getGameObject().send(Message.IDLE);
+				getGameObject().send(Message.IDLE, null);
 			}
 			
 			if(body.getLinearVelocity().x != 0 && body.getLinearVelocity().y == 0){
-				getGameObject().send(Message.WALKING);
+				getGameObject().send(Message.WALKING, null);
 			}
 			
 		}else{
 			if(body.getLinearVelocity().y < 0){
-				o.send(Message.BOB_FALLING);
+				o.send(Message.BOB_FALLING, null);
 			}else if(body.getLinearVelocity().y > 0){
-				o.send(Message.BOB_JUMPING);
+				o.send(Message.BOB_JUMPING, null);
 			}
 		}
 		
 	}
 
 	@Override
-	public void receive(Message m) {
+	public void receive(Message m, Object... data) {
 //		if(LOG) Gdx.app.log(TAG, ""+m);
 		
 		switch (m) {
@@ -78,25 +97,28 @@ public class BobPhysicsCom extends PhysicsComponent{
 			break;
 						
 		case BTN_LEFT_PRESSED:
-			if(body.getLinearVelocity().x > -SPEED ){
-				body.applyLinearImpulse(-0.80f, 0, body.getPosition().x, body.getPosition().y, true);
-			}
+			btnLeftPressed = true;
 			break;
 			
 		case BTN_RIGHT_PRESSED:
-			if(body.getLinearVelocity().x < SPEED ){
-				body.applyLinearImpulse(0.80f, 0, body.getPosition().x, body.getPosition().y, true);
-			}
+			btnRightPressed = true;
 			break;
 			
 		case BTN_RIGHT_RELEASED:
+			btnRightPressed = false;
+			body.setLinearVelocity(0f, body.getLinearVelocity().y);
+			break;
+			
 		case BTN_LEFT_RELEASED:
+			btnLeftPressed = false;
 			body.setLinearVelocity(0f, body.getLinearVelocity().y);
 			break;
 
 		default:
 			break;
 		}
+		
+		super.receive(m, data);
 		
 	}
 
@@ -129,7 +151,7 @@ public class BobPhysicsCom extends PhysicsComponent{
 			}
 			
 			if(o.getType() == Type.ZOMBIE){
-				getGameObject().send(Message.DAMAGED);
+				getGameObject().send(Message.DAMAGED, null);
 			}
 		}
 	};
@@ -145,7 +167,7 @@ public class BobPhysicsCom extends PhysicsComponent{
 		public void onBeginContact(GameObject o) {
 			if(LOG) Gdx.app.log(TAG, "bodySensorListener onBeginContact"+o.getType());
 			if(o.getType() == Type.ZOMBIE){
-				getGameObject().send(Message.DAMAGED);
+				getGameObject().send(Message.DAMAGED, null);
 			}
 		}
 	};

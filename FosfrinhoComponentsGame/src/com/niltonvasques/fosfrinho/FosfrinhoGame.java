@@ -1,5 +1,7 @@
 package com.niltonvasques.fosfrinho;
 
+import java.io.IOException;
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
@@ -20,6 +22,12 @@ public class FosfrinhoGame extends Game {
 	public void dispose() {
 		getScreen().dispose();
 		Assets.instance.dispose();
+		try {
+			UDPTransfer.getInstance().closeSocket();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override

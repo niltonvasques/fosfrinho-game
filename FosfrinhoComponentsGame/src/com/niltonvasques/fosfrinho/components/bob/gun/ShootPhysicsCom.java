@@ -50,7 +50,7 @@ public class ShootPhysicsCom extends PhysicsComponent{
 	}
 	
 	private static final String TAG = "[ShootPhysicsCom]";
-	private static final boolean LOG = false;
+	private static final boolean LOG = true;
 	
 	private final static float SPEED = 10f; // unit per second
 	private Body body;
@@ -77,22 +77,13 @@ public class ShootPhysicsCom extends PhysicsComponent{
 	}
 
 	@Override
-	public void receive(Message m) {
-		Gdx.app.log(TAG, ""+m);
-		switch (m) {
-
-		default:
-			break;
-		}
-		
-	}
-
-	@Override
 	public Body getBody() {
 		return body;
 	}
 	
 	private SensorCollisionListener bodySensorListener = new SensorCollisionListener() {
+		
+		private boolean damaged = false;
 		
 		@Override
 		public void onEndContact(GameObject o) {
@@ -101,11 +92,36 @@ public class ShootPhysicsCom extends PhysicsComponent{
 		
 		@Override
 		public void onBeginContact(GameObject o) {
-			if(LOG) Gdx.app.log(TAG, "bodySensorListener onBeginContact");
-			if(o.getType() == Type.BLOCK){
+			if(LOG) Gdx.app.log(TAG, "bodySensorListener onBeginContact"+ o.getType());
+			switch (o.getType()) {
+			case BLOCK:
 				getGameObject().detachComponent(ShootPhysicsCom.this);
 				getGameObject().registerPendingAction(new Action(getGameObject(),Action.Type.DESTROY_GAME_OBJ));
 				PhysicsManager.instance.destroyBody(body);
+				break;
+				
+			case BOB:
+				getGameObject().detachComponent(ShootPhysicsCom.this);
+				getGameObject().registerPendingAction(new Action(getGameObject(),Action.Type.DESTROY_GAME_OBJ));
+				PhysicsManager.instance.destroyBody(body);
+				if(!damaged){
+					o.send(Message.DAMAGED, o);
+					damaged = true;
+				}
+				break;
+				
+			case NETWORK_BOB:
+				getGameObject().detachComponent(ShootPhysicsCom.this);
+				getGameObject().registerPendingAction(new Action(getGameObject(),Action.Type.DESTROY_GAME_OBJ));
+				PhysicsManager.instance.destroyBody(body);
+				if(!damaged){
+					o.send(Message.DAMAGED, o);
+					damaged = true;
+				}
+				break;
+				
+			default:
+				break;
 			}
 		}
 	};

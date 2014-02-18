@@ -30,7 +30,7 @@ public class ZombieRenderCom extends DrawComponent{
 	}
 	
 	@Override
-	public void receive(Message m) {
+	public void receive(Message m, Object... data) {
 		if(LOG) Gdx.app.log(TAG, "Message receive: "+m);
 		switch (m) {		
 		

@@ -47,11 +47,12 @@ public abstract class ContainerCom implements CommunicationCom{
 		}
 	}
 	
-	public void send(Message message){
+	@Override
+	public void send(Message message, Object... data){
 		if(!eventsSubscribes.containsKey(message)) return;
 		
 		for(Component c : eventsSubscribes.get(message)){
-			c.receive(message);
+			c.receive(message,data);
 		}
 	}
 

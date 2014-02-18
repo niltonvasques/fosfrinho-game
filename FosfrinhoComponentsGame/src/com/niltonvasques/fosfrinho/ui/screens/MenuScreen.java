@@ -88,10 +88,10 @@ public class MenuScreen implements Screen{
 	    Table extras = new Table(Assets.instance.skin.skin);
 	    
 	    fpsLabel = new Label("fps: ", Assets.instance.skin.skin);
-	    Image libgdx = new Image(Assets.instance.skin.badlogicSmallRegion);
+//	    Image libgdx = new Image(Assets.instance.skin.badlogicSmallRegion);
 	    extras.row().fill(false,false).expand(true,true);
 	    extras.add(fpsLabel).left().center().pad(0,25,25,0); 
-	    extras.add(libgdx).right().center().pad(0,0,25,25);
+//	    extras.add(libgdx).right().center().pad(0,0,25,25);
 	    window.row().fill(true,false).expand(true,true);
 	    window.add(extras).bottom();
 	    

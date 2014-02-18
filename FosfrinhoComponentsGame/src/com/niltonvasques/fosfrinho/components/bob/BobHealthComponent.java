@@ -16,6 +16,7 @@ public class BobHealthComponent extends HealthComponent{
 	public BobHealthComponent(GameObject o) {
 		super(o);
 		o.subscribeEvent(Message.DAMAGED, this);
+		setHp(5);
 	}
 	
 	@Override
@@ -30,16 +31,18 @@ public class BobHealthComponent extends HealthComponent{
 	}
 	
 	@Override
-	public void receive(Message m) {
+	public void receive(Message m, Object... data) {
 		switch (m) {
 		case DAMAGED:
 			if(LOG) Gdx.app.log(TAG, "DAMAGED");
 			if(super.isAlive()){
 				super.setDamaged(true);
+				super.decreaseHp();
 				getGameObject().addNotCollidableType(Type.ZOMBIE);
 				notCollide = true;
 			}else{
-				
+				if(LOG) Gdx.app.log(TAG, "DEAD");
+				Gdx.app.log(TAG, "YOU LOSE!");	
 			}
 			break;
 

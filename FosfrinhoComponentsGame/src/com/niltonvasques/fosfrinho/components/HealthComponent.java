@@ -1,6 +1,7 @@
 package com.niltonvasques.fosfrinho.components;
 
 import com.niltonvasques.fosfrinho.components.comm.Message;
+import com.niltonvasques.fosfrinho.gameobject.Action;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
 import com.niltonvasques.fosfrinho.gameobject.Property;
 
@@ -20,6 +21,10 @@ public abstract class HealthComponent implements Component{
 		if(!o.getProperties().containsKey("DAMAGED")){
 			o.getProperties().put("DAMAGED", new Property<Boolean>("DAMAGED", false));
 		}
+		
+		if(!o.getProperties().containsKey("HP")){
+			o.getProperties().put("HP", new Property<Integer>("HP", hp));
+		}
 	}
 	
 	@Override
@@ -35,7 +40,9 @@ public abstract class HealthComponent implements Component{
 		}
 		
 		if(!isAlive()){
-			o.send(Message.DEAD);
+			o.send(Message.DEAD, null);
+			Action act = new Action(object, Action.Type.END_ROUND);
+			object.registerPendingAction(act);
 		}
 	}
 	
@@ -44,6 +51,7 @@ public abstract class HealthComponent implements Component{
 	}
 	public void setHp(int hp) {
 		this.hp = hp;
+		object.getProperties().get("HP").value = hp;
 	}
 	public boolean isDamaged() {
 		return damaged;
@@ -67,11 +75,17 @@ public abstract class HealthComponent implements Component{
 	private boolean alive = true;
 	
 	public void decreaseHp(){
-		this.hp--;
+		if(hp <= 0){
+			alive = false;
+		}else{
+			this.hp--;
+		}
+		object.getProperties().get("HP").value = hp;
 	}
 
 	public void increaseHp(){
 		this.hp++;
+		object.getProperties().get("HP").value = hp;
 	}
 	
 	@Override

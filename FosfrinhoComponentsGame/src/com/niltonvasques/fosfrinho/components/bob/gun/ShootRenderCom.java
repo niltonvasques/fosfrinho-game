@@ -12,7 +12,7 @@ public class ShootRenderCom extends DrawComponent{
 		super(o);
 	}
 	@Override
-	public void receive(Message m) {
+	public void receive(Message m, Object... data) {
 		
 	}
 
