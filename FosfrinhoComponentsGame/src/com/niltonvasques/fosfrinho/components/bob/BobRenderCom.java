@@ -26,6 +26,10 @@ public class BobRenderCom extends DrawComponent{
 			o.getProperties().put("FACING_LEFT",new Property("FACING_LEFT",true));
 		}
 		
+		if(!o.getProperties().containsKey("FACING_LEFT")){
+			o.getProperties().put("FACING_LEFT",new Property("FACING_LEFT",true));
+		}
+		
 		o.subscribeEvent(Message.WALKING, this);
 		o.subscribeEvent(Message.IDLE, this);
 		o.subscribeEvent(Message.BOB_FALLING, this);
