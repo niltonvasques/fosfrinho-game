@@ -23,31 +23,31 @@ public class InputManager implements InputProcessor{
 	public boolean keyDown(int keycode) {
 		if(keycode == Keys.Z){
 			for(CommunicationCom o : listeners){
-				o.send(Message.BOB_JUMP_PRESSED);
+				o.send(Message.BOB_JUMP_PRESSED, null);
 			}
 		}
 		
 		if(keycode == Keys.J){
 			for(CommunicationCom o : listeners){
-				o.send(Message.BTN_LEFT_PRESSED);
+				o.send(Message.BTN_LEFT_PRESSED, null);
 			}
 		}
 		
 		if(keycode == Keys.L){
 			for(CommunicationCom o : listeners){
-				o.send(Message.BTN_RIGHT_PRESSED);
+				o.send(Message.BTN_RIGHT_PRESSED, null);
 			}
 		}
 		
 		if(keycode == Keys.EQUALS){
 			for(CommunicationCom o : listeners){
-				o.send(Message.BTN_PLUS);
+				o.send(Message.BTN_PLUS, null);
 			}
 		}
 		
 		if(keycode == Keys.MINUS){
 			for(CommunicationCom o : listeners){
-				o.send(Message.BTN_MINUS);
+				o.send(Message.BTN_MINUS, null);
 			}
 		}
 		
@@ -58,25 +58,25 @@ public class InputManager implements InputProcessor{
 	public boolean keyUp(int keycode) {
 		if(keycode == Keys.Z){
 			for(CommunicationCom o : listeners){
-				o.send(Message.BOB_JUMP_RELEASED);
+				o.send(Message.BOB_JUMP_RELEASED, null);
 			}
 		}
 		
 		if(keycode == Keys.J){
 			for(CommunicationCom o : listeners){
-				o.send(Message.BTN_LEFT_RELEASED);
+				o.send(Message.BTN_LEFT_RELEASED, null);
 			}
 		}
 		
 		if(keycode == Keys.L){
 			for(CommunicationCom o : listeners){
-				o.send(Message.BTN_RIGHT_RELEASED);
+				o.send(Message.BTN_RIGHT_RELEASED, null);
 			}
 		}
 		
 		if(keycode == Keys.D){
 			for(CommunicationCom o : listeners){
-				o.send(Message.DEBUG);
+				o.send(Message.DEBUG, null);
 			}
 		}
 		return false;
@@ -93,14 +93,14 @@ public class InputManager implements InputProcessor{
 		for(CommunicationCom o : listeners){
 			if(screenY < Gdx.graphics.getHeight()/2){
 				if(screenX < Gdx.graphics.getWidth()/2){
-						o.send(Message.FIRE);
+						o.send(Message.FIRE, null);
 				}else{
-					o.send(Message.BOB_JUMP_PRESSED);
+					o.send(Message.BOB_JUMP_PRESSED, null);
 				}			
 			}else if(screenX < Gdx.graphics.getWidth()/2){
-				o.send(Message.BTN_LEFT_PRESSED);
+				o.send(Message.BTN_LEFT_PRESSED, null);
 			}else{
-				o.send(Message.BTN_RIGHT_PRESSED);
+				o.send(Message.BTN_RIGHT_PRESSED, null);
 			}
 		}
 		return false;
@@ -112,12 +112,12 @@ public class InputManager implements InputProcessor{
 			if(screenY < Gdx.graphics.getHeight()/2){
 				if(screenX < Gdx.graphics.getWidth()/2){
 				}else{
-					o.send(Message.BOB_JUMP_RELEASED);
+					o.send(Message.BOB_JUMP_RELEASED, null);
 				}			
 			}else if(screenX < Gdx.graphics.getWidth()/2){
-				o.send(Message.BTN_LEFT_RELEASED);
+				o.send(Message.BTN_LEFT_RELEASED, null);
 			}else{
-				o.send(Message.BTN_RIGHT_RELEASED);
+				o.send(Message.BTN_RIGHT_RELEASED, null);
 			}
 		}
 		return false;

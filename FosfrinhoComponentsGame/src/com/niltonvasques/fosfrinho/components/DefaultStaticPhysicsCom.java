@@ -14,13 +14,6 @@ public class DefaultStaticPhysicsCom extends PhysicsComponent{
 	}
 
 	@Override
-	public void receive(Message m) {
-		switch (m) {
-		}
-		
-	}
-
-	@Override
 	public void update(ContainerCom o, float delta) {
 		
 	}

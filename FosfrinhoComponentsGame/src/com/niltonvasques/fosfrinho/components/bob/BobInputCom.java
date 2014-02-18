@@ -10,30 +10,38 @@ import com.niltonvasques.fosfrinho.gameobject.GameObject;
 public class BobInputCom implements Component{
 	private static final String TAG = "[BobInputComponent]";
 	private GameObject object;
+	private boolean dead = false;
 	
 	public BobInputCom(GameObject o) {
 		this.object = o;
+		o.subscribeEvent(Message.DEAD, this);
 	}
 	
 	@Override
 	public void update(ContainerCom o, float delta) {
 		
-		if(Gdx.input.isKeyPressed(Keys.J)){
-			o.send(Message.BTN_LEFT_PRESSED);
-		}
+		if(dead) return;
 		
+		if(Gdx.input.isKeyPressed(Keys.J)){
+			o.send(Message.BTN_LEFT_PRESSED, null);
+		}
+				
 		if(Gdx.input.isKeyPressed(Keys.L)){
-			o.send(Message.BTN_RIGHT_PRESSED);
+			o.send(Message.BTN_RIGHT_PRESSED, null);
 		}
 		
 		if(Gdx.input.isKeyPressed(Keys.X)){
-			o.send(Message.FIRE);
+			o.send(Message.FIRE, null);
 		}
 	}
 
 	@Override
-	public void receive(Message m) {
-		// TODO Auto-generated method stub
+	public void receive(Message m, Object... data) {
+		switch(m){
+		case DEAD:
+			dead = true;
+			break;
+		}
 		
 	}
 	

@@ -4,8 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.niltonvasques.fosfrinho.components.display.DisplayRenderComponent;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
 import com.niltonvasques.fosfrinho.gameobject.GameObjectFactory;
+import com.niltonvasques.fosfrinho.util.net.udp.UDPTransfer;
 
 /**
 * Created with IntelliJ IDEA.
@@ -22,6 +24,7 @@ public class LevelLoader {
     private static final int BLOCK = 0x000000; 		// black
     private static final int EMPTY = 0xffffff; 		// white
     private static final int START_POS = 0x0000ff; 	// blue
+    private static final int START_POS_SERVER = 0xaabbcc; 	// blue_light
     private static final int ZOMBIE = 0x800080; 	// purple
     private static final int CATAZOMBIE = 0x00ff00; // green
     private static final int LOAD = 0xffff00; 		// yellow
@@ -59,6 +62,8 @@ public class LevelLoader {
             }
         }
         
+        boolean server = UDPTransfer.getInstance().isServer();
+        
         
 
         for (int row = 0; row < level.getHeight(); row++) {
@@ -72,15 +77,25 @@ public class LevelLoader {
                 		break;
                 	
                 	case START_POS:
-                		if(LOG) Gdx.app.log(TAG, "pixel["+row+"]"+"["+col+"]: "+Integer.toHexString(pixel));
-                        level.setSpanPosition(new Vector2(col, iRow));
-                		obj = GameObjectFactory.createBobGameObject(level.getSpanPosition().x,level.getSpanPosition().y);
+                		if(!server){
+	                		if(LOG) Gdx.app.log(TAG, "pixel["+row+"]"+"["+col+"]: "+Integer.toHexString(pixel));
+	                        level.setSpanPosition(new Vector2(col, iRow));
+	                		obj = GameObjectFactory.createBobGameObject(level.getSpanPosition().x,level.getSpanPosition().y);
+                		}
+                		break;
+                		
+                	case START_POS_SERVER:
+                		if(server){
+	                		if(LOG) Gdx.app.log(TAG, "pixel["+row+"]"+"["+col+"]: "+Integer.toHexString(pixel));
+	                        level.setSpanPosition(new Vector2(col, iRow));
+	                		obj = GameObjectFactory.createBobGameObject(level.getSpanPosition().x,level.getSpanPosition().y);
+                		}
                 		break;
 //                		
-                	case ZOMBIE:
-                		if(LOG) Gdx.app.log(TAG, "FIND_ZUMBI");
-                		obj = GameObjectFactory.createZombieGameObject(col, iRow);
-                		break;
+//                	case ZOMBIE:
+//                		if(LOG) Gdx.app.log(TAG, "FIND_ZUMBI");
+//                		obj = GameObjectFactory.createZombieGameObject(col, iRow);
+//                		break;
 //                		
 //                	case CATAZOMBIE:
 //                		CataZombie cataZombie = new CataZombie(new Vector2(col, iRow));

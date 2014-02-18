@@ -10,6 +10,6 @@ public enum Message {
 		
 	DEBUG, 
 	
-	DEAD, DISPOSE	
+	DEAD, DISPOSE, ADD_STAGE	
 	
 }

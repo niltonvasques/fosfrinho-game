@@ -32,7 +32,7 @@ public class BobGunCom implements Component{
 	}
 
 	@Override
-	public void receive(Message m) {
+	public void receive(Message m, Object... data) {
 		switch (m) {
 		
 		case FIRE:
@@ -44,7 +44,9 @@ public class BobGunCom implements Component{
 				Vector2 vec = Pools.vectorPool.obtain();
 				vec.set(object.getBounds().x, object.getBounds().y+object.getBounds().width*0.35f);
 				if(!p.value){
-					vec.x += object.getBounds().width;
+					vec.x += object.getBounds().width + 0.2;
+				}else{
+					vec.x -= 0.2;
 				}
 				Action act = new Action(object,Type.CREATE_SHOOT, vec);
 				object.registerPendingAction(act);

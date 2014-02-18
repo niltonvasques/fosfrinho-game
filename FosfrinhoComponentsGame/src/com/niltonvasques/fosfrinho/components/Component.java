@@ -7,6 +7,6 @@ public interface Component {
 
 	public GameObject getGameObject();
 	public void update(ContainerCom o, float delta);
-	public void receive(Message m);
+	public void receive(Message m, Object... data);
 	
 }

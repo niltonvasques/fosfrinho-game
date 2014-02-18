@@ -1,6 +1,8 @@
 package com.niltonvasques.fosfrinho.gameobject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -20,7 +22,7 @@ public class GameObject extends ContainerCom {
 	
 	private Rectangle bounds; 
 	private Type type;
-	private DrawComponent drawComponent;
+	private List<DrawComponent> drawComponents = new ArrayList<DrawComponent>();
 
 	private Map<String, Property> properties = new HashMap<String, Property>();
 	
@@ -34,27 +36,27 @@ public class GameObject extends ContainerCom {
 		this.properties.put("BOUNDS", new Property<Rectangle>("BOUNDS", bounds));
 	}
 
-	public DrawComponent getDrawComponent() {
-		return drawComponent;
-	}
-
-	public void setDrawComponent(DrawComponent drawComponent) {
-		this.drawComponent = drawComponent;
-	}
+//	public DrawComponent getDrawComponent() {
+//		return drawComponent;
+//	}
+//
+//	public void setDrawComponent(DrawComponent drawComponent) {
+//		this.drawComponent = drawComponent;
+//	}
 
 	@Override
 	public boolean addComponent(Component component) {
 		
 		if(component instanceof DrawComponent){
-			drawComponent = (DrawComponent) component;
+			drawComponents.add((DrawComponent)component);
 		}
 		
 		return super.addComponent(component);
 	}
 	
 	public void draw(SpriteBatch batch){
-		if(drawComponent != null){
-			drawComponent.draw(batch, this);
+		for (DrawComponent comm : drawComponents) {
+			comm.draw(batch, this);
 		}
 	}
 	
@@ -118,6 +120,6 @@ public class GameObject extends ContainerCom {
 
 	public void setProperties(Map<String, Property> properties) {
 		this.properties = properties;
-	}	
- 
+	}
+
 }

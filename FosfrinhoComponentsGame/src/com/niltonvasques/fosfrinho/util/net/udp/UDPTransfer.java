@@ -16,11 +16,13 @@ import com.badlogic.gdx.Gdx;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.niltonvasques.fosfrinho.util.net.AddressUtil;
 import com.niltonvasques.fosfrinho.util.net.HostPacket;
 import com.niltonvasques.fosfrinho.util.net.TransferProtocol;
 
 public class UDPTransfer implements TransferProtocol{
 	private static final String TAG = "[UDPSocket]";
+	private static final boolean DEBUG = false;
 
 	/**
 	 * 
@@ -44,6 +46,7 @@ public class UDPTransfer implements TransferProtocol{
 	public static final int FLAG_RELIABLE_MASK							= 2; //00000010
 	public static final int FLAG_HANDSHAKE_MASK							= 4; //00000100
 	public static final int FLAG_SERVER_BCAST_MASK						= 8; //00001000
+	public static final int FLAG_GOODBYE_MASK							= 16; //00010000
 
 	public static final int DEFAULT_CLIENT_PORT = 5555;
 	public static final int DEFAULT_SERVER_PORT = 5557;
@@ -102,7 +105,7 @@ public class UDPTransfer implements TransferProtocol{
 			@Override
 			public void run() {
 
-					while(true){
+					while(!closeSocket){
 						try {
 							if(socket == null){
 								socket = new DatagramSocket(DEFAULT_SERVER_PORT);
@@ -114,7 +117,9 @@ public class UDPTransfer implements TransferProtocol{
 								if(clientAddress != null) break;
 							}
 							
-							InetAddress address = InetAddress.getByName("192.168.0.255");
+							String bcastAddress = AddressUtil.getBroadcast();
+							if(DEBUG) Gdx.app.debug(TAG, "BCAST: "+bcastAddress);
+							InetAddress address = InetAddress.getByName(bcastAddress);
 
 							byte[] data = new byte[HEADER_LENGHT/8];
 
@@ -163,11 +168,11 @@ public class UDPTransfer implements TransferProtocol{
 			{
 				DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
-				Gdx.app.log(TAG, (server ? "Server: ":"Client: ")+"WAITING FOR A PACKET!!!");
+				if(DEBUG) Gdx.app.log(TAG, (server ? "Server: ":"Client: ")+"WAITING FOR A PACKET!!!");
 
 				socket.receive(receivePacket);
 
-				Gdx.app.log(TAG,"RECEIVED: PACKET = |"+extractSequenceNumber(receiveData)+" | "+extractAcknowledgeNumber(receiveData)+
+				if(DEBUG) Gdx.app.log(TAG,"RECEIVED: PACKET = |"+extractSequenceNumber(receiveData)+" | "+extractAcknowledgeNumber(receiveData)+
 						" | "+extractLenght(receiveData)+" | "+extractFlags(receiveData)+" | to addr="+receivePacket.getAddress());
 
 				int flags = extractFlags(receiveData);
@@ -185,6 +190,13 @@ public class UDPTransfer implements TransferProtocol{
 						
 						continue;
 						
+					}
+					
+					if((flags & FLAG_GOODBYE_MASK) == FLAG_GOODBYE_MASK){
+						HostPacket packet = new HostPacket();
+						packet.setType(HostPacket.Type.GOODBYE);
+						if(receiver != null) receiver.onReceive(packet);
+						closeSocket();
 					}
 					
 					/*
@@ -251,6 +263,7 @@ public class UDPTransfer implements TransferProtocol{
 	}
 
 	public void send(HostPacket msg, InetAddress addr, DatagramSocket socket, int flags) {
+		if(closeSocket == true) return;
 		try {
 			String data = json.toJson(msg);
 
@@ -258,7 +271,7 @@ public class UDPTransfer implements TransferProtocol{
 
 			mountPacket(sendData, data, data.getBytes().length, flags);
 
-			Gdx.app.log(TAG,"sending: PACKET = | "+extractLenght(sendData)+" | "+extractData(sendData)+" | to addr="+addr);
+			if(DEBUG) Gdx.app.log(TAG,"sending: PACKET = | "+extractLenght(sendData)+" | "+extractData(sendData)+" | to addr="+addr);
 
 			send(addr, socket, sendData);
 
@@ -269,13 +282,14 @@ public class UDPTransfer implements TransferProtocol{
 
 	private void send(InetAddress addr, DatagramSocket socket, byte[] sendData)
 			throws IOException {
-		if(addr.getAddress() == null) Gdx.app.log(TAG,"UNRESOLVED ADDRESS");
+		if(closeSocket == true || addr == null ) return;
+		if(addr.getAddress() == null) if(DEBUG) Gdx.app.log(TAG,"UNRESOLVED ADDRESS");
 
 		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, addr, server ? DEFAULT_CLIENT_PORT : DEFAULT_SERVER_PORT);
 
 		socket.send(sendPacket);
 
-		Gdx.app.log(TAG,"SENDED: PACKET = |"+extractSequenceNumber(sendData)+" | "+extractAcknowledgeNumber(sendData)+
+		if(DEBUG) Gdx.app.log(TAG,"SENDED: PACKET = |"+extractSequenceNumber(sendData)+" | "+extractAcknowledgeNumber(sendData)+
 				" | "+extractLenght(sendData)+" | "+extractFlags(sendData)+" | to addr="+addr);
 
 		if((extractFlags(sendData) & FLAG_RELIABLE_MASK) == FLAG_RELIABLE_MASK){
@@ -285,12 +299,14 @@ public class UDPTransfer implements TransferProtocol{
 
 	@Override
 	public void send(HostPacket msg) {
+		if(closeSocket == true) return;
 		if(clientAddress != null){
 			send(msg, clientAddress, socket, 0);
 		}
 	}
 
 	public void sendReliable(HostPacket msg) {
+		if(closeSocket == true) return;
 		if(clientAddress != null){
 			send(msg, clientAddress, socket, FLAG_RELIABLE_MASK);
 		}
@@ -422,10 +438,27 @@ public class UDPTransfer implements TransferProtocol{
 
 	@Override
 	public void closeSocket() throws IOException {
-		synchronized (closeSocket) {
+			
+			
+			byte[] data = new byte[HEADER_LENGHT/8];
+
+			mountRawPacket(data, FLAG_GOODBYE_MASK);
+
+			send(clientAddress,socket,data);
+
 			closeSocket = true;
-			thread.interrupt();
-			socket.close();
-		}
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(thread != null)	thread.interrupt();
+			if(socket != null)	socket.close();
+			instance = null;
+	}
+
+	public boolean isServer() {
+		return server;
 	}
 }

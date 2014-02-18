@@ -1,11 +1,14 @@
 package com.niltonvasques.fosfrinho.components;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.niltonvasques.fosfrinho.components.comm.Message;
 import com.niltonvasques.fosfrinho.gameobject.GameObject;
+import com.niltonvasques.fosfrinho.physics.PhysicsManager;
 
 public abstract class PhysicsComponent implements Component{
-	
+	private static final String TAG = "[PhysicsComponent]";
 	private GameObject gameObject;
 	
 	public Rectangle getBounds() {
@@ -14,6 +17,18 @@ public abstract class PhysicsComponent implements Component{
 
 	public PhysicsComponent(GameObject o) {
 		gameObject = o;
+		o.subscribeEvent(Message.DISPOSE, this);
+	}
+	
+	@Override
+	public void receive(Message m, Object... data) {
+		switch(m){
+		case DISPOSE:
+			Gdx.app.log(TAG, "DISPOSE");
+			PhysicsManager.instance.destroyBody(getBody());
+			break;
+		}
+		
 	}
 
 //	@Override
