@@ -74,7 +74,7 @@ public class InputManager implements InputProcessor{
 			}
 		}
 		
-		if(keycode == Keys.D){
+		if(keycode == Keys.D || keycode == Keys.VOLUME_DOWN){
 			for(CommunicationCom o : listeners){
 				o.send(Message.DEBUG, null);
 			}

@@ -89,7 +89,7 @@ public class GameScreen implements Screen{
 		
 		batch = new SpriteBatch();
 		
-		level = LevelLoader.loadLevel(3);
+		level = LevelLoader.loadLevel(5);
 		level.setDisplayGameObject(display);
 		
 		input.addListener(level.getBob());
