@@ -6,3 +6,5 @@ gen/
 # Package Files #
 *.war
 *.ear
+.metadata
+hs_err*.log

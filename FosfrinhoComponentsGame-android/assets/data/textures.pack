@@ -1,0 +1,257 @@
+
+textures.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+zombie-dying-01
+  rotate: false
+  xy: 1, 48
+  size: 100, 68
+  orig: 100, 68
+  offset: 0, 0
+  index: -1
+zombie-dying-02
+  rotate: false
+  xy: 103, 48
+  size: 100, 68
+  orig: 100, 68
+  offset: 0, 0
+  index: -1
+zombie-dying-03
+  rotate: false
+  xy: 205, 48
+  size: 100, 68
+  orig: 100, 68
+  offset: 0, 0
+  index: -1
+game-over
+  rotate: false
+  xy: 1, 31
+  size: 100, 15
+  orig: 100, 15
+  offset: 0, 0
+  index: -1
+restart
+  rotate: false
+  xy: 307, 101
+  size: 100, 15
+  orig: 100, 15
+  offset: 0, 0
+  index: -1
+block
+  rotate: false
+  xy: 307, 51
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+heart
+  rotate: false
+  xy: 357, 51
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+zumbi-damaged
+  rotate: false
+  xy: 409, 32
+  size: 44, 84
+  orig: 44, 84
+  offset: 0, 0
+  index: -1
+zumbi-01
+  rotate: false
+  xy: 455, 32
+  size: 41, 84
+  orig: 41, 84
+  offset: 0, 0
+  index: -1
+zumbi-02
+  rotate: false
+  xy: 498, 32
+  size: 41, 84
+  orig: 41, 84
+  offset: 0, 0
+  index: -1
+zumbi-03
+  rotate: false
+  xy: 541, 32
+  size: 41, 84
+  orig: 41, 84
+  offset: 0, 0
+  index: -1
+zumbi-04
+  rotate: false
+  xy: 584, 32
+  size: 41, 84
+  orig: 41, 84
+  offset: 0, 0
+  index: -1
+bob-01
+  rotate: false
+  xy: 1, 1
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+bob-02
+  rotate: false
+  xy: 627, 88
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+bob-05
+  rotate: false
+  xy: 27, 1
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+bob-06
+  rotate: false
+  xy: 627, 58
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+bob-down
+  rotate: false
+  xy: 653, 88
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+bob-empty
+  rotate: false
+  xy: 53, 1
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+bob-gun-01
+  rotate: false
+  xy: 653, 58
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+bob-gun-02
+  rotate: false
+  xy: 679, 88
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+bob-gun-05
+  rotate: false
+  xy: 679, 58
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+bob-gun-06
+  rotate: false
+  xy: 705, 88
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+bob-gun-down
+  rotate: false
+  xy: 705, 58
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+bob-gun-up
+  rotate: false
+  xy: 731, 88
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+bob-up
+  rotate: false
+  xy: 731, 58
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+key
+  rotate: false
+  xy: 757, 88
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+load-01
+  rotate: false
+  xy: 757, 58
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+load-02
+  rotate: false
+  xy: 783, 88
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+load-03
+  rotate: false
+  xy: 783, 58
+  size: 24, 28
+  orig: 24, 28
+  offset: 0, 0
+  index: -1
+bob-03
+  rotate: false
+  xy: 809, 90
+  size: 24, 26
+  orig: 24, 26
+  offset: 0, 0
+  index: -1
+bob-04
+  rotate: false
+  xy: 809, 62
+  size: 24, 26
+  orig: 24, 26
+  offset: 0, 0
+  index: -1
+bob-gun-03
+  rotate: false
+  xy: 835, 90
+  size: 24, 26
+  orig: 24, 26
+  offset: 0, 0
+  index: -1
+bob-gun-04
+  rotate: false
+  xy: 835, 62
+  size: 24, 26
+  orig: 24, 26
+  offset: 0, 0
+  index: -1
+catazumbi-01
+  rotate: false
+  xy: 627, 33
+  size: 16, 23
+  orig: 16, 23
+  offset: 0, 0
+  index: -1
+door
+  rotate: false
+  xy: 79, 1
+  size: 11, 28
+  orig: 11, 28
+  offset: 0, 0
+  index: -1
+gate
+  rotate: false
+  xy: 861, 88
+  size: 11, 28
+  orig: 11, 28
+  offset: 0, 0
+  index: -1
